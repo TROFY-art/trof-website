@@ -152,16 +152,17 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
 /* ============================================
    🖥️ منتقي السيرفرات (Server Selector)
    ============================================ */
-.hd-right{display:flex;align-items:center;gap:10px}
-#server-selector{position:relative;display:none}
-#server-selector.has-user{display:block}
+.hd-right{display:flex;align-items:center;gap:8px}
+#server-selector{position:relative;display:none;align-items:center}
+#server-selector.has-user{display:inline-flex}
 
 .server-btn{
   display:inline-flex;align-items:center;justify-content:center;
-  width:44px;height:44px;padding:0;
-  border:1px solid var(--line);border-radius:12px;
+  width:40px;height:40px;padding:0;
+  border:1px solid var(--line);border-radius:10px;
   background:var(--panel);color:var(--gold-hi);
   cursor:pointer;transition:border-color .2s,transform .15s;
+  flex-shrink:0;
 }
 .server-btn:hover{border-color:var(--gold);transform:translateY(-1px)}
 .server-btn svg{width:20px;height:20px}
