@@ -310,4 +310,77 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
   .form-row{flex-direction:column;align-items:stretch;gap:8px}
   .form-select{max-width:100%}
   .welcome-form{padding:18px}
-   }
+}
+
+/* ============================================
+   🖼️ منطقة رفع الصور
+   ============================================ */
+.upload-area{
+  width:100%;
+  cursor:pointer;
+  border:2px dashed var(--line);
+  border-radius:14px;
+  overflow:hidden;
+  transition:border-color .2s,background .2s;
+  background:var(--bg);
+}
+.upload-area:hover{
+  border-color:var(--gold);
+  background:#1a1408;
+}
+.upload-preview{
+  width:100%;
+  min-height:180px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+.upload-preview img{
+  width:100%;
+  height:auto;
+  max-height:300px;
+  object-fit:cover;
+  display:block;
+}
+.upload-placeholder{
+  text-align:center;
+  color:var(--muted);
+  padding:30px 20px;
+}
+.upload-placeholder span{
+  font-size:2.5rem;
+  display:block;
+  margin-bottom:10px;
+}
+.upload-placeholder p{
+  margin:0 0 6px;
+  font-weight:700;
+  color:var(--text);
+}
+.upload-placeholder small{
+  font-size:.85rem;
+}
+.upload-actions{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.small-btn{
+  padding:8px 16px;
+  font-size:.9rem;
+  border-radius:10px;
+  cursor:pointer;
+  border:1px solid var(--line);
+  background:var(--bg);
+  color:var(--gold-hi);
+  font:inherit;
+  font-weight:700;
+  transition:border-color .2s,background .2s;
+}
+.small-btn:hover{
+  border-color:var(--gold);
+  background:#221b0d;
+             }
