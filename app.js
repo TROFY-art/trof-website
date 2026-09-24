@@ -2,11 +2,11 @@
 (function(){
 var CONFIG={
   clientId:'1536360221906178088',
-  guildId:'',              /* آيدي السيرفر */
-  ownerId:'',              /* آيدي حسابك (المالك) */
-  staffRoleIds:[],         /* آيدي رتب المشرفين والإداريين */
-  adminStreetRoleIds:[],   /* آيدي رتبة ادمن ستريت */
-  apiUrl:''                /* رابط API البوت لجلب الرصيد والمستوى والرانك */
+  guildId:'1320024268364320778',
+  ownerId:'986328374010073118',
+  staffRoleIds:[],
+  adminStreetRoleIds:[],
+  apiUrl:'https://api.trof.dpdns.org'
 };
 var RANK={everyone:0,staff:1,admin:2,owner:3};
 var ROLE=['عضو','إدارة','ادمن ستريت','المالك'];
