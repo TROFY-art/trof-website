@@ -243,6 +243,43 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
 .modal-footer{display:flex;gap:10px;justify-content:flex-end;padding-top:14px;border-top:1px solid var(--line)}
 
 /* ============================================
+   📊 المستويات
+   ============================================ */
+.level-roles-list{display:flex;flex-direction:column;gap:8px;width:100%;padding:10px;background:var(--bg);border-radius:12px;border:1px solid var(--line);min-height:60px}
+.add-level-role{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.add-level-role .small-select{max-width:150px;flex:1}
+.lb-tabs{display:flex;gap:8px;width:100%;flex-wrap:wrap}
+.lb-tab{flex:1;min-width:100px;padding:10px 16px;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--text);font:inherit;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s}
+.lb-tab:hover{border-color:var(--gold)}
+.lb-tab.active{background:linear-gradient(180deg,var(--gold-hi),var(--gold));color:#1a1305;border-color:var(--gold)}
+.leaderboard{display:flex;flex-direction:column;gap:6px;width:100%;padding:10px;background:var(--bg);border-radius:12px;border:1px solid var(--line);max-height:400px;overflow-y:auto}
+.lb-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;background:var(--panel);border:1px solid var(--line)}
+.lb-rank{font-size:1.1rem;font-weight:900;min-width:40px;text-align:center;color:var(--gold-hi)}
+.lb-user{flex:1;font-size:.9rem;overflow:hidden;text-overflow:ellipsis}
+.lb-value{font-size:.85rem;font-weight:700;color:var(--gold);white-space:nowrap}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;width:100%}
+
+/* ============================================
+   🛡️ الحماية
+   ============================================ */
+.protected-list,
+.banned-list,
+.suspicious-list,
+.logs-list{display:flex;flex-direction:column;gap:8px;width:100%;padding:10px;background:var(--bg);border-radius:12px;border:1px solid var(--line);max-height:350px;overflow-y:auto;min-height:60px}
+
+/* ============================================
+   🎁 المكافأة اليومية
+   ============================================ */
+.daily-card{width:100%;max-width:720px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:16px}
+.daily-header{display:flex;align-items:center;gap:12px;flex:1;min-width:200px}
+.daily-icon{font-size:2rem;filter:drop-shadow(0 0 8px #f2c23c88)}
+.daily-header b{display:block;color:var(--gold-hi);font-size:1rem}
+.daily-header small{font-size:.85rem;color:var(--muted)}
+.daily-btn{padding:12px 24px;background:linear-gradient(180deg,var(--gold-hi),var(--gold) 55%,var(--gold-lo));color:#1a1305;font-weight:800;border:0;cursor:pointer;font:inherit;border-radius:12px;transition:transform .15s,box-shadow .2s;white-space:nowrap}
+.daily-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px -8px #f2c23ccc}
+.daily-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ============================================
    📱 الجوال
    ============================================ */
 @media(max-width:639px){
@@ -272,6 +309,12 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
   .size-item label{font-size:.8rem}
   .size-item span{font-size:.8rem}
   .type-item{flex-wrap:wrap}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .add-level-role{flex-direction:column}
+  .add-level-role .small-select{max-width:100%;width:100%}
+  .lb-item{flex-wrap:wrap}
+  .daily-card{flex-direction:column;align-items:stretch;padding:16px}
+  .daily-btn{width:100%}
 }
 
 /* ============================================
@@ -309,89 +352,4 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
   .preview-container{padding:20px 0}
   .preview-card{max-width:500px}
   .form-actions{flex-direction:row;align-items:center;flex-wrap:wrap}
-   }
-/* ============================================
-   🎫 الرتب المتعددة
-   ============================================ */
-.roles-container{
-  display:flex;flex-direction:column;gap:8px;
-  width:100%;margin-bottom:8px;
-}
-.role-row{
-  display:flex;align-items:center;gap:8px;
-  padding:8px;border-radius:8px;
-  background:var(--bg);border:1px solid var(--line);
-}
-.role-row select{flex:1;max-width:none}
-.remove-role-btn{
-  flex-shrink:0;width:40px;height:40px;
-  display:flex;align-items:center;justify-content:center;
-  padding:0;font-size:1.1rem;
-}
-.add-role-btn{
-  width:100%;margin-top:4px;
-  border:1px dashed var(--line);
-}
-.add-role-btn:hover{
-  border-color:var(--gold);
-  background:#221b0d;
-}
-/* ============================================
-   📊 المستويات
-   ============================================ */
-.level-roles-list{
-  display:flex;flex-direction:column;gap:8px;
-  width:100%;padding:10px;background:var(--bg);
-  border-radius:12px;border:1px solid var(--line);
-  min-height:60px;
-}
-.add-level-role{
-  display:flex;gap:8px;flex-wrap:wrap;
-  align-items:center;margin-top:10px;
-}
-.add-level-role .small-select{max-width:150px;flex:1}
-.add-level-role .btn{white-space:nowrap}
-.lb-tabs{display:flex;gap:8px;width:100%;flex-wrap:wrap}
-.lb-tab{
-  flex:1;min-width:100px;padding:10px 16px;
-  background:var(--bg);border:1px solid var(--line);
-  border-radius:10px;color:var(--text);
-  font:inherit;font-size:.9rem;font-weight:700;
-  cursor:pointer;transition:all .2s;
-}
-.lb-tab:hover{border-color:var(--gold)}
-.lb-tab.active{
-  background:linear-gradient(180deg,var(--gold-hi),var(--gold));
-  color:#1a1305;border-color:var(--gold);
-}
-.leaderboard{
-  display:flex;flex-direction:column;gap:6px;
-  width:100%;padding:10px;background:var(--bg);
-  border-radius:12px;border:1px solid var(--line);
-  max-height:400px;overflow-y:auto;
-}
-.lb-item{
-  display:flex;align-items:center;gap:12px;
-  padding:10px;border-radius:8px;
-  background:var(--panel);border:1px solid var(--line);
-}
-.lb-rank{
-  font-size:1.1rem;font-weight:900;
-  min-width:40px;text-align:center;
-  color:var(--gold-hi);
-}
-.lb-user{flex:1;font-size:.9rem;overflow:hidden;text-overflow:ellipsis}
-.lb-value{
-  font-size:.85rem;font-weight:700;
-  color:var(--gold);white-space:nowrap;
-}
-.stats-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
-  gap:12px;width:100%;
-}
-@media(max-width:639px){
-  .stats-grid{grid-template-columns:repeat(2,1fr)}
-  .add-level-role{flex-direction:column}
-  .add-level-role .small-select{max-width:100%;width:100%}
-  .lb-item{flex-wrap:wrap}
-}
+      }
