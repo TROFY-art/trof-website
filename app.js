@@ -189,44 +189,56 @@ async function renderServerSelector(){
   var guilds = await fetchUserGuilds();
   var current = getSelectedGuild();
 
-  var html = '<button class="server-btn" id="server-toggle" type="button" aria-label="'+t('selectServer')+'">';
-  html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
-  html += '</button>';
+  box.innerHTML = '';
 
-  html += '<div id="server-overlay"></div>';
+  var toggle = document.createElement('button');
+  toggle.className = 'server-btn';
+  toggle.type = 'button';
+  toggle.setAttribute('aria-label', t('selectServer'));
+  toggle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
+  box.appendChild(toggle);
 
-  html += '<div class="server-dropdown" id="server-dropdown" hidden>';
-  html += '<div class="server-dropdown-header">';
-  html += '<span>'+t('selectServer')+'</span>';
-  html += '<button class="server-close" id="server-close" type="button">✕</button>';
-  html += '</div>';
+  var oldDropdown = document.getElementById('server-dropdown');
+  if(oldDropdown) oldDropdown.remove();
+  var oldOverlay = document.getElementById('server-overlay');
+  if(oldOverlay) oldOverlay.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'server-overlay';
+  document.body.appendChild(overlay);
+
+  var dropdown = document.createElement('div');
+  dropdown.id = 'server-dropdown';
+  dropdown.className = 'server-dropdown';
+  dropdown.hidden = true;
+
+  var dropHTML = '<div class="server-dropdown-header">';
+  dropHTML += '<span>' + t('selectServer') + '</span>';
+  dropHTML += '<button class="server-close" id="server-close" type="button">✕</button>';
+  dropHTML += '</div>';
 
   if(guilds.length === 0){
-    html += '<div class="server-empty">'+t('noServers')+'</div>';
+    dropHTML += '<div class="server-empty">' + t('noServers') + '</div>';
   } else {
-    html += '<ul class="server-list">';
+    dropHTML += '<ul class="server-list">';
     guilds.forEach(function(g){
       var isActive = (String(g.id) === String(current));
       var icon = g.icon
         ? 'https://cdn.discordapp.com/icons/' + g.id + '/' + g.icon + '.png?size=64'
         : 'https://cdn.discordapp.com/embed/avatars/0.png';
-      html += '<li>';
-      html += '<button class="server-item' + (isActive ? ' active' : '') + '" data-guild-id="' + g.id + '">';
-      html += '<img src="' + icon + '" alt="">';
-      html += '<span>' + g.name + '</span>';
-      if(isActive) html += '<span class="server-check">✓</span>';
-      html += '</button>';
-      html += '</li>';
+      dropHTML += '<li>';
+      dropHTML += '<button class="server-item' + (isActive ? ' active' : '') + '" data-guild-id="' + g.id + '">';
+      dropHTML += '<img src="' + icon + '" alt="">';
+      dropHTML += '<span>' + g.name + '</span>';
+      if(isActive) dropHTML += '<span class="server-check">✓</span>';
+      dropHTML += '</button>';
+      dropHTML += '</li>';
     });
-    html += '</ul>';
+    dropHTML += '</ul>';
   }
-  html += '</div>';
+  dropdown.innerHTML = dropHTML;
+  document.body.appendChild(dropdown);
 
-  box.innerHTML = html;
-
-  var toggle = document.getElementById('server-toggle');
-  var dropdown = document.getElementById('server-dropdown');
-  var overlay = document.getElementById('server-overlay');
   var close = document.getElementById('server-close');
 
   function openMenu(){
@@ -250,7 +262,7 @@ async function renderServerSelector(){
   close.onclick = closeMenu;
   overlay.onclick = closeMenu;
 
-  box.querySelectorAll('.server-item').forEach(function(btn){
+  dropdown.querySelectorAll('.server-item').forEach(function(btn){
     btn.onclick = function(){
       var gid = btn.getAttribute('data-guild-id');
       setSelectedGuild(gid);
