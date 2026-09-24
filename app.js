@@ -1,222 +1,64 @@
-const
-	{ default: axios } = require('axios'),
-	chalk = require('chalk'),
-	logger = require('./utils/logger'),
-	ms = require('ms'),
-	{ checkToken, checkForUpdates, loadProxies, redeemNitro, sendWebhook, getAgentFromURI } = require('./utils/functions'),
-	{ existsSync, readFileSync, watchFile, writeFileSync } = require('fs'),
-	yaml = require('js-yaml');
-
-const stats = { threads: 0, startTime: 0, used_codes: [], version: require('./package.json').version, working: 0 };
-
-console.clear();
-console.log(chalk.blue(`\u001B[?25l
-██╗   ██╗ █████╗ ███╗   ██╗ ██████╗
-╚██╗ ██╔╝██╔══██╗████╗  ██║██╔════╝
- ╚████╔╝ ███████║██╔██╗ ██║██║  ███╗
-  ╚██╔╝  ██╔══██║██║╚██╗██║██║   ██║
-   ██║   ██║  ██║██║ ╚████║╚██████╔╝
-   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝
-               ${chalk.italic.gray(`v${stats.version} - by Tenclea`)}
-`));
-
-let config = yaml.load(readFileSync('./config.yml'));
-watchFile('./config.yml', () => {
-	config = yaml.load(readFileSync('./config.yml'));
-
-	// Updates logger
-	logger.level = config.debug_mode ? 'debug' : 'info';
-	logger.info('Updated the config variables.');
-
-	if (config.auto_redeem.enabled) checkToken(config.auto_redeem.token);
-	return;
-});
-
-/* Load proxies, working proxies and removes duplicates */
-const http_proxies = loadProxies('./required/http-proxies.txt', 'http');
-const socks_proxies = loadProxies('./required/socks-proxies.txt', 'socks');
-const oldWorking = loadProxies('./working_proxies.txt');
-
-let proxies = [...new Set(http_proxies.concat(socks_proxies, oldWorking))];
-
-process.on('SIGINT', () => { process.exit(0); });
-process.on('exit', () => { logger.info('Closing YANG... If you liked this project, make sure to leave it a star on github: https://github.com/Tenclea/ReYANG ! <3'); checkForUpdates(); });
-
-(async () => {
-	checkForUpdates();
-
-	if (config.proxies.enable_scrapper) {
-		logger.info('Downloading fresh proxies...');
-
-		const downloaded = await require('./utils/proxy-scrapper')();
-		const sliced = downloaded.slice(0, +config.proxies.max_proxies_download || downloaded.length);
-
-		proxies = [...new Set(proxies.concat(sliced))];
-
-		logger.info(`Downloaded ${chalk.yellow(sliced.length)} proxies.`);
-	}
-
-	if (!proxies[0]) { logger.error('Could not find any valid proxies. Please make sure to add some in the \'required\' folder.'); process.exit(1); }
-
-	if (config.proxies.enable_checker) proxies = await require('./utils/proxy-checker')(proxies, config.threads, config.proxies.keep_transparent);
-	if (!proxies[0]) { logger.error('All of your proxies were filtered out by the proxy checker. Please add some fresh ones in the \'required\' folder.'); process.exit(1); }
-
-	logger.info(`Loaded ${chalk.yellow(proxies.length)} proxies.`);
-
-	const generateCode = () => {
-		const code_length = { 'short': 16, 'long': 24, 'both': Math.random() >= 0.5 ? 16 : 24 }[config.code_length] || 16;
-		return Array.apply(0, Array(code_length)).map(() =>
-			'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.charAt(Math.floor(Math.random() * 62)),
-		).join('');
-	};
-
-	const checkCode = async (code, proxy, retries = 0) => {
-		logStats();
-		if (!proxy) { stats.threads > 0 ? stats.threads-- : 0; return; }
-
-		const agent = getAgentFromURI(proxy);
-		const res = await axios({
-			method: 'get',
-			url: `https://discord.com/api/v9/entitlements/gift-codes/${code}?with_application=false&with_subscription_plan=true`,
-			httpsAgent: agent,
-			timeout: 10000,
-			validateStatus: null,
-		}).catch(err => (err));
-
-		const body = res.data;
-		if (!body?.message && !body?.subscription_plan) {
-			let timeout = 0;
-			if (retries < 25) {
-				retries++; timeout = 2500;
-				logger.debug(`Connection to ${chalk.grey(proxy)} failed : ${chalk.red(res?.status || res?.err?.message || 'INVALID RESPONSE')}.`);
-			}
-			else {
-				// proxies.push(proxy); // don't remove proxy
-				logger.debug(`Removed ${chalk.gray(proxy)} : ${chalk.red(res?.status || res?.err?.message || 'INVALID RESPONSE')}`);
-				proxy = proxies.shift();
-			}
-
-			logStats();
-			return setTimeout(() => { checkCode(generateCode(), proxy, retries); }, timeout);
-		}
-
-		retries = 0;
-		stats.used_codes.push(code);
-		if (!working_proxies.includes(proxy)) working_proxies.push(proxy);
-
-		let p = proxy;
-		if (body.subscription_plan) {
-			logger.info(`Found a valid gift code : https://discord.gift/${code} !`);
-
-			// Try to redeem the code if possible
-			redeemNitro(code, config);
-
-			if (config.webhook.enabled && config.webhook.notifications.valid_code) {
-				sendWebhook(config.webhook.url, `@everyone Found a \`${body.subscription_plan.name}\` gift code in \`${ms(+new Date() - stats.startTime, { long: true })}\` : https://discord.gift/${code}.`);
-			}
-
-			// Write working code to file
-			let codes = existsSync('./valid_codes.txt') ? readFileSync('./valid_codes.txt', 'utf-8') : '';
-			codes += `${new Date().toLocaleString()}: ${body?.subscription_plan || '???'} - https://discord.gift/${code}\n`;
-			writeFileSync('./valid_codes.txt', codes, 'utf-8');
-
-			stats.working++;
-		}
-		else if (res.status == 429) {
-			// timeouts equal to 600000 are frozen. Most likely a ban from Discord's side.
-			const timeout = body.retry_after;
-			if (timeout != 600000) {
-				proxies.push(proxy);
-				logger.warn(`${chalk.gray(proxy)} is being rate limited (${(timeout).toFixed(2)}s), ${proxies[0] === proxy ? 'waiting' : 'skipping proxy'}...`);
-			}
-			else {
-				logger.warn(`${chalk.gray(proxy)} was most likely banned by Discord. Removing proxy...`);
-			}
-			p = proxies.shift();
-		}
-		else if (body.message === 'Unknown Gift Code') {
-			logger.warn(`${code} was an invalid gift code.`);
-		}
-		else {
-			console.log(body?.message + ' - please report this on GitHub.');
-		}
-
-		logStats();
-		return setTimeout(() => checkCode(generateCode(), p), p === proxy ? (body.retry_after * 1000 || 1000) : 0);
-	};
-
-	const logStats = () => {
-		// Update title and write stats to stdout
-		const attempts = stats.used_codes.length;
-		const aps = attempts / ((+new Date() - stats.startTime) / 1000) * 60 || 0;
-		process.stdout.write(`Proxies: ${chalk.yellow(proxies.length + stats.threads)} | Attempts: ${chalk.yellow(attempts)} (~${chalk.gray(aps.toFixed(0))}/min) | Working Codes: ${chalk.green(stats.working)}  \r`);
-		process.title = `YANG - by Tenclea | Proxies: ${proxies.length + stats.threads} | Attempts: ${attempts} (~${aps.toFixed(0)}/min) | Working Codes: ${stats.working}`;
-		return;
-	};
-
-	const threads = config.threads > proxies.length ? proxies.length : config.threads;
-	logger.info(`Checking for codes using ${chalk.yellow(threads)} threads.`);
-
-	const working_proxies = [];
-	stats.startTime = +new Date();
-	if (config.webhook.enabled && config.webhook.notifications.boot) sendWebhook(config.webhook.url, 'Started **YANG**.');
-
-	const startThreads = (t) => {
-		for (let i = 0; i < t; i++) {
-			checkCode(generateCode(), proxies.shift());
-			stats.threads++;
-			continue;
-		}
-
-		logger.debug(`Successfully started ${chalk.yellow(t)} threads.`);
-	};
-
-	startThreads(threads);
-
-	setInterval(async () => {
-		// Close / restart program if all proxies used
-		if (stats.threads === 0) {
-			logger.info('Restarting using working_proxies.txt list.');
-			proxies = loadProxies('./working_proxies.txt');
-			if (!proxies[0]) {
-				logger.error('Ran out of proxies.');
-				if (config.webhook.enabled) await sendWebhook(config.webhook.url, 'Ran out of proxies.');
-				return process.exit(0);
-			}
-			config.proxies.save_working = false;
-			return startThreads(config.threads > proxies.length ? proxies.length : config.threads);
-		}
-
-		/* Save working proxies */
-		if (config.proxies.save_working) { writeFileSync('./working_proxies.txt', working_proxies.sort(p => p.indexOf('socks')).join('\n')); }
-	}, 10_000);
-
-	let addingProxies = false;
-	setInterval(async () => {
-		checkForUpdates(true);
-		if (addingProxies || !config.proxies.enable_scrapper) return;
-		addingProxies = true;
-
-		logger.info('Downloading updated proxies.');
-
-		const new_http_proxies = loadProxies('./required/http-proxies.txt', 'http');
-		const new_socks_proxies = loadProxies('./required/socks-proxies.txt', 'socks');
-		const newProxies = [...new Set(new_http_proxies.concat(new_socks_proxies, await require('./utils/proxy-scrapper')()))];
-
-		const checked = await require('./utils/proxy-checker')(newProxies, config.threads, config.proxies.keep_transparent, true);
-		proxies.push(...checked);
-
-		logger.info(`Added ${checked.length} proxies.`);
-		startThreads(config.threads - stats.threads);
-		addingProxies = false;
-	}, 15 * 60 * 1000);
-
-	// Webhook status update
-	if (+config.webhook.notifications.status_update_interval != 0) {
-		setInterval(async () => {
-			const attempts = stats.used_codes.length;
-			const aps = attempts / ((+new Date() - stats.startTime) / 1000) * 60 || 0;
-			sendWebhook(config.webhook.url, `Proxies: \`${proxies.length + stats.threads}\` | Attempts: \`${attempts}\` (~\`${aps.toFixed(1)}\`/min) | Working Codes: \`${stats.working}\``);
-		}, config.webhook.notifications.status_update_interval * 1000);
-	}
+/* إعدادات الموقع: عبّي الفراغات مرة وحدة */
+(function(){
+var CONFIG={
+  clientId:'1536360221906178088',
+  guildId:'',              /* آيدي السيرفر */
+  ownerId:'',              /* آيدي حسابك (المالك) */
+  staffRoleIds:[],         /* آيدي رتب المشرفين والإداريين */
+  adminStreetRoleIds:[]    /* آيدي رتبة ادمن ستريت */
+};
+var RANK={everyone:0,staff:1,admin:2,owner:3};
+/* الأقسام: need = من يشوف القسم. cmds = قائمة الأوامر [['/اسم','الوصف']] */
+var SECTIONS=[
+ {id:'general',icon:'👤',t:'أوامر عامة',d:'الأوامر اللي تقدر تعدّلها بسيرفرك',need:'everyone',cmds:[]},
+ {id:'levels',icon:'📊',t:'المستويات',d:'XP كتابي وصوتي',need:'everyone',cmds:[]},
+ {id:'music',icon:'🎵',t:'الموسيقى',d:'تشغيل الأغاني',need:'everyone',cmds:[]},
+ {id:'giveaway',icon:'🎁',t:'الجيفاواي',d:'نظام الجيفاواي',need:'everyone',cmds:[]},
+ {id:'tickets',icon:'🎫',t:'التكتات',d:'نظام التكتات',need:'everyone',cmds:[]},
+ {id:'shop-avatar',icon:'🖼️',t:'شوب الأفتار',d:'متجر الأفتارات',need:'everyone',cmds:[]},
+ {id:'shop-banner',icon:'🎨',t:'شوب البنرات',d:'متجر البنرات',need:'everyone',cmds:[]},
+ {id:'moderation',icon:'🔒',t:'أوامر الإدارة',d:'للمشرفين والإداريين',need:'staff',cmds:[]},
+ {id:'admin-street',icon:'👑',t:'ادمن ستريت',d:'لأعضاء ادمن ستريت',need:'admin',cmds:[]},
+ {id:'owner',icon:'⚡',t:'المالك',d:'للمالك فقط',need:'owner',cmds:[]}
+];
+var auth={rank:0,user:null};
+function base(){return new URL('./',location.href).href}
+function readToken(){
+  if(location.hash.indexOf('access_token=')>-1){
+    var p=new URLSearchParams(location.hash.slice(1));
+    try{sessionStorage.setItem('trof_token',p.get('access_token'))}catch(e){}
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  try{return sessionStorage.getItem('trof_token')}catch(e){return null}
+}
+function has(ids,list){return ids.some(function(i){return list.indexOf(i)>-1})}
+function logout(silent){try{sessionStorage.removeItem('trof_token')}catch(e){}if(!silent)location.reload()}
+function load(cb){
+  var t=readToken();
+  if(!t||!CONFIG.guildId){cb();return}
+  fetch('https://discord.com/api/v10/users/@me/guilds/'+CONFIG.guildId+'/member',{headers:{Authorization:'Bearer '+t}})
+    .then(function(r){if(!r.ok)throw 0;return r.json()})
+    .then(function(m){
+      var u=m.user||{},roles=m.roles||[];
+      auth.user=u;
+      auth.rank=(CONFIG.ownerId&&u.id===CONFIG.ownerId)?3:has(CONFIG.adminStreetRoleIds,roles)?2:has(CONFIG.staffRoleIds,roles)?1:0;
+      cb();
+    })
+    .catch(function(){logout(true);cb()});
+}
+function login(){
+  location.href='https://discord.com/oauth2/authorize?client_id='+CONFIG.clientId+'&response_type=token&scope='+encodeURIComponent('identify guilds.members.read')+'&redirect_uri='+encodeURIComponent(base());
+}
+function dust(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var box=document.getElementById('dust');if(!box)return;
+  for(var k=0;k<16;k++){
+    var d=document.createElement('i'),z=2+Math.random()*3;
+    d.style.cssText='left:'+(Math.random()*100)+'%;width:'+z+'px;height:'+z+'px;animation-duration:'+(9+Math.random()*10)+'s;animation-delay:-'+(Math.random()*15)+'s';
+    box.appendChild(d);
+  }
+}
+window.TROF={dust:dust,CONFIG:CONFIG,SECTIONS:SECTIONS,auth:auth,load:load,login:login,logout:logout,
+  can:function(s){return auth.rank>=RANK[s.need]},
+  avatar:function(){var u=auth.user;return u&&u.avatar?'https://cdn.discordapp.com/avatars/'+u.id+'/'+u.avatar+'.png?size=64':''}};
 })();
