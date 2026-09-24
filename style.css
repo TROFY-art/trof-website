@@ -143,7 +143,7 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
 [dir=ltr] .back svg{transform:scaleX(-1)}
 [dir=ltr] .back:hover svg{transform:scaleX(-1) translateX(4px)}
 
-/* ==/* ============================================
+/* ============================================
    🖥️ منتقي السيرفرات (Server Selector)
    ============================================ */
 .hd-right{display:flex;align-items:center;gap:8px}
