@@ -15,29 +15,26 @@
 <div id="dust" aria-hidden="true"></div>
 <header class="wrap bar">
 <a class="brand" href="./"><img src="logo.webp" alt="" width="36" height="36">TROF System</a>
+<div id="acct"></div>
 </header>
 <main class="wrap page" id="page"></main>
 <footer class="wrap">TROF System.</footer>
 <script src="app.js"></script>
 <script>
 var id=new URLSearchParams(location.search).get('p');
+var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
 TROF.dust();
 TROF.load(function(){
+  TROF.mountAccount();
   var s=TROF.SECTIONS.filter(function(x){return x.id===id})[0],n=0;
   function r(){return ' rise" style="--d:'+(n++)}
-  var h='<a class="crumb'+r()+'" href="./">الرجوع للأقسام</a>';
+  var h='<a class="back'+r()+'" href="./">'+CHEV+'الرجوع للأقسام</a>';
   if(!s){h+='<p class="soon'+r()+'">هذا القسم غير موجود.</p>'}
-  else if(!TROF.can(s)){h+='<p class="soon'+r()+'">هذا القسم متاح لرتب محددة فقط. إذا رتبتك تسمح، سجّل الدخول بدسكورد من الصفحة الرئيسية.</p>'}
+  else if(!TROF.can(s)){h+='<p class="soon'+r()+'">هذا القسم متاح لرتب محددة فقط. إذا رتبتك تسمح، سجّل الدخول عبر Discord.</p>'}
   else{
     document.title=s.t+' | TROF System';
     h+='<div class="sec-head'+r()+'"><div class="sec-ic"><span class="ring"></span><span class="face">'+s.icon+'</span></div><div><h1 class="sec-title">'+s.t+'</h1><p>'+s.d+'</p></div></div>';
-    if(s.cmds.length){
-      h+='<ul class="cmds'+r()+'">'+s.cmds.map(function(c){return '<li><code>'+c[0]+'</code><span>'+c[1]+'</span></li>'}).join('')+'</ul>';
-    }else{
-      h+='<p class="soon'+r()+'">أوامر هذا القسم تنضاف هنا قريباً.</p>';
-    }
-    var others=TROF.SECTIONS.filter(function(x){return x.id!==s.id&&TROF.can(x)});
-    h+='<nav class="more'+r()+'" aria-label="أقسام ثانية">'+others.map(function(x){return '<a href="section.html?p='+x.id+'">'+x.icon+' '+x.t+'</a>'}).join('')+'</nav>';
+    h+=s.cmds.length?'<ul class="cmds'+r()+'">'+s.cmds.map(function(c){return '<li><code>'+c[0]+'</code><span>'+c[1]+'</span></li>'}).join('')+'</ul>':'<p class="soon'+r()+'">أوامر هذا القسم تنضاف هنا قريباً.</p>';
   }
   document.getElementById('page').innerHTML=h;
 });
