@@ -67,7 +67,7 @@ function mountAccount(){
     var a=document.createElement('a');a.className='me';a.href='profile.html';a.setAttribute('aria-label','ملفي الشخصي');
     var i=document.createElement('img');i.src=avatar(64);i.alt='';a.appendChild(i);box.appendChild(a);
   }else{
-    var b=document.createElement('button');b.type='button';b.className='btn alt';b.textContent='تسجيل الدخول عبر Discord';b.onclick=login;box.appendChild(b);
+    var b=document.createElement('button');b.type='button';b.className='btn alt';b.textContent='دخول عبر Discord';b.onclick=login;box.appendChild(b);
   }
 }
 function dust(){
