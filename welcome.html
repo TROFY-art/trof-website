@@ -1,1 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<script>try{if(localStorage.getItem('trof_lang')==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr'}}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الترحيب | TROF System</title>
+<meta name="theme-color" content="#0d0c0a">
+<link rel="icon" type="image/webp" href="logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="dust" aria-hidden="true"></div>
 
+<header class="wrap bar">
+  <div class="hd">
+    <a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a>
+    <button class="lang" id="lang" type="button"></button>
+  </div>
+  <div class="hd-right">
+    <div id="server-selector"></div>
+    <div id="acct"></div>
+  </div>
+</header>
+
+<main class="wrap page" id="page"></main>
+<footer class="wrap">TROF System.</footer>
+
+<script src="app.js"></script>
+<script>
+(function(){
+var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
+TROF.dust();
+
+TROF.load(function(){
+  TROF.mountAccount();
+  TROF.renderServerSelector();
+  var page=document.getElementById('page');
+  var u=TROF.auth.user;
+
+  if(!u){
+    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">سجّل الدخول عبر Discord للوصول للإعدادات.</p>';
+    return;
+  }
+
+  var gid = TROF.getSelectedGuild();
+  if(!gid){
+    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">⚠️ اختر سيرفراً أولاً من القائمة العلوية.</p>';
+    return;
+  }
+
+  page.innerHTML = buildWelcomePage(gid);
+  loadSettings(gid);
+  bindEvents(gid);
+});
+
+function buildWelcomePage(gid){
+  return '' +
+  '<a class="back" href="./">'+CHEV+'الرجوع</a>' +
+  '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">👋</span></div><div><h1 class="sec-title">نظام الترحيب</h1><p>تحكم كامل برسائل الترحيب والوداع</p></div></div>' +
+  '<div class="welcome-form">' +
+    '<div class="form-row">' +
+      '<label class="form-label">✅ تفعيل نظام الترحيب</label>' +
+      '<label class="switch"><input type="checkbox" id="w-enabled" checked><span class="slider"></span></label>' +
+    '</div>' +
+    '<div class="form-row">' +
+      '<label class="form-label">📢 قناة الترحيب</label>' +
+      '<select class="form-select" id="w-channel"><option value="">-- اختر قناة --</option></select>' +
+    '</div>' +
+    '<div class="form-row">' +
+      '<label class="form-label">👋 قناة الوداع (اختياري)</label>' +
+      '<select class="form-select" id="w-goodbye"><option value="">-- بدون --</option></select>' +
+    '</div>' +
+    '<div class="form-row">' +
+      '<label class="form-label">🎭 الرتبة التلقائية</label>' +
+      '<select class="form-select" id="w-role"><option value="">-- بدون --</option></select>' +
+    '</div>' +
+    '<div class="form-row">' +
+      '<label class="form-label">📝 منشن العضو في الترحيب</label>' +
+      '<label class="switch"><input type="checkbox" id="w-mention" checked><span class="slider"></span></label>' +
+    '</div>' +
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">💬 رسالة الترحيب</label>' +
+      '<textarea class="form-textarea" id="w-message" rows="5" placeholder="مرحباً {user} في {server}!"></textarea>' +
+      '<p class="form-hint">استخدم: <code>{user}</code> منشن العضو، <code>{server}</code> اسم السيرفر، <code>{count}</code> عدد الأعضاء</p>' +
+    '</div>' +
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">💬 رسالة الوداع</label>' +
+      '<textarea class="form-textarea" id="w-goodbye-message" rows="3" placeholder="وداعاً {user}..."></textarea>' +
+    '</div>' +
+    '<div class="form-actions">' +
+      '<button class="btn save-btn" id="w-save" type="button">💾 حفظ الإعدادات</button>' +
+      '<p class="save-msg" id="w-msg"></p>' +
+    '</div>' +
+  '</div>';
+}
+
+async function loadSettings(gid){
+  var api = TROF.CONFIG.apiUrl;
+  var token = TROF.token();
+
+  try{
+    var res = await fetch(api + '/guild/' + gid + '/channels', {
+      headers: {Authorization: 'Bearer ' + token}
+    });
+    if(res.ok){
+      var data = await res.json();
+      var chSel = document.getElementById('w-channel');
+      var gbSel = document.getElementById('w-goodbye');
+      data.channels.forEach(function(c){
+        chSel.innerHTML += '<option value="' + c.id + '">#' + c.name + '</option>';
+        gbSel.innerHTML += '<option value="' + c.id + '">#' + c.name + '</option>';
+      });
+    }
+  }catch(e){ console.error('channels error', e) }
+
+  try{
+    var res = await fetch(api + '/guild/' + gid + '/roles', {
+      headers: {Authorization: 'Bearer ' + token}
+    });
+    if(res.ok){
+      var data = await res.json();
+      var roleSel = document.getElementById('w-role');
+      data.roles.forEach(function(r){
+        roleSel.innerHTML += '<option value="' + r.id + '">' + r.name + '</option>';
+      });
+    }
+  }catch(e){ console.error('roles error', e) }
+
+  try{
+    var res = await fetch(api + '/guild/' + gid + '/welcome', {
+      headers: {Authorization: 'Bearer ' + token}
+    });
+    if(res.ok){
+      var data = await res.json();
+      if(data.settings){
+        var s = data.settings;
+        document.getElementById('w-enabled').checked = s.enabled;
+        document.getElementById('w-mention').checked = s.mention_member;
+        if(s.channel_id) document.getElementById('w-channel').value = s.channel_id;
+        if(s.goodbye_channel_id) document.getElementById('w-goodbye').value = s.goodbye_channel_id;
+        if(s.auto_role_id) document.getElementById('w-role').value = s.auto_role_id;
+        if(s.welcome_message) document.getElementById('w-message').value = s.welcome_message;
+        if(s.goodbye_message) document.getElementById('w-goodbye-message').value = s.goodbye_message;
+      }
+    }
+  }catch(e){ console.error('settings error', e) }
+}
+
+function bindEvents(gid){
+  document.getElementById('w-save').onclick = async function(){
+    var msg = document.getElementById('w-msg');
+    var btn = this;
+    btn.disabled = true;
+    msg.textContent = '⏳ جاري الحفظ...';
+
+    var payload = {
+      enabled: document.getElementById('w-enabled').checked,
+      mention_member: document.getElementById('w-mention').checked,
+      channel_id: document.getElementById('w-channel').value || null,
+      goodbye_channel_id: document.getElementById('w-goodbye').value || null,
+      auto_role_id: document.getElementById('w-role').value || null,
+      welcome_message: document.getElementById('w-message').value || null,
+      goodbye_message: document.getElementById('w-goodbye-message').value || null
+    };
+
+    try{
+      var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/welcome', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + TROF.token(),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      if(res.ok){
+        msg.textContent = '✅ تم الحفظ بنجاح!';
+        msg.style.color = '#4ade80';
+      }else{
+        msg.textContent = '❌ فشل الحفظ';
+        msg.style.color = '#f87171';
+      }
+    }catch(e){
+      msg.textContent = '❌ خطأ في الاتصال';
+      msg.style.color = '#f87171';
+    }
+    btn.disabled = false;
+    setTimeout(function(){ msg.textContent = ''; }, 3000);
+  };
+}
+})();
+</script>
+</body>
+  </html>
