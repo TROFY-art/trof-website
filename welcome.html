@@ -60,30 +60,36 @@ TROF.load(function(){
 function buildWelcomePage(gid){
   return '' +
   '<a class="back" href="./">'+CHEV+'الرجوع</a>' +
-  '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">👋</span></div><div><h1 class="sec-title">نظام الترحيب</h1><p>تحكم كامل برسائل الترحيب والوداع</p></div></div>' +
+  '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">👋</span></div><div><h1 class="sec-title">نظام الترحيب</h1><p>تحكم كامل برسائل الترحيب والتصميم</p></div></div>' +
   '<div class="welcome-form">' +
+
+    // ===== الإعدادات الأساسية =====
+    '<div class="form-section-title">⚙️ الإعدادات الأساسية</div>' +
+
     '<div class="form-row">' +
       '<label class="form-label">✅ تفعيل نظام الترحيب</label>' +
       '<label class="switch"><input type="checkbox" id="w-enabled" checked><span class="slider"></span></label>' +
     '</div>' +
+
     '<div class="form-row">' +
       '<label class="form-label">📢 قناة الترحيب</label>' +
       '<select class="form-select" id="w-channel"><option value="">-- اختر قناة --</option></select>' +
     '</div>' +
+
     '<div class="form-row">' +
-      '<label class="form-label">👋 قناة الوداع (اختياري)</label>' +
+      '<label class="form-label">👋 قناة الوداع</label>' +
       '<select class="form-select" id="w-goodbye"><option value="">-- بدون --</option></select>' +
     '</div>' +
+
     '<div class="form-row">' +
       '<label class="form-label">🎭 الرتبة التلقائية</label>' +
       '<select class="form-select" id="w-role"><option value="">-- بدون --</option></select>' +
     '</div>' +
-    '<div class="form-row">' +
-      '<label class="form-label">📝 منشن العضو في الترحيب</label>' +
-      '<label class="switch"><input type="checkbox" id="w-mention" checked><span class="slider"></span></label>' +
-    '</div>' +
+
+    // ===== صورة الخلفية =====
+    '<div class="form-section-title">🖼️ صورة الخلفية</div>' +
+
     '<div class="form-row form-row-col">' +
-      '<label class="form-label">🖼️ صورة خلفية الترحيب</label>' +
       '<div class="upload-area" id="upload-area">' +
         '<input type="file" id="w-bg-input" accept="image/*" hidden>' +
         '<div class="upload-preview" id="upload-preview">' +
@@ -99,19 +105,154 @@ function buildWelcomePage(gid){
       '</div>' +
       '<p class="form-hint" id="bg-msg"></p>' +
     '</div>' +
+
+    // ===== إعدادات التصميم =====
+    '<div class="form-section-title">🎨 تصميم البطاقة</div>' +
+
+    // الأنماط الجاهزة
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">🎭 النمط الجاهز</label>' +
+      '<div class="presets-grid">' +
+        '<button class="preset-btn active" data-preset="default" type="button">' +
+          '<span class="preset-preview preset-default"></span>' +
+          '<span>افتراضي</span>' +
+        '</button>' +
+        '<button class="preset-btn" data-preset="dark" type="button">' +
+          '<span class="preset-preview preset-dark"></span>' +
+          '<span>داكن</span>' +
+        '</button>' +
+        '<button class="preset-btn" data-preset="light" type="button">' +
+          '<span class="preset-preview preset-light"></span>' +
+          '<span>فاتح</span>' +
+        '</button>' +
+        '<button class="preset-btn" data-preset="gold" type="button">' +
+          '<span class="preset-preview preset-gold"></span>' +
+          '<span>ذهبي</span>' +
+        '</button>' +
+        '<button class="preset-btn" data-preset="blue" type="button">' +
+          '<span class="preset-preview preset-blue"></span>' +
+          '<span>أزرق</span>' +
+        '</button>' +
+      '</div>' +
+    '</div>' +
+
+    // حجم البطاقة
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">📐 حجم البطاقة</label>' +
+      '<div class="size-controls">' +
+        '<div class="size-item">' +
+          '<label>العرض</label>' +
+          '<input type="range" id="d-card-width" min="400" max="1920" value="1024" step="10">' +
+          '<span id="d-card-width-val">1024</span>' +
+        '</div>' +
+        '<div class="size-item">' +
+          '<label>الارتفاع</label>' +
+          '<input type="range" id="d-card-height" min="200" max="1080" value="500" step="10">' +
+          '<span id="d-card-height-val">500</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    // صورة العضو
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">👤 صورة العضو</label>' +
+      '<div class="inline-controls">' +
+        '<label class="switch small"><input type="checkbox" id="d-show-avatar" checked><span class="slider"></span></label>' +
+        '<select class="form-select small-select" id="d-avatar-shape">' +
+          '<option value="circle">دائرة</option>' +
+          '<option value="square">مربعة</option>' +
+          '<option value="rounded">مستديرة</option>' +
+        '</select>' +
+        '<div class="size-item small-item">' +
+          '<label>الحجم</label>' +
+          '<input type="range" id="d-avatar-size" min="50" max="400" value="150" step="5">' +
+          '<span id="d-avatar-size-val">150</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    // النص
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">💬 النص</label>' +
+      '<div class="text-controls">' +
+        '<div class="inline-controls">' +
+          '<label>اللون</label>' +
+          '<input type="color" id="d-text-color" value="#FFFFFF">' +
+          '<label>الحجم</label>' +
+          '<input type="range" id="d-text-size" min="20" max="150" value="60">' +
+          '<span id="d-text-size-val">60</span>' +
+        '</div>' +
+        '<div class="inline-controls">' +
+          '<label>الموضع</label>' +
+          '<select class="form-select small-select" id="d-text-pos">' +
+            '<option value="top">أعلى</option>' +
+            '<option value="center" selected>وسط</option>' +
+            '<option value="bottom">أسفل</option>' +
+          '</select>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    // تأثيرات الخلفية
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">✨ تأثيرات الخلفية</label>' +
+      '<div class="size-controls">' +
+        '<div class="size-item">' +
+          '<label>ضبابية</label>' +
+          '<input type="range" id="d-bg-blur" min="0" max="20" value="0">' +
+          '<span id="d-bg-blur-val">0</span>' +
+        '</div>' +
+        '<div class="size-item">' +
+          '<label>إضاءة</label>' +
+          '<input type="range" id="d-bg-brightness" min="20" max="100" value="70">' +
+          '<span id="d-bg-brightness-val">70</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    // ===== المعاينة =====
+    '<div class="form-section-title">👁️ المعاينة الحية</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<div class="preview-container">' +
+        '<div class="preview-card" id="welcome-preview">' +
+          '<div class="preview-bg" id="preview-bg"></div>' +
+          '<div class="preview-overlay" id="preview-overlay">' +
+            '<div class="preview-content" id="preview-content">' +
+              '<div class="preview-avatar" id="preview-avatar">ص</div>' +
+              '<div class="preview-text" id="preview-text">مرحباً @Ali في TROF System!</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    // ===== رسائل الترحيب والوداع =====
+    '<div class="form-section-title">📝 الرسائل</div>' +
+
     '<div class="form-row form-row-col">' +
       '<label class="form-label">💬 رسالة الترحيب</label>' +
-      '<textarea class="form-textarea" id="w-message" rows="5" placeholder="مرحباً {user} في {server}!"></textarea>' +
-      '<p class="form-hint">استخدم: <code>{user}</code> منشن العضو، <code>{server}</code> اسم السيرفر، <code>{count}</code> عدد الأعضاء</p>' +
+      '<textarea class="form-textarea" id="w-message" rows="3" placeholder="مرحباً {user} في {server}!"></textarea>' +
+      '<p class="form-hint">استخدم: <code>{user}</code> منشن، <code>{server}</code> اسم السيرفر، <code>{count}</code> عدد الأعضاء</p>' +
     '</div>' +
+
     '<div class="form-row form-row-col">' +
       '<label class="form-label">💬 رسالة الوداع</label>' +
       '<textarea class="form-textarea" id="w-goodbye-message" rows="3" placeholder="وداعاً {user}..."></textarea>' +
     '</div>' +
+
+    // ===== منشن العضو =====
+    '<div class="form-row">' +
+      '<label class="form-label">📝 منشن العضو في الترحيب</label>' +
+      '<label class="switch"><input type="checkbox" id="w-mention" checked><span class="slider"></span></label>' +
+    '</div>' +
+
+    // ===== الحفظ =====
     '<div class="form-actions">' +
       '<button class="btn save-btn" id="w-save" type="button">💾 حفظ الإعدادات</button>' +
       '<p class="save-msg" id="w-msg"></p>' +
     '</div>' +
+
   '</div>';
 }
 
@@ -119,7 +260,7 @@ async function loadSettings(gid){
   var api = TROF.CONFIG.apiUrl;
   var token = TROF.token();
 
-  // 1. جلب القنوات
+  // جلب القنوات
   try{
     var res = await fetch(api + '/guild/' + gid + '/channels', {
       headers: {Authorization: 'Bearer ' + token}
@@ -135,7 +276,7 @@ async function loadSettings(gid){
     }
   }catch(e){ console.error('channels error', e) }
 
-  // 2. جلب الرتب
+  // جلب الرتب
   try{
     var res = await fetch(api + '/guild/' + gid + '/roles', {
       headers: {Authorization: 'Bearer ' + token}
@@ -149,7 +290,7 @@ async function loadSettings(gid){
     }
   }catch(e){ console.error('roles error', e) }
 
-  // 3. جلب الإعدادات
+  // جلب الإعدادات
   try{
     var res = await fetch(api + '/guild/' + gid + '/welcome', {
       headers: {Authorization: 'Bearer ' + token}
@@ -158,19 +299,43 @@ async function loadSettings(gid){
       var data = await res.json();
       if(data.settings){
         var s = data.settings;
-        document.getElementById('w-enabled').checked = s.enabled;
-        document.getElementById('w-mention').checked = s.mention_member;
+        if(s.enabled !== undefined) document.getElementById('w-enabled').checked = s.enabled;
+        if(s.mention_member !== undefined) document.getElementById('w-mention').checked = s.mention_member;
         if(s.channel_id) document.getElementById('w-channel').value = s.channel_id;
         if(s.goodbye_channel_id) document.getElementById('w-goodbye').value = s.goodbye_channel_id;
         if(s.auto_role_id) document.getElementById('w-role').value = s.auto_role_id;
         if(s.welcome_message) document.getElementById('w-message').value = s.welcome_message;
         if(s.goodbye_message) document.getElementById('w-goodbye-message').value = s.goodbye_message;
+        if(s.text_position) document.getElementById('d-text-pos').value = s.text_position;
+        if(s.show_avatar !== undefined) document.getElementById('d-show-avatar').checked = s.show_avatar;
+        if(s.avatar_shape) document.getElementById('d-avatar-shape').value = s.avatar_shape;
+        if(s.avatar_size) document.getElementById('d-avatar-size').value = s.avatar_size;
+        if(s.text_color) document.getElementById('d-text-color').value = s.text_color;
+        if(s.text_size) document.getElementById('d-text-size').value = s.text_size;
+        if(s.card_width) document.getElementById('d-card-width').value = s.card_width;
+        if(s.card_height) document.getElementById('d-card-height').value = s.card_height;
+        if(s.bg_blur !== undefined) document.getElementById('d-bg-blur').value = s.bg_blur;
+        if(s.bg_brightness) document.getElementById('d-bg-brightness').value = s.bg_brightness;
+        if(s.preset) document.querySelector('.preset-btn[data-preset="' + s.preset + '"]').classList.add('active');
+        
+        updateAllLabels();
       }
     }
   }catch(e){ console.error('settings error', e) }
 
-  // 4. جلب صورة الخلفية
+  // جلب صورة الخلفية
   loadBackground(gid);
+  
+  // تحديث المعاينة
+  updatePreview();
+}
+
+function updateAllLabels(){
+  ['d-card-width', 'd-card-height', 'd-avatar-size', 'd-text-size', 'd-bg-blur', 'd-bg-brightness'].forEach(function(id){
+    var el = document.getElementById(id);
+    var lbl = document.getElementById(id + '-val');
+    if(el && lbl) lbl.textContent = el.value;
+  });
 }
 
 function loadBackground(gid){
@@ -181,21 +346,117 @@ function loadBackground(gid){
   fetch(api + '/guild/' + gid + '/welcome/bg')
     .then(function(r){
       if(r.ok){
-        preview.innerHTML = '<img src="' + api + '/guild/' + gid + '/welcome/bg?t=' + Date.now() + '" alt="خلفية">';
+        var imgUrl = api + '/guild/' + gid + '/welcome/bg?t=' + Date.now();
+        preview.innerHTML = '<img src="' + imgUrl + '" alt="خلفية" crossorigin="anonymous">';
         actions.hidden = false;
+        var bg = document.getElementById('preview-bg');
+        bg.style.backgroundImage = 'url(' + imgUrl + ')';
       }else{
-        preview.innerHTML = '<div class="upload-placeholder"><span>📁</span><p>اضغط لاختيار صورة</p><small>PNG, JPG, WEBP (بحد أقصى 5MB)</small></div>';
+        preview.innerHTML = '<div class="upload-placeholder"><span>📁</span><p>اضغط لاختيار صورة</p><small>PNG, JPG, WEBP (5MB)</small></div>';
         actions.hidden = true;
       }
     })
-    .catch(function(){
-      preview.innerHTML = '<div class="upload-placeholder"><span>📁</span><p>اضغط لاختيار صورة</p><small>PNG, JPG, WEBP (بحد أقصى 5MB)</small></div>';
-      actions.hidden = true;
-    });
+    .catch(function(){});
+}
+
+function updatePreview(){
+  var preview = document.getElementById('welcome-preview');
+  var content = document.getElementById('preview-content');
+  var text = document.getElementById('preview-text');
+  var avatar = document.getElementById('preview-avatar');
+  var bg = document.getElementById('preview-bg');
+  var overlay = document.getElementById('preview-overlay');
+  
+  var w = parseInt(document.getElementById('d-card-width').value);
+  var h = parseInt(document.getElementById('d-card-height').value);
+  var showAv = document.getElementById('d-show-avatar').checked;
+  var shape = document.getElementById('d-avatar-shape').value;
+  var avSize = parseInt(document.getElementById('d-avatar-size').value);
+  var color = document.getElementById('d-text-color').value;
+  var size = parseInt(document.getElementById('d-text-size').value);
+  var pos = document.getElementById('d-text-pos').value;
+  var blur = parseInt(document.getElementById('d-bg-blur').value);
+  var brightness = parseInt(document.getElementById('d-bg-brightness').value);
+  
+  // حجم البطاقة (نسبة العرض إلى 300px للعرض في الموقع)
+  var aspect = w / h;
+  var displayWidth = Math.min(w, 600);
+  var displayHeight = displayWidth / aspect;
+  
+  preview.style.width = displayWidth + 'px';
+  preview.style.height = displayHeight + 'px';
+  
+  // تأثيرات الخلفية
+  bg.style.filter = 'blur(' + (blur/10) + 'px) brightness(' + (brightness/100) + ')';
+  bg.style.backgroundSize = 'cover';
+  bg.style.backgroundPosition = 'center';
+  
+  // ترتيب المحتوى
+  var scale = displayWidth / w;
+  content.style.padding = (h * 0.05 * scale) + 'px';
+  content.style.gap = (h * 0.03 * scale) + 'px';
+  
+  if(pos === 'top'){
+    content.style.justifyContent = 'flex-start';
+  }else if(pos === 'bottom'){
+    content.style.justifyContent = 'flex-end';
+  }else{
+    content.style.justifyContent = 'center';
+  }
+  
+  // صورة العضو
+  avatar.style.display = showAv ? 'flex' : 'none';
+  avatar.style.width = (avSize * scale) + 'px';
+  avatar.style.height = (avSize * scale) + 'px';
+  avatar.style.fontSize = (avSize * 0.4 * scale) + 'px';
+  
+  if(shape === 'circle'){
+    avatar.style.borderRadius = '50%';
+  }else if(shape === 'square'){
+    avatar.style.borderRadius = '0';
+  }else{
+    avatar.style.borderRadius = (avSize * 0.15 * scale) + 'px';
+  }
+  
+  // النص
+  text.style.color = color;
+  text.style.fontSize = (size * scale) + 'px';
+  text.style.textShadow = '2px 2px 4px rgba(0,0,0,0.8)';
+  
+  // محتوى النص
+  var msg = document.getElementById('w-message').value || 'مرحباً {user} في {server}!';
+  var mention = document.getElementById('w-mention').checked;
+  var displayMsg = msg
+    .replace('{user}', mention ? '@Ali' : 'Ali')
+    .replace('{server}', 'TROF System')
+    .replace('{count}', '68');
+  text.textContent = displayMsg;
+}
+
+function applyPreset(preset){
+  var presets = {
+    'default': { color: '#FFFFFF', size: 60, avatar: true, shape: 'circle', avSize: 150, textColor: '#FFFFFF', textSize: 60, blur: 0, brightness: 70 },
+    'dark': { color: '#FFFFFF', size: 55, avatar: true, shape: 'circle', avSize: 140, textColor: '#FFFFFF', textSize: 55, blur: 8, brightness: 40 },
+    'light': { color: '#000000', size: 65, avatar: true, shape: 'circle', avSize: 160, textColor: '#1a1a1a', textSize: 65, blur: 0, brightness: 95 },
+    'gold': { color: '#FFD700', size: 70, avatar: true, shape: 'rounded', avSize: 170, textColor: '#FFD700', textSize: 70, blur: 3, brightness: 60 },
+    'blue': { color: '#00BFFF', size: 60, avatar: true, shape: 'circle', avSize: 150, textColor: '#87CEEB', textSize: 60, blur: 5, brightness: 50 }
+  };
+  
+  var p = presets[preset] || presets['default'];
+  document.getElementById('d-text-color').value = p.textColor;
+  document.getElementById('d-text-size').value = p.textSize;
+  document.getElementById('d-show-avatar').checked = p.avatar;
+  document.getElementById('d-avatar-shape').value = p.shape;
+  document.getElementById('d-avatar-size').value = p.avSize;
+  document.getElementById('d-bg-blur').value = p.blur;
+  document.getElementById('d-bg-brightness').value = p.brightness;
+  
+  updateAllLabels();
+  updatePreview();
 }
 
 function bindEvents(gid){
-  // رفع صورة الخلفية
+  // ===== رفع الصورة =====
   var bgInput = document.getElementById('w-bg-input');
   var uploadArea = document.getElementById('upload-area');
   var uploadPreview = document.getElementById('upload-preview');
@@ -203,16 +464,13 @@ function bindEvents(gid){
   var bgRemove = document.getElementById('w-bg-remove');
   var bgMsg = document.getElementById('bg-msg');
 
-  uploadArea.onclick = function(){
-    bgInput.click();
-  };
+  uploadArea.onclick = function(){ bgInput.click(); };
 
   bgInput.onchange = async function(){
     var file = bgInput.files[0];
     if(!file) return;
-
     if(file.size > 5 * 1024 * 1024){
-      bgMsg.textContent = '❌ حجم الصورة كبير جداً (الحد 5MB)';
+      bgMsg.textContent = '❌ حجم الصورة كبير (الحد 5MB)';
       bgMsg.style.color = '#f87171';
       return;
     }
@@ -220,6 +478,7 @@ function bindEvents(gid){
     var reader = new FileReader();
     reader.onload = function(e){
       uploadPreview.innerHTML = '<img src="' + e.target.result + '" alt="معاينة">';
+      document.getElementById('preview-bg').style.backgroundImage = 'url(' + e.target.result + ')';
     };
     reader.readAsDataURL(file);
 
@@ -232,14 +491,10 @@ function bindEvents(gid){
     try{
       var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/welcome/upload-bg', {
         method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + TROF.token()
-        },
+        headers: {'Authorization': 'Bearer ' + TROF.token()},
         body: formData
       });
-
       var data = await res.json();
-
       if(res.ok){
         bgMsg.textContent = '✅ تم رفع الصورة بنجاح!';
         bgMsg.style.color = '#4ade80';
@@ -255,35 +510,52 @@ function bindEvents(gid){
   };
 
   bgRemove.onclick = async function(){
-    if(!confirm('هل تريد حذف الصورة؟')) return;
-
+    if(!confirm('حذف الصورة؟')) return;
     bgMsg.textContent = '⏳ جاري الحذف...';
-    bgMsg.style.color = '#f2c23c';
-
     try{
       var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/welcome/bg', {
         method: 'DELETE',
-        headers: {
-          'Authorization': 'Bearer ' + TROF.token()
-        }
+        headers: {'Authorization': 'Bearer ' + TROF.token()}
       });
-
       if(res.ok){
-        uploadPreview.innerHTML = '<div class="upload-placeholder"><span>📁</span><p>اضغط لاختيار صورة</p><small>PNG, JPG, WEBP (بحد أقصى 5MB)</small></div>';
+        uploadPreview.innerHTML = '<div class="upload-placeholder"><span>📁</span><p>اضغط لاختيار صورة</p><small>PNG, JPG, WEBP (5MB)</small></div>';
         uploadActions.hidden = true;
+        document.getElementById('preview-bg').style.backgroundImage = '';
         bgMsg.textContent = '✅ تم حذف الصورة';
         bgMsg.style.color = '#4ade80';
-      }else{
-        bgMsg.textContent = '❌ فشل الحذف';
-        bgMsg.style.color = '#f87171';
       }
-    }catch(e){
-      bgMsg.textContent = '❌ خطأ في الاتصال';
-      bgMsg.style.color = '#f87171';
-    }
+    }catch(e){}
   };
 
-  // حفظ الإعدادات
+  // ===== الأنماط الجاهزة =====
+  document.querySelectorAll('.preset-btn').forEach(function(btn){
+    btn.onclick = function(){
+      document.querySelectorAll('.preset-btn').forEach(function(b){b.classList.remove('active')});
+      btn.classList.add('active');
+      applyPreset(btn.getAttribute('data-preset'));
+    };
+  });
+
+  // ===== منزلقات التصميم =====
+  var sliders = ['d-card-width', 'd-card-height', 'd-avatar-size', 'd-text-size', 'd-bg-blur', 'd-bg-brightness'];
+  sliders.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){
+      el.addEventListener('input', function(){
+        var lbl = document.getElementById(id + '-val');
+        if(lbl) lbl.textContent = el.value;
+        updatePreview();
+      });
+    }
+  });
+
+  // ===== قوائم التصميم =====
+  ['d-text-pos', 'd-avatar-shape', 'd-show-avatar', 'd-text-color', 'w-message', 'w-mention'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener('input', updatePreview);
+  });
+
+  // ===== حفظ الإعدادات =====
   document.getElementById('w-save').onclick = async function(){
     var msg = document.getElementById('w-msg');
     var btn = this;
@@ -297,7 +569,18 @@ function bindEvents(gid){
       goodbye_channel_id: document.getElementById('w-goodbye').value || null,
       auto_role_id: document.getElementById('w-role').value || null,
       welcome_message: document.getElementById('w-message').value || null,
-      goodbye_message: document.getElementById('w-goodbye-message').value || null
+      goodbye_message: document.getElementById('w-goodbye-message').value || null,
+      text_position: document.getElementById('d-text-pos').value,
+      show_avatar: document.getElementById('d-show-avatar').checked,
+      avatar_shape: document.getElementById('d-avatar-shape').value,
+      avatar_size: parseInt(document.getElementById('d-avatar-size').value),
+      text_color: document.getElementById('d-text-color').value,
+      text_size: parseInt(document.getElementById('d-text-size').value),
+      card_width: parseInt(document.getElementById('d-card-width').value),
+      card_height: parseInt(document.getElementById('d-card-height').value),
+      bg_blur: parseInt(document.getElementById('d-bg-blur').value),
+      bg_brightness: parseInt(document.getElementById('d-bg-brightness').value),
+      preset: document.querySelector('.preset-btn.active') ? document.querySelector('.preset-btn.active').getAttribute('data-preset') : 'default'
     };
 
     try{
