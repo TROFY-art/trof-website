@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
+<script>try{if(localStorage.getItem('trof_lang')==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr'}}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TROF System | بوت دسكورد</title>
 <meta name="description" content="TROF System: بوت دسكورد للمستويات والموسيقى والجيفاواي والتكتات والإدارة.">
@@ -12,11 +13,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-title="home">
 <div id="dust" aria-hidden="true"></div>
 
 <header class="wrap bar">
-<a class="brand" href="./"><img src="logo.webp" alt="" width="36" height="36">TROF System</a>
+<div class="hd"><a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a><button class="lang" id="lang" type="button"></button></div>
 <div id="acct"></div>
 </header>
 
@@ -24,9 +25,9 @@
 <section class="hero">
 <div>
 <h1>TROF System</h1>
-<p class="lead">بوت دسكورد واحد يدير سيرفرك كله: مستويات، موسيقى، جيفاواي، تكتات وأدوات إدارة.</p>
-<a class="btn" href="https://discord.com/oauth2/authorize?client_id=1536360221906178088&amp;permissions=8&amp;integration_type=0&amp;scope=bot">أضف البوت إلى سيرفرك</a>
-<p class="note">مشروع غير تجاري.</p>
+<p class="lead" data-i18n="lead">بوت دسكورد واحد يدير سيرفرك كله: مستويات، موسيقى، جيفاواي، تكتات وأدوات إدارة.</p>
+<a class="btn" href="https://discord.com/oauth2/authorize?client_id=1536360221906178088&amp;permissions=8&amp;integration_type=0&amp;scope=bot" data-i18n="addBot">أضف البوت إلى سيرفرك</a>
+<p class="note" data-i18n="note">مشروع غير تجاري.</p>
 <!-- لإضافة زر سيرفر الدعم لاحقاً: انسخ سطر الزر أعلاه وبدّل الرابط والنص -->
 </div>
 <div class="logo" id="logo">
@@ -36,10 +37,10 @@
 </section>
 
 <section class="demo">
-<p>اضغط على أي قسم لفتح صفحته.</p>
+<p data-i18n="tap">اضغط على أي قسم لفتح صفحته.</p>
 <div class="menu" id="menu" aria-label="أقسام الأوامر">
 <div class="grab"></div>
-<h2>📁 اختر قسماً...</h2>
+<h2 data-i18n="choose">📁 اختر قسماً...</h2>
 <ul id="list"></ul>
 <p class="hint" id="hint"></p>
 </div>
@@ -57,10 +58,10 @@ root.classList.add('js');
 TROF.load(function(){
   var list=document.getElementById('list'),hint=document.getElementById('hint'),menu=document.getElementById('menu');
   list.innerHTML=TROF.SECTIONS.filter(TROF.can).map(function(s,i){
-    return '<li><a class="row" style="--i:'+i+'" href="section.html?p='+s.id+'"><span class="ic">'+s.icon+'</span><span><b>'+s.t+'</b><small>'+s.d+'</small></span></a></li>';
+    return '<li><a class="row" style="--i:'+i+'" href="section.html?p='+s.id+'"><span class="ic">'+s.icon+'</span><span><b>'+TROF.name(s)+'</b><small>'+TROF.desc(s)+'</small></span></a></li>';
   }).join('');
   TROF.mountAccount();
-  if(!TROF.auth.user)hint.textContent='سجّل الدخول لتظهر لك الأقسام الخاصة برتبتك.';
+  if(!TROF.auth.user)hint.textContent=TROF.t('hint');
   if('IntersectionObserver' in window){
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){menu.classList.add('in');io.disconnect()}})},{threshold:.1});
     io.observe(menu);
