@@ -13,7 +13,7 @@ var ROLE=['عضو','إدارة','ادمن ستريت','المالك'];
 var SECTIONS=[
  {id:'general',icon:'👤',t:'أوامر عامة',d:'الأوامر اللي تقدر تعدّلها بسيرفرك',need:'everyone',cmds:[]},
  {id:'tickets',icon:'🎫',t:'تكت',d:'نظام التكتات',need:'everyone',cmds:[]},
- {id:'welcome',icon:'👋',t:'الترحيب',d:'رسائل الترحيب بالأعضاء الجدد',need:'everyone',cmds:[]},
+ {id:'welcome',icon:'👋',t:'الترحيب',d:'رسائل الترحيب بالأعضاء الجدد',need:'everyone',url:'welcome.html',cmds:[]},
  {id:'levels',icon:'📊',t:'المستويات',d:'XP كتابي وصوتي',need:'everyone',cmds:[]},
  {id:'protection',icon:'🛡️',t:'الحماية',d:'حماية السيرفر',need:'staff',cmds:[]},
  {id:'moderation',icon:'🔒',t:'أوامر الإدارة',d:'للمشرفين والإداريين',need:'staff',cmds:[]},
@@ -136,9 +136,6 @@ function dust(){
   }
 }
 
-/* ============================================
-   🖥️ منتقي السيرفرات (Server Selector)
-   ============================================ */
 var selectedGuild = null;
 
 function getSelectedGuild(){
@@ -166,23 +163,14 @@ async function fetchUserGuilds(){
         headers: {Authorization: 'Bearer ' + t}
       });
     }
-    if(!res.ok){
-      console.error('Failed to fetch guilds:', res.status);
-      return [];
-    }
+    if(!res.ok) return [];
     var guilds = await res.json();
-    console.log('Guilds fetched:', guilds.length, guilds.map(function(g){return g.name + ' (owner: ' + g.owner + ')'}));
-    
-    // ⚠️ إصلاح: نعرض السيرفرات التي:
-    // 1. المستخدم مالكها (owner: true) — دائماً لديه صلاحية
-    // 2. أو لديه صلاحية MANAGE_GUILD (0x20)
     return guilds.filter(function(g){
       if(g.owner === true) return true;
       var perms = parseInt(g.permissions) || 0;
       return (perms & 0x20) === 0x20;
     });
   }catch(e){
-    console.error('Error fetching guilds:', e);
     return [];
   }
 }
@@ -254,7 +242,6 @@ async function renderServerSelector(){
   });
 }
 
-/* دالة تنسيق الأرقام */
 function formatNumber(num){
   if(num === null || num === undefined) return '0';
   num = Number(num);
