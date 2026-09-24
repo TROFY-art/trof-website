@@ -58,22 +58,56 @@ function token(){
 function has(ids,list){return ids.some(function(i){return list.indexOf(i)>-1})}
 function ok(r){if(!r.ok)throw 0;return r.json()}
 function logout(silent){try{sessionStorage.removeItem('trof_token')}catch(e){}if(!silent)location.href=base()}
+
 function load(cb){
   var t=token();
   if(!t){cb();return}
   var H={headers:{Authorization:'Bearer '+t}};
-  fetch(API+'/users/@me',H).then(ok).then(function(u){
-    auth.user=u;
-    auth.rank=(CONFIG.ownerId&&u.id===CONFIG.ownerId)?3:0;
-    if(!CONFIG.guildId)return;
-    return fetch(API+'/users/@me/guilds/'+CONFIG.guildId+'/member',H).then(ok).then(function(m){
-      var roles=m.roles||[];
-      if(auth.rank<3)auth.rank=has(CONFIG.adminStreetRoleIds,roles)?2:has(CONFIG.staffRoleIds,roles)?1:0;
-    }).catch(function(){});
-  }).then(function(){cb()},function(){logout(true);cb()});
+
+  fetch(API+'/users/@me',H)
+    .then(function(r){
+      if(r.status === 429){
+        return new Promise(function(resolve){setTimeout(resolve, 2000)})
+          .then(function(){return fetch(API+'/users/@me',H)});
+      }
+      return r;
+    })
+    .then(ok)
+    .then(function(u){
+      auth.user=u;
+      auth.rank=(CONFIG.ownerId&&u.id===CONFIG.ownerId)?3:0;
+
+      if(!CONFIG.guildId){
+        cb();
+        return;
+      }
+
+      setTimeout(function(){
+        fetch(API+'/users/@me/guilds/'+CONFIG.guildId+'/member',H)
+          .then(function(r){
+            if(r.status === 429) throw new Error('rate_limit');
+            return r;
+          })
+          .then(ok)
+          .then(function(m){
+            var roles=m.roles||[];
+            if(auth.rank<3){
+              auth.rank = has(CONFIG.adminStreetRoleIds,roles) ? 2 :
+                          has(CONFIG.staffRoleIds,roles) ? 1 : 0;
+            }
+          })
+          .catch(function(){})
+          .finally(function(){ cb(); });
+      }, 500);
+    })
+    .catch(function(){
+      logout(true);
+      cb();
+    });
 }
+
 function login(){
-  location.href='https://discord.com/oauth2/authorize?client_id='+CONFIG.clientId+'&response_type=token&scope='+encodeURIComponent('identify guilds.members.read')+'&redirect_uri='+encodeURIComponent(base());
+  location.href='https://discord.com/oauth2/authorize?client_id='+CONFIG.clientId+'&response_type=token&scope='+encodeURIComponent('identify guilds.members.read guilds')+'&redirect_uri='+encodeURIComponent(base());
 }
 function avatar(size){
   var u=auth.user;if(!u)return '';
@@ -125,6 +159,13 @@ async function fetchUserGuilds(){
     var res = await fetch(API + '/users/@me/guilds', {
       headers: {Authorization: 'Bearer ' + t}
     });
+    if(res.status === 429){
+      console.warn('Rate limited, waiting...');
+      await new Promise(function(r){setTimeout(r, 3000)});
+      res = await fetch(API + '/users/@me/guilds', {
+        headers: {Authorization: 'Bearer ' + t}
+      });
+    }
     if(!res.ok) return [];
     var guilds = await res.json();
     return guilds.filter(function(g){
@@ -141,9 +182,11 @@ async function renderServerSelector(){
 
   if(!auth.user){
     box.innerHTML = '';
+    box.classList.remove('has-user');
     return;
   }
 
+  box.classList.add('has-user');
   var guilds = await fetchUserGuilds();
   var current = getSelectedGuild();
 
