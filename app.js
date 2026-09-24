@@ -1,4 +1,4 @@
-/* إعدادات الموقع: عبّي الفراغات مرة وحدة */
+/* إعدادات الموقع */
 (function(){
 var CONFIG={
   clientId:'1536360221906178088',
@@ -12,7 +12,7 @@ var RANK={everyone:0,staff:1,admin:2,owner:3};
 var ROLE=['عضو','إدارة','ادمن ستريت','المالك'];
 var SECTIONS=[
  {id:'general',icon:'👤',t:'أوامر عامة',d:'الأوامر اللي تقدر تعدّلها بسيرفرك',need:'everyone',cmds:[]},
- {id:'tickets',icon:'🎫',t:'تكت',d:'نظام التكتات',need:'everyone',cmds:[]},
+ {id:'tickets',icon:'🎫',t:'تكت',d:'نظام التكتات',need:'everyone',url:'tickets.html',cmds:[]},
  {id:'welcome',icon:'👋',t:'الترحيب',d:'رسائل الترحيب بالأعضاء الجدد',need:'everyone',url:'welcome.html',cmds:[]},
  {id:'levels',icon:'📊',t:'المستويات',d:'XP كتابي وصوتي',need:'everyone',cmds:[]},
  {id:'protection',icon:'🛡️',t:'الحماية',d:'حماية السيرفر',need:'staff',cmds:[]},
@@ -63,7 +63,6 @@ function load(cb){
   var t=token();
   if(!t){cb();return}
   var H={headers:{Authorization:'Bearer '+t}};
-
   fetch(API+'/users/@me',H)
     .then(function(r){
       if(r.status === 429){
@@ -76,12 +75,10 @@ function load(cb){
     .then(function(u){
       auth.user=u;
       auth.rank=(CONFIG.ownerId&&u.id===CONFIG.ownerId)?3:0;
-
       if(!CONFIG.guildId){
         cb();
         return;
       }
-
       setTimeout(function(){
         fetch(API+'/users/@me/guilds/'+CONFIG.guildId+'/member',H)
           .then(function(r){
@@ -137,7 +134,7 @@ function dust(){
 }
 
 var selectedGuild = null;
-var botGuildIds = null; // cache
+var botGuildIds = null;
 
 function getSelectedGuild(){
   try{
@@ -160,9 +157,7 @@ async function fetchBotGuilds(){
       botGuildIds = data.guild_ids || [];
       return botGuildIds;
     }
-  }catch(e){
-    console.error('bot guilds error:', e);
-  }
+  }catch(e){}
   return [];
 }
 
@@ -176,18 +171,14 @@ async function checkUserAccess(userId, guildId){
       var data = await res.json();
       return data.has_access === true;
     }
-  }catch(e){
-    console.error('check access error:', e);
-  }
+  }catch(e){}
   return false;
 }
 
 async function fetchUserGuilds(){
   var t = token();
   if(!t) return [];
-  
   try{
-    // 1. جلب كل السيرفرات
     var res = await fetch(API + '/users/@me/guilds', {
       headers: {Authorization: 'Bearer ' + t}
     });
@@ -199,50 +190,34 @@ async function fetchUserGuilds(){
     }
     if(!res.ok) return [];
     var guilds = await res.json();
-    
-    // 2. جلب سيرفرات البوت (cache)
     var botGuilds = await fetchBotGuilds();
-    
-    // 3. فلترة: السيرفرات التي فيها البوت
     var candidateGuilds = guilds.filter(function(g){
       return botGuilds.length === 0 || botGuilds.indexOf(String(g.id)) > -1;
     });
-    
-    // 4. التحقق من صلاحيات المستخدم في كل سيرفر
     var adminGuilds = [];
     for(var i = 0; i < candidateGuilds.length; i++){
       var g = candidateGuilds[i];
-      
-      // المالك دائماً لديه صلاحية
       if(g.owner === true){
         adminGuilds.push(g);
         continue;
       }
-      
-      // التحقق من صلاحيات Discord
       var perms = parseInt(g.permissions) || 0;
       var hasAdmin = (perms & 0x8) === 0x8;
       var hasManageGuild = (perms & 0x20) === 0x20;
       var hasManageRoles = (perms & 0x10000000) === 0x10000000;
       var hasKick = (perms & 0x2) === 0x2;
       var hasBan = (perms & 0x4) === 0x4;
-      
       if(hasAdmin || hasManageGuild || hasManageRoles || hasKick || hasBan){
         adminGuilds.push(g);
         continue;
       }
-      
-      // التحقق الإضافي من الخادم (للرتب المخصصة)
       var hasAccess = await checkUserAccess(auth.user.id, g.id);
       if(hasAccess){
         adminGuilds.push(g);
       }
     }
-    
     return adminGuilds;
-    
   }catch(e){
-    console.error('fetchUserGuilds error:', e);
     return [];
   }
 }
@@ -250,47 +225,33 @@ async function fetchUserGuilds(){
 async function renderServerSelector(){
   var box = document.getElementById('server-selector');
   if(!box) return;
-
   if(!auth.user){
     box.innerHTML = '';
     box.classList.remove('has-user');
     return;
   }
-
   box.classList.add('has-user');
-  
-  // عرض "جاري التحميل"
   box.innerHTML = '<button class="server-btn" id="server-toggle" type="button" aria-label="' + t('selectServer') + '">' +
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>' +
     '</button>';
-  
   var guilds = await fetchUserGuilds();
   var current = getSelectedGuild();
-
   var toggle = document.getElementById('server-toggle');
-
-  // حذف القوائم القديمة
   var oldDropdown = document.getElementById('server-dropdown');
   if(oldDropdown) oldDropdown.remove();
   var oldOverlay = document.getElementById('server-overlay');
   if(oldOverlay) oldOverlay.remove();
-
-  // الخلفية المعتمة
   var overlay = document.createElement('div');
   overlay.id = 'server-overlay';
   document.body.appendChild(overlay);
-
-  // القائمة الجانبية
   var dropdown = document.createElement('div');
   dropdown.id = 'server-dropdown';
   dropdown.className = 'server-dropdown';
   dropdown.hidden = true;
-
   var dropHTML = '<div class="server-dropdown-header">';
   dropHTML += '<span>' + t('selectServer') + '</span>';
   dropHTML += '<button class="server-close" id="server-close" type="button">✕</button>';
   dropHTML += '</div>';
-
   if(guilds.length === 0){
     dropHTML += '<div class="server-empty">' + t('noServers') + '</div>';
   } else {
@@ -312,30 +273,24 @@ async function renderServerSelector(){
   }
   dropdown.innerHTML = dropHTML;
   document.body.appendChild(dropdown);
-
   var close = document.getElementById('server-close');
-
   function openMenu(){
     dropdown.hidden = false;
     setTimeout(function(){ overlay.classList.add('show'); }, 10);
     document.body.style.overflow = 'hidden';
   }
-
   function closeMenu(){
     overlay.classList.remove('show');
     document.body.style.overflow = '';
     setTimeout(function(){ dropdown.hidden = true; }, 300);
   }
-
   toggle.onclick = function(e){
     e.stopPropagation();
     if(dropdown.hidden) openMenu();
     else closeMenu();
   };
-
   close.onclick = closeMenu;
   overlay.onclick = closeMenu;
-
   dropdown.querySelectorAll('.server-item').forEach(function(btn){
     btn.onclick = function(){
       var gid = btn.getAttribute('data-guild-id');
