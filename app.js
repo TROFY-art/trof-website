@@ -13,15 +13,12 @@ var ROLE=['عضو','إدارة','ادمن ستريت','المالك'];
 /* الأقسام: need = من يشوف القسم. cmds = قائمة الأوامر [['/اسم','الوصف']] */
 var SECTIONS=[
  {id:'general',icon:'👤',t:'أوامر عامة',d:'الأوامر اللي تقدر تعدّلها بسيرفرك',need:'everyone',cmds:[]},
+ {id:'tickets',icon:'🎫',t:'تكت',d:'نظام التكتات',need:'everyone',cmds:[]},
+ {id:'welcome',icon:'👋',t:'الترحيب',d:'رسائل الترحيب بالأعضاء الجدد',need:'everyone',cmds:[]},
  {id:'levels',icon:'📊',t:'المستويات',d:'XP كتابي وصوتي',need:'everyone',cmds:[]},
- {id:'music',icon:'🎵',t:'الموسيقى',d:'تشغيل الأغاني',need:'everyone',cmds:[]},
- {id:'giveaway',icon:'🎁',t:'الجيفاواي',d:'نظام الجيفاواي',need:'everyone',cmds:[]},
- {id:'tickets',icon:'🎫',t:'التكتات',d:'نظام التكتات',need:'everyone',cmds:[]},
- {id:'shop-avatar',icon:'🖼️',t:'شوب الأفتار',d:'متجر الأفتارات',need:'everyone',cmds:[]},
- {id:'shop-banner',icon:'🎨',t:'شوب البنرات',d:'متجر البنرات',need:'everyone',cmds:[]},
+ {id:'protection',icon:'🛡️',t:'الحماية',d:'حماية السيرفر',need:'staff',cmds:[]},
  {id:'moderation',icon:'🔒',t:'أوامر الإدارة',d:'للمشرفين والإداريين',need:'staff',cmds:[]},
- {id:'admin-street',icon:'👑',t:'ادمن ستريت',d:'لأعضاء ادمن ستريت',need:'admin',cmds:[]},
- {id:'owner',icon:'⚡',t:'المالك',d:'للمالك فقط',need:'owner',cmds:[]}
+ {id:'shortcuts',icon:'⚡',t:'اختصارات',d:'اختصارات الأوامر',need:'everyone',cmds:[]}
 ];
 var LANGS=['ar','en'],NAMES={ar:'العربية',en:'English'},lang='ar';
 try{lang=localStorage.getItem('trof_lang')||'ar'}catch(e){}
@@ -31,7 +28,7 @@ var STR={
 ar:{lead:'بوت دسكورد واحد يدير سيرفرك كله: مستويات، موسيقى، جيفاواي، تكتات وأدوات إدارة.',addBot:'أضف البوت إلى سيرفرك',note:'مشروع غير تجاري.',tap:'اضغط على أي قسم لفتح صفحته.',choose:'📁 اختر قسماً...',hint:'سجّل الدخول لتظهر لك الأقسام الخاصة برتبتك.',login:'دخول عبر Discord',myProfile:'ملفي الشخصي',back:'الرجوع للأقسام',missing:'هذا القسم غير موجود.',restricted:'هذا القسم متاح لرتب محددة فقط. إذا رتبتك تسمح، سجّل الدخول عبر Discord.',soon:'أوامر هذا القسم تنضاف هنا قريباً.',profileLogin:'سجّل الدخول عبر Discord حتى تشوف ملفك الشخصي.',balance:'الرصيد',level:'المستوى',rank:'الرانك',logout:'تسجيل الخروج',noApi:'الرصيد والمستوى والرانك تظهر بعد ربط الموقع بقاعدة بيانات البوت.',apiErr:'تعذر جلب بياناتك من البوت الآن.',home:'TROF System | بوت دسكورد',profile:'ملفي | TROF System'},
 en:{lead:'One Discord bot to run your whole server: levels, music, giveaways, tickets and moderation tools.',addBot:'Add the bot to your server',note:'A non-commercial project.',tap:'Tap any section to open its page.',choose:'📁 Choose a section...',hint:'Log in to see the sections for your role.',login:'Log in with Discord',myProfile:'My profile',back:'Back to sections',missing:"This section doesn't exist.",restricted:'This section is only for certain roles. If your role allows it, log in with Discord.',soon:"This section's commands will be added here soon.",profileLogin:'Log in with Discord to see your profile.',balance:'Balance',level:'Level',rank:'Rank',logout:'Log out',noApi:"Balance, level and rank will appear once the site is connected to the bot's database.",apiErr:"Couldn't load your data from the bot right now.",home:'TROF System | Discord bot',profile:'My profile | TROF System'}
 };
-var EN={general:['General commands','Commands you can customize in your server'],levels:['Levels','Text and voice XP'],music:['Music','Play songs'],giveaway:['Giveaways','Giveaway system'],tickets:['Tickets','Ticket system'],'shop-avatar':['Avatar shop','Avatar store'],'shop-banner':['Banner shop','Banner store'],moderation:['Moderation commands','For moderators and admins'],'admin-street':['Admin Street','For Admin Street members'],owner:['Owner','Owner only']};
+var EN={general:['General commands','Commands you can customize in your server'],tickets:['Tickets','Ticket system'],welcome:['Welcome','Welcome messages for new members'],levels:['Levels','Text and voice XP'],protection:['Protection','Server protection'],moderation:['Moderation commands','For moderators and admins'],shortcuts:['Shortcuts','Command shortcuts']};
 var ROLE_EN=['Member','Staff','Admin Street','Owner'];
 function t(k){return (STR[lang]&&STR[lang][k])||STR.ar[k]||k}
 function name(s){return lang==='en'&&EN[s.id]?EN[s.id][0]:s.t}
