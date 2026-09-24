@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<script>try{if(localStorage.getItem('trof_lang')==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr'}}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>صانع Embed | TROF System</title>
+<meta name="theme-color" content="#0d0c0a">
+<link rel="icon" type="image/webp" href="logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="dust" aria-hidden="true"></div>
+
+<header class="wrap bar">
+  <div class="hd">
+    <a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a>
+    <button class="lang" id="lang" type="button"></button>
+  </div>
+  <div class="hd-right">
+    <div id="server-selector"></div>
+    <div id="acct"></div>
+  </div>
+</header>
+
+<main class="wrap page" id="page"></main>
+<footer class="wrap">TROF System.</footer>
+
+<script src="app.js"></script>
+<script>
+(function(){
+var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
+TROF.dust();
+
+var currentEmbed = {
+  title: '',
+  description: '',
+  color: '#5865F2',
+  url: '',
+  image: '',
+  thumbnail: '',
+  footer_text: '',
+  footer_icon: '',
+  author_name: '',
+  author_icon: '',
+  timestamp: false,
+  fields: []
+};
+
+TROF.load(function(){
+  TROF.mountAccount();
+  TROF.renderServerSelector();
+  var page=document.getElementById('page');
+  var u=TROF.auth.user;
+
+  if(!u){
+    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">سجّل الدخول للوصول.</p>';
+    return;
+  }
+
+  var gid = TROF.getSelectedGuild();
+  if(!gid){
+    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">⚠️ اختر سيرفراً أولاً.</p>';
+    return;
+  }
+
+  page.innerHTML = buildEmbedPage(gid);
+  loadChannels(gid);
+  loadTemplates(gid);
+  updatePreview();
+  bindEvents(gid);
+});
+
+function buildEmbedPage(gid){
+  return '' +
+  '<a class="back" href="./">'+CHEV+'الرجوع</a>' +
+  '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">🎨</span></div><div><h1 class="sec-title">صانع Embed</h1><p>أنشئ رسائل مخصصة وأرسلها لسيرفرك</p></div></div>' +
+  '<div class="welcome-form">' +
+
+    // ===== القوالب =====
+    '<div class="form-section-title">📂 القوالب المحفوظة</div>' +
+    '<div class="form-row form-row-col">' +
+      '<div class="inline-controls">' +
+        '<input type="text" class="form-select small-select" id="tpl-name" placeholder="اسم القالب">' +
+        '<button class="btn small-btn" id="tpl-save" type="button">💾 حفظ قالب</button>' +
+      '</div>' +
+      '<div class="templates-list" id="templates-list"><p class="form-hint">جاري التحميل...</p></div>' +
+    '</div>' +
+
+    // ===== المحتوى الأساسي =====
+    '<div class="form-section-title">📝 المحتوى الأساسي</div>' +
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">📝 العنوان</label>' +
+      '<input type="text" class="form-select" id="e-title" placeholder="عنوان Embed" maxlength="256">' +
+    '</div>' +
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">📄 الوصف</label>' +
+      '<textarea class="form-textarea" id="e-desc" rows="5" placeholder="وصف Embed..." maxlength="4096"></textarea>' +
+    '</div>' +
+    '<div class="form-row">' +
+      '<label class="form-label">🎨 اللون</label>' +
+      '<input type="color" id="e-color" value="#5865F2">' +
+    '</div>' +
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">🔗 رابط العنوان</label>' +
+      '<input type="text" class="form-select" id="e-url" placeholder="https://...">' +
+    '</div>' +
+
+    // ===== الصور =====
+    '<div class="form-section-title">🖼️ الصور</div>' +
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">🖼️ الصورة الرئيسية</label>' +
+      '<input type="text" class="form-select" id="e-image" placeholder="https://...">' +
+    '</div>' +
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">📌 الصورة المصغرة</label>' +
+      '<input type="text" class="form-select" id="e-thumbnail" placeholder="https://...">' +
+    '</div>' +
+
+    // ===== Author =====
+    '<div class="form-section-title">👤 المؤلف</div>' +
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">👤 اسم المؤلف</label>' +
+      '<input type="text" class="form-select" id="e-author" placeholder="اسم المؤلف" maxlength="256">' +
+    '</div>' +
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">🖼️ أيقونة المؤلف</label>' +
+      '<input type="text" class="form-select" id="e-author-icon" placeholder="https://...">' +
+    '</div>' +
+
+    // ===== Footer =====
+    '<div class="form-section-title">📌 Footer</div>' +
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">📌 نص Footer</label>' +
+      '<input type="text" class="form-select" id="e-footer" placeholder="نص Footer" maxlength="2048">' +
+    '</div>' +
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">🖼️ أيقونة Footer</label>' +
+      '<input type="text" class="form-select" id="e-footer-icon" placeholder="https://...">' +
+    '</div>' +
+    '<div class="form-row">' +
+      '<label class="form-label">⏰ إضافة التوقيت</label>' +
+      '<label class="switch"><input type="checkbox" id="e-timestamp"><span class="slider"></span></label>' +
+    '</div>' +
+
+    // ===== الحقول =====
+    '<div class="form-section-title">🏷️ الحقول (Fields)</div>' +
+    '<div class="form-row form-row-col">' +
+      '<div class="fields-list" id="fields-list"></div>' +
+      '<button class="btn small-btn" id="add-field" type="button">➕ إضافة حقل</button>' +
+    '</div>' +
+
+    // ===== المعاينة =====
+    '<div class="form-section-title">👁️ المعاينة الحية</div>' +
+    '<div class="discord-preview" id="discord-preview"></div>' +
+
+    // ===== الإرسال =====
+    '<div class="form-section-title">📤 الإرسال</div>' +
+    '<div class="form-row">' +
+      '<label class="form-label">📢 القناة</label>' +
+      '<select class="form-select" id="e-channel"><option value="">-- اختر قناة --</option></select>' +
+    '</div>' +
+    '<div class="form-actions">' +
+      '<button class="btn" id="e-send" type="button">📤 إرسال إلى Discord</button>' +
+      '<p class="save-msg" id="e-msg"></p>' +
+    '</div>' +
+
+  '</div>';
+}
+
+async function loadChannels(gid){
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/channels', {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+    if(res.ok){
+      var data = await res.json();
+      var sel = document.getElementById('e-channel');
+      data.channels.forEach(function(c){
+        sel.innerHTML += '<option value="' + c.id + '">#' + c.name + '</option>';
+      });
+    }
+  }catch(e){}
+}
+
+async function loadTemplates(gid){
+  var list = document.getElementById('templates-list');
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/embed/templates', {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+    if(res.ok){
+      var data = await res.json();
+      if(data.templates.length === 0){
+        list.innerHTML = '<p class="form-hint">لا توجد قوالب محفوظة</p>';
+        return;
+      }
+      list.innerHTML = data.templates.map(function(t){
+        return '<div class="type-item">' +
+          '<span class="type-emoji" style="background:#5865F220;color:#5865F2">📄</span>' +
+          '<div class="type-info"><b>' + t.name + '</b></div>' +
+          '<button class="small-btn load-tpl" data-id="' + t.id + '" data-name="' + t.name + '">📂</button>' +
+          '<button class="small-btn delete-tpl" data-id="' + t.id + '">🗑️</button>' +
+        '</div>';
+      }).join('');
+      
+      // تحميل قالب
+      list.querySelectorAll('.load-tpl').forEach(function(btn){
+        btn.onclick = function(){
+          var id = parseInt(btn.getAttribute('data-id'));
+          var tpl = data.templates.find(function(t){return t.id === id});
+          if(tpl){
+            currentEmbed = Object.assign({}, currentEmbed, tpl.data);
+            fillFormFromEmbed();
+            updatePreview();
+            alert('✅ تم تحميل القالب');
+          }
+        };
+      });
+      
+      // حذف قالب
+      list.querySelectorAll('.delete-tpl').forEach(function(btn){
+        btn.onclick = async function(){
+          if(!confirm('حذف القالب؟')) return;
+          var id = btn.getAttribute('data-id');
+          await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/embed/templates/' + id, {
+            method: 'DELETE',
+            headers: {Authorization: 'Bearer ' + TROF.token()}
+          });
+          await loadTemplates(gid);
+        };
+      });
+    }
+  }catch(e){}
+}
+
+function fillFormFromEmbed(){
+  document.getElementById('e-title').value = currentEmbed.title || '';
+  document.getElementById('e-desc').value = currentEmbed.description || '';
+  document.getElementById('e-color').value = currentEmbed.color || '#5865F2';
+  document.getElementById('e-url').value = currentEmbed.url || '';
+  document.getElementById('e-image').value = currentEmbed.image || '';
+  document.getElementById('e-thumbnail').value = currentEmbed.thumbnail || '';
+  document.getElementById('e-author').value = currentEmbed.author_name || '';
+  document.getElementById('e-author-icon').value = currentEmbed.author_icon || '';
+  document.getElementById('e-footer').value = currentEmbed.footer_text || '';
+  document.getElementById('e-footer-icon').value = currentEmbed.footer_icon || '';
+  document.getElementById('e-timestamp').checked = currentEmbed.timestamp || false;
+  
+  // الحقول
+  var fieldsList = document.getElementById('fields-list');
+  fieldsList.innerHTML = '';
+  (currentEmbed.fields || []).forEach(function(f){
+    addFieldRow(f.name, f.value, f.inline);
+  });
+}
+
+function updateEmbedFromForm(){
+  currentEmbed.title = document.getElementById('e-title').value;
+  currentEmbed.description = document.getElementById('e-desc').value;
+  currentEmbed.color = document.getElementById('e-color').value;
+  currentEmbed.url = document.getElementById('e-url').value;
+  currentEmbed.image = document.getElementById('e-image').value;
+  currentEmbed.thumbnail = document.getElementById('e-thumbnail').value;
+  currentEmbed.author_name = document.getElementById('e-author').value;
+  currentEmbed.author_icon = document.getElementById('e-author-icon').value;
+  currentEmbed.footer_text = document.getElementById('e-footer').value;
+  currentEmbed.footer_icon = document.getElementById('e-footer-icon').value;
+  currentEmbed.timestamp = document.getElementById('e-timestamp').checked;
+  
+  // الحقول
+  currentEmbed.fields = [];
+  document.querySelectorAll('#fields-list .field-row').forEach(function(row){
+    var name = row.querySelector('.field-name').value;
+    var value = row.querySelector('.field-value').value;
+    var inline = row.querySelector('.field-inline').checked;
+    if(name && value){
+      currentEmbed.fields.push({name: name, value: value, inline: inline});
+    }
+  });
+}
+
+function updatePreview(){
+  updateEmbedFromForm();
+  var preview = document.getElementById('discord-preview');
+  
+  var color = currentEmbed.color || '#5865F2';
+  var html = '<div class="dc-embed" style="border-color:' + color + '">';
+  
+  // Author
+  if(currentEmbed.author_name){
+    html += '<div class="dc-author">';
+    if(currentEmbed.author_icon){
+      html += '<img src="' + currentEmbed.author_icon + '" onerror="this.style.display=\'none\'">';
+    }
+    html += '<span>' + currentEmbed.author_name + '</span></div>';
+  }
+  
+  // Title
+  if(currentEmbed.title){
+    if(currentEmbed.url){
+      html += '<a class="dc-title" href="' + currentEmbed.url + '" target="_blank">' + currentEmbed.title + '</a>';
+    }else{
+      html += '<div class="dc-title">' + currentEmbed.title + '</div>';
+    }
+  }
+  
+  // Description
+  if(currentEmbed.description){
+    html += '<div class="dc-desc">' + currentEmbed.description.replace(/\n/g, '<br>') + '</div>';
+  }
+  
+  // Fields
+  if(currentEmbed.fields && currentEmbed.fields.length > 0){
+    html += '<div class="dc-fields">';
+    currentEmbed.fields.forEach(function(f){
+      var cls = f.inline ? 'dc-field inline' : 'dc-field';
+      html += '<div class="' + cls + '"><b>' + f.name + '</b><span>' + f.value + '</span></div>';
+    });
+    html += '</div>';
+  }
+  
+  // Image
+  if(currentEmbed.image){
+    html += '<img class="dc-image" src="' + currentEmbed.image + '" onerror="this.style.display=\'none\'">';
+  }
+  
+  // Footer
+  if(currentEmbed.footer_text){
+    html += '<div class="dc-footer">';
+    if(currentEmbed.footer_icon){
+      html += '<img src="' + currentEmbed.footer_icon + '" onerror="this.style.display=\'none\'">';
+    }
+    html += '<span>' + currentEmbed.footer_text;
+    if(currentEmbed.timestamp){
+      html += ' • ' + new Date().toLocaleString('ar');
+    }
+    html += '</span></div>';
+  }
+  
+  // Thumbnail
+  if(currentEmbed.thumbnail){
+    html += '<img class="dc-thumb" src="' + currentEmbed.thumbnail + '" onerror="this.style.display=\'none\'">';
+  }
+  
+  html += '</div>';
+  preview.innerHTML = html;
+}
+
+function addFieldRow(name, value, inline){
+  var list = document.getElementById('fields-list');
+  var div = document.createElement('div');
+  div.className = 'field-row';
+  div.innerHTML = 
+    '<input type="text" class="form-select field-name" placeholder="اسم الحقل" value="' + (name || '') + '">' +
+    '<input type="text" class="form-select field-value" placeholder="قيمة الحقل" value="' + (value || '') + '">' +
+    '<label class="field-inline-label"><input type="checkbox" class="field-inline" ' + (inline ? 'checked' : '') + '> inline</label>' +
+    '<button class="small-btn remove-field" type="button">🗑️</button>';
+  div.querySelector('.remove-field').onclick = function(){ div.remove(); updatePreview(); };
+  div.querySelectorAll('input').forEach(function(inp){
+    inp.addEventListener('input', updatePreview);
+  });
+  list.appendChild(div);
+}
+
+function bindEvents(gid){
+  // مستمعات الحقول
+  ['e-title', 'e-desc', 'e-color', 'e-url', 'e-image', 'e-thumbnail',
+   'e-author', 'e-author-icon', 'e-footer', 'e-footer-icon', 'e-timestamp'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener('input', updatePreview);
+  });
+  
+  // إضافة حقل
+  document.getElementById('add-field').onclick = function(){
+    addFieldRow('', '', false);
+    updatePreview();
+  };
+  
+  // حفظ قالب
+  document.getElementById('tpl-save').onclick = async function(){
+    var name = document.getElementById('tpl-name').value.trim();
+    if(!name){ alert('اكتب اسم القالب'); return; }
+    
+    updateEmbedFromForm();
+    
+    try{
+      var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/embed/templates', {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+        body: JSON.stringify({name: name, embed: currentEmbed})
+      });
+      if(res.ok){
+        document.getElementById('tpl-name').value = '';
+        await loadTemplates(gid);
+        alert('✅ تم حفظ القالب');
+      }else{
+        var err = await res.json();
+        alert('❌ ' + (err.detail || 'فشل'));
+      }
+    }catch(e){ alert('❌ خطأ'); }
+  };
+  
+  // إرسال
+  document.getElementById('e-send').onclick = async function(){
+    var btn = this; btn.disabled = true;
+    var msg = document.getElementById('e-msg');
+    msg.textContent = '⏳ جاري الإرسال...';
+    
+    var channel = document.getElementById('e-channel').value;
+    if(!channel){
+      msg.textContent = '❌ اختر قناة';
+      msg.style.color = '#f87171';
+      btn.disabled = false;
+      return;
+    }
+    
+    updateEmbedFromForm();
+    
+    try{
+      var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/embed/send', {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+        body: JSON.stringify({channel_id: channel, embed: currentEmbed})
+      });
+      if(res.ok){
+        msg.textContent = '✅ تم الإرسال!';
+        msg.style.color = '#4ade80';
+      }else{
+        var err = await res.json();
+        msg.textContent = '❌ ' + (err.detail || 'فشل');
+        msg.style.color = '#f87171';
+      }
+    }catch(e){
+      msg.textContent = '❌ خطأ';
+      msg.style.color = '#f87171';
+    }
+    btn.disabled = false;
+    setTimeout(function(){ msg.textContent = ''; }, 3000);
+  };
+}
+})();
+</script>
+</body>
+</html>
