@@ -15,8 +15,14 @@
 <body data-title="profile">
 <div id="dust" aria-hidden="true"></div>
 <header class="wrap bar">
-<div class="hd"><a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a><button class="lang" id="lang" type="button"></button></div>
-<div id="acct"></div>
+  <div class="hd">
+    <a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a>
+    <button class="lang" id="lang" type="button"></button>
+  </div>
+  <div class="hd-right">
+    <div id="server-selector"></div>
+    <div id="acct"></div>
+  </div>
 </header>
 <main class="wrap page" id="page"></main>
 <footer class="wrap">TROF System.</footer>
@@ -26,6 +32,7 @@ var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-widt
 TROF.dust();
 TROF.load(function(){
   TROF.mountAccount();
+  TROF.renderServerSelector();
   var u=TROF.auth.user,page=document.getElementById('page'),n=0;
   function r(){return ' rise" style="--d:'+(n++)}
   var h='<a class="back'+r()+'" href="./">'+CHEV+TROF.t('back')+'</a>';
@@ -50,7 +57,11 @@ TROF.load(function(){
   if(!api){note.textContent=TROF.t('noApi');return}
   fetch(api.replace(/\/$/,'')+'/users/'+u.id,{headers:{Authorization:'Bearer '+TROF.token()}})
     .then(function(x){if(!x.ok)throw 0;return x.json()})
-    .then(function(d){count(document.getElementById('s-bal'),d.balance);count(document.getElementById('s-lvl'),d.level);count(document.getElementById('s-rank'),d.rank)})
+    .then(function(d){
+      document.getElementById('s-bal').textContent = TROF.formatNumber(d.balance);
+      count(document.getElementById('s-lvl'), d.level);
+      count(document.getElementById('s-rank'), d.rank);
+    })
     .catch(function(){note.textContent=TROF.t('apiErr')});
 });
 </script>
