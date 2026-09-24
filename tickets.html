@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<script>try{if(localStorage.getItem('trof_lang')==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr'}}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>التكتات | TROF System</title>
+<meta name="theme-color" content="#0d0c0a">
+<link rel="icon" type="image/webp" href="logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="dust" aria-hidden="true"></div>
+
+<header class="wrap bar">
+  <div class="hd">
+    <a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a>
+    <button class="lang" id="lang" type="button"></button>
+  </div>
+  <div class="hd-right">
+    <div id="server-selector"></div>
+    <div id="acct"></div>
+  </div>
+</header>
+
+<main class="wrap page" id="page"></main>
+<footer class="wrap">TROF System.</footer>
+
+<script src="app.js"></script>
+<script>
+(function(){
+var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
+TROF.dust();
+
+TROF.load(function(){
+  TROF.mountAccount();
+  TROF.renderServerSelector();
+  var page=document.getElementById('page');
+  var u=TROF.auth.user;
+
+  if(!u){
+    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">سجّل الدخول للوصول للإعدادات.</p>';
+    return;
+  }
+
+  var gid = TROF.getSelectedGuild();
+  if(!gid){
+    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">⚠️ اختر سيرفراً أولاً.</p>';
+    return;
+  }
+
+  page.innerHTML = buildTicketsPage(gid);
+  loadAll(gid);
+  bindEvents(gid);
+});
+
+function buildTicketsPage(gid){
+  return '' +
+  '<a class="back" href="./">'+CHEV+'الرجوع</a>' +
+  '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">🎫</span></div><div><h1 class="sec-title">نظام التكتات</h1><p>إدارة كاملة للتكتات</p></div></div>' +
+  '<div class="welcome-form">' +
+
+    // ===== الإعدادات العامة =====
+    '<div class="form-section-title">⚙️ الإعدادات العامة</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">📁 الفئة</label>' +
+      '<select class="form-select" id="t-category"><option value="">-- بدون --</option></select>' +
+    '</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">📢 قناة السجل</label>' +
+      '<select class="form-select" id="t-log"><option value="">-- بدون --</option></select>' +
+    '</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">🛡️ رتبة الدعم</label>' +
+      '<select class="form-select" id="t-support"><option value="">-- بدون --</option></select>' +
+    '</div>' +
+
+    '<div class="form-actions">' +
+      '<button class="btn save-btn" id="t-save-settings" type="button">💾 حفظ الإعدادات</button>' +
+      '<p class="save-msg" id="t-msg"></p>' +
+    '</div>' +
+
+    // ===== أنواع التكتات =====
+    '<div class="form-section-title">📋 أنواع التكتات</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<div class="types-list" id="types-list">' +
+        '<p class="form-hint">جاري التحميل...</p>' +
+      '</div>' +
+      '<button class="btn small-btn" id="t-add-type" type="button" style="margin-top:10px">➕ إضافة نوع جديد</button>' +
+    '</div>' +
+
+    // ===== إرسال البانل =====
+    '<div class="form-section-title">📤 إرسال بانل التكت</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">📢 القناة</label>' +
+      '<select class="form-select" id="t-panel-channel"><option value="">-- اختر قناة --</option></select>' +
+    '</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">📝 عنوان البانل</label>' +
+      '<input type="text" class="form-select" id="t-panel-title" value="🎫 نظام التكتات">' +
+    '</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">📄 وصف البانل</label>' +
+      '<textarea class="form-textarea" id="t-panel-desc" rows="2">اختر نوع التكت من القائمة أدناه لإنشاء تكت.</textarea>' +
+    '</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">🎨 لون البانل</label>' +
+      '<input type="color" id="t-panel-color" value="#5865F2">' +
+    '</div>' +
+
+    '<div class="form-actions">' +
+      '<button class="btn" id="t-send-panel" type="button">📤 إرسال البانل</button>' +
+      '<p class="save-msg" id="t-panel-msg"></p>' +
+    '</div>' +
+
+    // ===== التكتات المفتوحة =====
+    '<div class="form-section-title">📊 التكتات المفتوحة</div>' +
+    '<div class="form-row form-row-col">' +
+      '<div class="tickets-list" id="tickets-list">' +
+        '<p class="form-hint">جاري التحميل...</p>' +
+      '</div>' +
+    '</div>' +
+
+  '</div>' +
+
+  // Modal لإضافة نوع
+  '<div class="modal" id="type-modal" hidden>' +
+    '<div class="modal-content">' +
+      '<div class="modal-header">' +
+        '<h3 id="modal-title">إضافة نوع تكت</h3>' +
+        '<button class="modal-close" id="modal-close" type="button">✕</button>' +
+      '</div>' +
+      '<div class="modal-body">' +
+        '<div class="form-row">' +
+          '<label>📝 الاسم</label>' +
+          '<input type="text" class="form-select" id="m-name" placeholder="مثال: دعم فني">' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<label>😀 الإيموجي</label>' +
+          '<input type="text" class="form-select" id="m-emoji" value="🎫" maxlength="2">' +
+        '</div>' +
+        '<div class="form-row form-row-col">' +
+          '<label>📄 الوصف</label>' +
+          '<input type="text" class="form-select" id="m-desc" placeholder="وصف مختصر">' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<label>🎨 اللون</label>' +
+          '<input type="color" id="m-color" value="#5865F2">' +
+        '</div>' +
+        '<div class="form-row form-row-col">' +
+          '<label>💬 رسالة الترحيب</label>' +
+          '<textarea class="form-textarea" id="m-welcome" rows="2" placeholder="مرحباً {user}! سيتم مساعدتك قريباً."></textarea>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<label>🛡️ رتبة الدعم</label>' +
+          '<select class="form-select" id="m-support"><option value="">-- بدون --</option></select>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<label>🔔 رتبة الإشعار</label>' +
+          '<select class="form-select" id="m-mention"><option value="">-- بدون --</option></select>' +
+        '</div>' +
+      '</div>' +
+      '<div class="modal-footer">' +
+        '<button class="btn" id="m-save" type="button">💾 حفظ</button>' +
+        '<button class="btn alt" id="m-cancel" type="button">إلغاء</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+async function loadAll(gid){
+  var api = TROF.CONFIG.apiUrl;
+  var token = TROF.token();
+  
+  // 1. جلب القنوات والرتب
+  try{
+    var res = await fetch(api + '/guild/' + gid + '/channels', {headers: {Authorization: 'Bearer ' + token}});
+    if(res.ok){
+      var data = await res.json();
+      ['t-log', 't-panel-channel'].forEach(function(id){
+        var sel = document.getElementById(id);
+        data.channels.forEach(function(c){
+          sel.innerHTML += '<option value="' + c.id + '">#' + c.name + '</option>';
+        });
+      });
+    }
+  }catch(e){}
+  
+  try{
+    var res = await fetch(api + '/guild/' + gid + '/roles', {headers: {Authorization: 'Bearer ' + token}});
+    if(res.ok){
+      var data = await res.json();
+      ['t-support', 'm-support', 'm-mention'].forEach(function(id){
+        var sel = document.getElementById(id);
+        if(!sel) return;
+        data.roles.forEach(function(r){
+          sel.innerHTML += '<option value="' + r.id + '">' + r.name + '</option>';
+        });
+      });
+    }
+  }catch(e){}
+  
+  // 2. جلب إعدادات التكت
+  try{
+    var res = await fetch(api + '/guild/' + gid + '/tickets/settings', {headers: {Authorization: 'Bearer ' + token}});
+    if(res.ok){
+      var data = await res.json();
+      if(data.settings){
+        if(data.settings.category_id) document.getElementById('t-category').value = data.settings.category_id;
+        if(data.settings.log_channel_id) document.getElementById('t-log').value = data.settings.log_channel_id;
+        if(data.settings.support_role_id) document.getElementById('t-support').value = data.settings.support_role_id;
+      }
+    }
+  }catch(e){}
+  
+  // 3. جلب أنواع التكتات
+  await loadTypes(gid);
+  
+  // 4. جلب التكتات المفتوحة
+  await loadOpenTickets(gid);
+}
+
+async function loadTypes(gid){
+  var list = document.getElementById('types-list');
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/tickets/types', {headers: {Authorization: 'Bearer ' + TROF.token()}});
+    if(res.ok){
+      var data = await res.json();
+      if(data.types.length === 0){
+        list.innerHTML = '<p class="form-hint">لا توجد أنواع بعد. اضغط "إضافة نوع جديد".</p>';
+        return;
+      }
+      list.innerHTML = data.types.map(function(t){
+        return '<div class="type-item">' +
+          '<span class="type-emoji" style="background:' + t.color + '20;color:' + t.color + '">' + t.emoji + '</span>' +
+          '<div class="type-info">' +
+            '<b>' + t.name + '</b>' +
+            '<small>' + (t.description || 'بدون وصف') + '</small>' +
+          '</div>' +
+          '<button class="small-btn delete-type" data-name="' + t.name + '">🗑️</button>' +
+        '</div>';
+      }).join('');
+      
+      // ربط أزرار الحذف
+      list.querySelectorAll('.delete-type').forEach(function(btn){
+        btn.onclick = async function(){
+          if(!confirm('حذف النوع ' + btn.getAttribute('data-name') + '؟')) return;
+          try{
+            await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/tickets/types/' + encodeURIComponent(btn.getAttribute('data-name')), {
+              method: 'DELETE',
+              headers: {Authorization: 'Bearer ' + TROF.token()}
+            });
+            await loadTypes(gid);
+          }catch(e){}
+        };
+      });
+    }
+  }catch(e){
+    list.innerHTML = '<p class="form-hint">خطأ في التحميل</p>';
+  }
+}
+
+async function loadOpenTickets(gid){
+  var list = document.getElementById('tickets-list');
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/tickets/open', {headers: {Authorization: 'Bearer ' + TROF.token()}});
+    if(res.ok){
+      var data = await res.json();
+      if(data.tickets.length === 0){
+        list.innerHTML = '<p class="form-hint">لا توجد تكتات مفتوحة</p>';
+        return;
+      }
+      list.innerHTML = data.tickets.map(function(t){
+        return '<div class="ticket-item">' +
+          '<span>🎫 #' + t.id + '</span>' +
+          '<span>👤 <@' + t.user_id + '></span>' +
+          '<span>📋 ' + t.type + '</span>' +
+        '</div>';
+      }).join('');
+    }
+  }catch(e){
+    list.innerHTML = '<p class="form-hint">خطأ في التحميل</p>';
+  }
+}
+
+function bindEvents(gid){
+  // حفظ الإعدادات
+  document.getElementById('t-save-settings').onclick = async function(){
+    var btn = this; btn.disabled = true;
+    var msg = document.getElementById('t-msg');
+    msg.textContent = '⏳ جاري الحفظ...';
+    try{
+      var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/tickets/settings', {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          category_id: document.getElementById('t-category').value || null,
+          log_channel_id: document.getElementById('t-log').value || null,
+          support_role_id: document.getElementById('t-support').value || null
+        })
+      });
+      if(res.ok){
+        msg.textContent = '✅ تم الحفظ';
+        msg.style.color = '#4ade80';
+      }else{
+        msg.textContent = '❌ فشل';
+        msg.style.color = '#f87171';
+      }
+    }catch(e){
+      msg.textContent = '❌ خطأ';
+      msg.style.color = '#f87171';
+    }
+    btn.disabled = false;
+    setTimeout(function(){ msg.textContent = ''; }, 3000);
+  };
+  
+  // فتح modal إضافة نوع
+  document.getElementById('t-add-type').onclick = function(){
+    document.getElementById('type-modal').hidden = false;
+    document.getElementById('modal-title').textContent = 'إضافة نوع تكت';
+    ['m-name', 'm-desc', 'm-welcome'].forEach(function(id){ document.getElementById(id).value = ''; });
+    document.getElementById('m-emoji').value = '🎫';
+    document.getElementById('m-color').value = '#5865F2';
+    document.getElementById('m-support').value = '';
+    document.getElementById('m-mention').value = '';
+  };
+  
+  document.getElementById('modal-close').onclick = function(){
+    document.getElementById('type-modal').hidden = true;
+  };
+  document.getElementById('m-cancel').onclick = function(){
+    document.getElementById('type-modal').hidden = true;
+  };
+  
+  // حفظ النوع
+  document.getElementById('m-save').onclick = async function(){
+    var name = document.getElementById('m-name').value.trim();
+    if(!name){ alert('اكتب الاسم'); return; }
+    var btn = this; btn.disabled = true;
+    
+    try{
+      var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/tickets/types', {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          name: name,
+          emoji: document.getElementById('m-emoji').value || '🎫',
+          description: document.getElementById('m-desc').value,
+          color: document.getElementById('m-color').value,
+          welcome_message: document.getElementById('m-welcome').value,
+          support_role_id: document.getElementById('m-support').value || null,
+          mention_role_id: document.getElementById('m-mention').value || null
+        })
+      });
+      if(res.ok){
+        document.getElementById('type-modal').hidden = true;
+        await loadTypes(gid);
+      }else{
+        var err = await res.json();
+        alert('❌ ' + (err.detail || 'فشل'));
+      }
+    }catch(e){ alert('❌ خطأ'); }
+    btn.disabled = false;
+  };
+  
+  // إرسال البانل
+  document.getElementById('t-send-panel').onclick = async function(){
+    var btn = this; btn.disabled = true;
+    var msg = document.getElementById('t-panel-msg');
+    msg.textContent = '⏳ جاري الإرسال...';
+    
+    var channel = document.getElementById('t-panel-channel').value;
+    if(!channel){
+      msg.textContent = '❌ اختر قناة';
+      msg.style.color = '#f87171';
+      btn.disabled = false;
+      return;
+    }
+    
+    try{
+      var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/tickets/panel', {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          channel_id: channel,
+          title: document.getElementById('t-panel-title').value,
+          description: document.getElementById('t-panel-desc').value,
+          color: document.getElementById('t-panel-color').value
+        })
+      });
+      if(res.ok){
+        msg.textContent = '✅ تم إرسال البانل!';
+        msg.style.color = '#4ade80';
+      }else{
+        var err = await res.json();
+        msg.textContent = '❌ ' + (err.detail || 'فشل');
+        msg.style.color = '#f87171';
+      }
+    }catch(e){
+      msg.textContent = '❌ خطأ';
+      msg.style.color = '#f87171';
+    }
+    btn.disabled = false;
+    setTimeout(function(){ msg.textContent = ''; }, 3000);
+  };
+}
+})();
+</script>
+</body>
+  </html>
