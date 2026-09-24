@@ -14,7 +14,7 @@ var SECTIONS=[
  {id:'general',icon:'👤',t:'أوامر عامة',d:'الأوامر اللي تقدر تعدّلها بسيرفرك',need:'everyone',cmds:[]},
  {id:'tickets',icon:'🎫',t:'تكت',d:'نظام التكتات',need:'everyone',url:'tickets.html',cmds:[]},
  {id:'welcome',icon:'👋',t:'الترحيب',d:'رسائل الترحيب بالأعضاء الجدد',need:'everyone',url:'welcome.html',cmds:[]},
- {id:'levels',icon:'📊',t:'المستويات',d:'XP كتابي وصوتي',need:'everyone',cmds:[]},
+ {id:'levels',icon:'📊',t:'المستويات',d:'XP كتابي وصوتي',need:'everyone',url:'levels.html',cmds:[]},
  {id:'protection',icon:'🛡️',t:'الحماية',d:'حماية السيرفر',need:'staff',cmds:[]},
  {id:'moderation',icon:'🔒',t:'أوامر الإدارة',d:'للمشرفين والإداريين',need:'staff',cmds:[]},
  {id:'shortcuts',icon:'⚡',t:'اختصارات',d:'اختصارات الأوامر',need:'everyone',cmds:[]}
