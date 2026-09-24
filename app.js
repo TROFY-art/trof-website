@@ -24,8 +24,8 @@ try{lang=localStorage.getItem('trof_lang')||'ar'}catch(e){}
 if(LANGS.indexOf(lang)<0)lang='ar';
 document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
 var STR={
-ar:{lead:'بوت دسكورد واحد يدير سيرفرك كله: مستويات، موسيقى، جيفاواي، تكتات وأدوات إدارة.',addBot:'أضف البوت إلى سيرفرك',note:'مشروع غير تجاري.',tap:'اضغط على أي قسم لفتح صفحته.',choose:'📁 اختر قسماً...',hint:'سجّل الدخول لتظهر لك الأقسام الخاصة برتبتك.',login:'Login',myProfile:'ملفي الشخصي',back:'الرجوع للأقسام',missing:'هذا القسم غير موجود.',restricted:'هذا القسم متاح لرتب محددة فقط. إذا رتبتك تسمح، سجّل الدخول عبر Discord.',soon:'أوامر هذا القسم تنضاف هنا قريباً.',profileLogin:'سجّل الدخول عبر Discord حتى تشوف ملفك الشخصي.',balance:'الرصيد',level:'المستوى',rank:'الرانك',logout:'تسجيل الخروج',noApi:'الرصيد والمستوى والرانك تظهر بعد ربط الموقع بقاعدة بيانات البوت.',apiErr:'تعذر جلب بياناتك من البوت الآن.',home:'TROF System | بوت دسكورد',profile:'ملفي | TROF System',selectServer:'اختر السيرفر',noServers:'لا توجد سيرفرات تملك فيها صلاحية إدارية'},
-en:{lead:'One Discord bot to run your whole server: levels, music, giveaways, tickets and moderation tools.',addBot:'Add the bot to your server',note:'A non-commercial project.',tap:'Tap any section to open its page.',choose:'📁 Choose a section...',hint:'Log in to see the sections for your role.',login:'Login',myProfile:'My profile',back:'Back to sections',missing:"This section doesn't exist.",restricted:'This section is only for certain roles. If your role allows it, log in with Discord.',soon:"This section's commands will be added here soon.",profileLogin:'Log in with Discord to see your profile.',balance:'Balance',level:'Level',rank:'Rank',logout:'Log out',noApi:"Balance, level and rank will appear once the site is connected to the bot's database.",apiErr:"Couldn't load your data from the bot right now.",home:'TROF System | Discord bot',profile:'My profile | TROF System',selectServer:'Select Server',noServers:'No servers where you have admin permission'}
+ar:{lead:'بوت دسكورد واحد يدير سيرفرك كله: مستويات، موسيقى، جيفاواي، تكتات وأدوات إدارة.',addBot:'أضف البوت إلى سيرفرك',note:'مشروع غير تجاري.',tap:'اضغط على أي قسم لفتح صفحته.',choose:'📁 اختر قسماً...',hint:'سجّل الدخول لتظهر لك الأقسام الخاصة برتبتك.',login:'Login',myProfile:'ملفي الشخصي',back:'الرجوع للأقسام',missing:'هذا القسم غير موجود.',restricted:'هذا القسم متاح لرتب محددة فقط. إذا رتبتك تسمح، سجّل الدخول عبر Discord.',soon:'أوامر هذا القسم تنضاف هنا قريباً.',profileLogin:'سجّل الدخول عبر Discord حتى تشوف ملفك الشخصي.',balance:'الرصيد',level:'المستوى',rank:'الرانك',logout:'تسجيل الخروج',noApi:'الرصيد والمستوى والرانك تظهر بعد ربط الموقع بقاعدة بيانات البوت.',apiErr:'تعذر جلب بياناتك من البوت الآن.',home:'TROF System | بوت دسكورد',profile:'ملفي | TROF System',selectServer:'اختر السيرفر',noServers:'لا توجد سيرفرات تملك فيها رتبة إدارية',loading:'جاري التحميل...',checking:'جاري التحقق...'},
+en:{lead:'One Discord bot to run your whole server: levels, music, giveaways, tickets and moderation tools.',addBot:'Add the bot to your server',note:'A non-commercial project.',tap:'Tap any section to open its page.',choose:'📁 Choose a section...',hint:'Log in to see the sections for your role.',login:'Login',myProfile:'My profile',back:'Back to sections',missing:"This section doesn't exist.",restricted:'This section is only for certain roles. If your role allows it, log in with Discord.',soon:"This section's commands will be added here soon.",profileLogin:'Log in with Discord to see your profile.',balance:'Balance',level:'Level',rank:'Rank',logout:'Log out',noApi:"Balance, level and rank will appear once the site is connected to the bot's database.",apiErr:"Couldn't load your data from the bot right now.",home:'TROF System | Discord bot',profile:'My profile | TROF System',selectServer:'Select Server',noServers:'No servers where you have an admin role',loading:'Loading...',checking:'Checking...'}
 };
 var EN={general:['General commands','Commands you can customize in your server'],tickets:['Tickets','Ticket system'],welcome:['Welcome','Welcome messages for new members'],levels:['Levels','Text and voice XP'],protection:['Protection','Server protection'],moderation:['Moderation commands','For moderators and admins'],shortcuts:['Shortcuts','Command shortcuts']};
 var ROLE_EN=['Member','Staff','Admin Street','Owner'];
@@ -137,6 +137,7 @@ function dust(){
 }
 
 var selectedGuild = null;
+var botGuildIds = null; // cache
 
 function getSelectedGuild(){
   try{
@@ -150,10 +151,43 @@ function setSelectedGuild(guildId){
   selectedGuild = guildId;
 }
 
+async function fetchBotGuilds(){
+  if(botGuildIds !== null) return botGuildIds;
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/bot/guilds');
+    if(res.ok){
+      var data = await res.json();
+      botGuildIds = data.guild_ids || [];
+      return botGuildIds;
+    }
+  }catch(e){
+    console.error('bot guilds error:', e);
+  }
+  return [];
+}
+
+async function checkUserAccess(userId, guildId){
+  try{
+    var res = await fetch(
+      TROF.CONFIG.apiUrl + '/user/' + userId + '/guilds/' + guildId + '/check',
+      {headers: {Authorization: 'Bearer ' + token()}}
+    );
+    if(res.ok){
+      var data = await res.json();
+      return data.has_access === true;
+    }
+  }catch(e){
+    console.error('check access error:', e);
+  }
+  return false;
+}
+
 async function fetchUserGuilds(){
   var t = token();
   if(!t) return [];
+  
   try{
+    // 1. جلب كل السيرفرات
     var res = await fetch(API + '/users/@me/guilds', {
       headers: {Authorization: 'Bearer ' + t}
     });
@@ -165,12 +199,50 @@ async function fetchUserGuilds(){
     }
     if(!res.ok) return [];
     var guilds = await res.json();
-    return guilds.filter(function(g){
-      if(g.owner === true) return true;
-      var perms = parseInt(g.permissions) || 0;
-      return (perms & 0x20) === 0x20;
+    
+    // 2. جلب سيرفرات البوت (cache)
+    var botGuilds = await fetchBotGuilds();
+    
+    // 3. فلترة: السيرفرات التي فيها البوت
+    var candidateGuilds = guilds.filter(function(g){
+      return botGuilds.length === 0 || botGuilds.indexOf(String(g.id)) > -1;
     });
+    
+    // 4. التحقق من صلاحيات المستخدم في كل سيرفر
+    var adminGuilds = [];
+    for(var i = 0; i < candidateGuilds.length; i++){
+      var g = candidateGuilds[i];
+      
+      // المالك دائماً لديه صلاحية
+      if(g.owner === true){
+        adminGuilds.push(g);
+        continue;
+      }
+      
+      // التحقق من صلاحيات Discord
+      var perms = parseInt(g.permissions) || 0;
+      var hasAdmin = (perms & 0x8) === 0x8;
+      var hasManageGuild = (perms & 0x20) === 0x20;
+      var hasManageRoles = (perms & 0x10000000) === 0x10000000;
+      var hasKick = (perms & 0x2) === 0x2;
+      var hasBan = (perms & 0x4) === 0x4;
+      
+      if(hasAdmin || hasManageGuild || hasManageRoles || hasKick || hasBan){
+        adminGuilds.push(g);
+        continue;
+      }
+      
+      // التحقق الإضافي من الخادم (للرتب المخصصة)
+      var hasAccess = await checkUserAccess(auth.user.id, g.id);
+      if(hasAccess){
+        adminGuilds.push(g);
+      }
+    }
+    
+    return adminGuilds;
+    
   }catch(e){
+    console.error('fetchUserGuilds error:', e);
     return [];
   }
 }
@@ -186,27 +258,29 @@ async function renderServerSelector(){
   }
 
   box.classList.add('has-user');
+  
+  // عرض "جاري التحميل"
+  box.innerHTML = '<button class="server-btn" id="server-toggle" type="button" aria-label="' + t('selectServer') + '">' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>' +
+    '</button>';
+  
   var guilds = await fetchUserGuilds();
   var current = getSelectedGuild();
 
-  box.innerHTML = '';
+  var toggle = document.getElementById('server-toggle');
 
-  var toggle = document.createElement('button');
-  toggle.className = 'server-btn';
-  toggle.type = 'button';
-  toggle.setAttribute('aria-label', t('selectServer'));
-  toggle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
-  box.appendChild(toggle);
-
+  // حذف القوائم القديمة
   var oldDropdown = document.getElementById('server-dropdown');
   if(oldDropdown) oldDropdown.remove();
   var oldOverlay = document.getElementById('server-overlay');
   if(oldOverlay) oldOverlay.remove();
 
+  // الخلفية المعتمة
   var overlay = document.createElement('div');
   overlay.id = 'server-overlay';
   document.body.appendChild(overlay);
 
+  // القائمة الجانبية
   var dropdown = document.createElement('div');
   dropdown.id = 'server-dropdown';
   dropdown.className = 'server-dropdown';
@@ -292,6 +366,7 @@ window.TROF={
   getSelectedGuild:getSelectedGuild,
   setSelectedGuild:setSelectedGuild,
   renderServerSelector:renderServerSelector,
+  fetchUserGuilds:fetchUserGuilds,
   roleName:function(){return (lang==='en'?ROLE_EN:ROLE)[auth.rank]},
   can:function(s){return auth.rank>=RANK[s.need]}
 };
