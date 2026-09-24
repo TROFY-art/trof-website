@@ -11,8 +11,7 @@ var CONFIG={
 var RANK={everyone:0,staff:1,admin:2,owner:3};
 var ROLE=['عضو','إدارة','ادمن ستريت','المالك'];
 var SECTIONS=[
- {id:'general',icon:'👤',t:'أوامر عامة',d:'الأوامر اللي تقدر تعدّلها بسيرفرك',need:'everyone',cmds:[]},
- {id:'tickets',icon:'🎫',t:'تكت',d:'نظام التكتات',need:'everyone',url:'tickets.html',cmds:[]},
+ {id:'general',icon:'🎨',t:'صانع Embed',d:'أنشئ رسائل مخصصة',need:'everyone',url:'embed.html',cmds:[]},
  {id:'welcome',icon:'👋',t:'الترحيب',d:'رسائل الترحيب بالأعضاء الجدد',need:'everyone',url:'welcome.html',cmds:[]},
  {id:'levels',icon:'📊',t:'المستويات',d:'XP كتابي وصوتي',need:'everyone',url:'levels.html',cmds:[]},
  {id:'protection',icon:'🛡️',t:'الحماية',d:'حماية السيرفر',need:'staff',cmds:[]},
