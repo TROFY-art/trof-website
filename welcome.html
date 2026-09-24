@@ -83,6 +83,23 @@ function buildWelcomePage(gid){
       '<label class="switch"><input type="checkbox" id="w-mention" checked><span class="slider"></span></label>' +
     '</div>' +
     '<div class="form-row form-row-col">' +
+      '<label class="form-label">🖼️ صورة خلفية الترحيب</label>' +
+      '<div class="upload-area" id="upload-area">' +
+        '<input type="file" id="w-bg-input" accept="image/*" hidden>' +
+        '<div class="upload-preview" id="upload-preview">' +
+          '<div class="upload-placeholder">' +
+            '<span>📁</span>' +
+            '<p>اضغط لاختيار صورة</p>' +
+            '<small>PNG, JPG, WEBP (بحد أقصى 5MB)</small>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="upload-actions" id="upload-actions" hidden>' +
+        '<button class="small-btn" id="w-bg-remove" type="button">🗑️ حذف الصورة</button>' +
+      '</div>' +
+      '<p class="form-hint" id="bg-msg"></p>' +
+    '</div>' +
+    '<div class="form-row form-row-col">' +
       '<label class="form-label">💬 رسالة الترحيب</label>' +
       '<textarea class="form-textarea" id="w-message" rows="5" placeholder="مرحباً {user} في {server}!"></textarea>' +
       '<p class="form-hint">استخدم: <code>{user}</code> منشن العضو، <code>{server}</code> اسم السيرفر، <code>{count}</code> عدد الأعضاء</p>' +
@@ -102,6 +119,7 @@ async function loadSettings(gid){
   var api = TROF.CONFIG.apiUrl;
   var token = TROF.token();
 
+  // 1. جلب القنوات
   try{
     var res = await fetch(api + '/guild/' + gid + '/channels', {
       headers: {Authorization: 'Bearer ' + token}
@@ -117,6 +135,7 @@ async function loadSettings(gid){
     }
   }catch(e){ console.error('channels error', e) }
 
+  // 2. جلب الرتب
   try{
     var res = await fetch(api + '/guild/' + gid + '/roles', {
       headers: {Authorization: 'Bearer ' + token}
@@ -130,6 +149,7 @@ async function loadSettings(gid){
     }
   }catch(e){ console.error('roles error', e) }
 
+  // 3. جلب الإعدادات
   try{
     var res = await fetch(api + '/guild/' + gid + '/welcome', {
       headers: {Authorization: 'Bearer ' + token}
@@ -148,9 +168,122 @@ async function loadSettings(gid){
       }
     }
   }catch(e){ console.error('settings error', e) }
+
+  // 4. جلب صورة الخلفية
+  loadBackground(gid);
+}
+
+function loadBackground(gid){
+  var api = TROF.CONFIG.apiUrl;
+  var preview = document.getElementById('upload-preview');
+  var actions = document.getElementById('upload-actions');
+
+  fetch(api + '/guild/' + gid + '/welcome/bg')
+    .then(function(r){
+      if(r.ok){
+        preview.innerHTML = '<img src="' + api + '/guild/' + gid + '/welcome/bg?t=' + Date.now() + '" alt="خلفية">';
+        actions.hidden = false;
+      }else{
+        preview.innerHTML = '<div class="upload-placeholder"><span>📁</span><p>اضغط لاختيار صورة</p><small>PNG, JPG, WEBP (بحد أقصى 5MB)</small></div>';
+        actions.hidden = true;
+      }
+    })
+    .catch(function(){
+      preview.innerHTML = '<div class="upload-placeholder"><span>📁</span><p>اضغط لاختيار صورة</p><small>PNG, JPG, WEBP (بحد أقصى 5MB)</small></div>';
+      actions.hidden = true;
+    });
 }
 
 function bindEvents(gid){
+  // رفع صورة الخلفية
+  var bgInput = document.getElementById('w-bg-input');
+  var uploadArea = document.getElementById('upload-area');
+  var uploadPreview = document.getElementById('upload-preview');
+  var uploadActions = document.getElementById('upload-actions');
+  var bgRemove = document.getElementById('w-bg-remove');
+  var bgMsg = document.getElementById('bg-msg');
+
+  uploadArea.onclick = function(){
+    bgInput.click();
+  };
+
+  bgInput.onchange = async function(){
+    var file = bgInput.files[0];
+    if(!file) return;
+
+    if(file.size > 5 * 1024 * 1024){
+      bgMsg.textContent = '❌ حجم الصورة كبير جداً (الحد 5MB)';
+      bgMsg.style.color = '#f87171';
+      return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = function(e){
+      uploadPreview.innerHTML = '<img src="' + e.target.result + '" alt="معاينة">';
+    };
+    reader.readAsDataURL(file);
+
+    bgMsg.textContent = '⏳ جاري الرفع...';
+    bgMsg.style.color = '#f2c23c';
+
+    var formData = new FormData();
+    formData.append('file', file);
+
+    try{
+      var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/welcome/upload-bg', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + TROF.token()
+        },
+        body: formData
+      });
+
+      var data = await res.json();
+
+      if(res.ok){
+        bgMsg.textContent = '✅ تم رفع الصورة بنجاح!';
+        bgMsg.style.color = '#4ade80';
+        uploadActions.hidden = false;
+      }else{
+        bgMsg.textContent = '❌ ' + (data.detail || 'فشل الرفع');
+        bgMsg.style.color = '#f87171';
+      }
+    }catch(e){
+      bgMsg.textContent = '❌ خطأ في الاتصال';
+      bgMsg.style.color = '#f87171';
+    }
+  };
+
+  bgRemove.onclick = async function(){
+    if(!confirm('هل تريد حذف الصورة؟')) return;
+
+    bgMsg.textContent = '⏳ جاري الحذف...';
+    bgMsg.style.color = '#f2c23c';
+
+    try{
+      var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/welcome/bg', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + TROF.token()
+        }
+      });
+
+      if(res.ok){
+        uploadPreview.innerHTML = '<div class="upload-placeholder"><span>📁</span><p>اضغط لاختيار صورة</p><small>PNG, JPG, WEBP (بحد أقصى 5MB)</small></div>';
+        uploadActions.hidden = true;
+        bgMsg.textContent = '✅ تم حذف الصورة';
+        bgMsg.style.color = '#4ade80';
+      }else{
+        bgMsg.textContent = '❌ فشل الحذف';
+        bgMsg.style.color = '#f87171';
+      }
+    }catch(e){
+      bgMsg.textContent = '❌ خطأ في الاتصال';
+      bgMsg.style.color = '#f87171';
+    }
+  };
+
+  // حفظ الإعدادات
   document.getElementById('w-save').onclick = async function(){
     var msg = document.getElementById('w-msg');
     var btn = this;
@@ -194,4 +327,4 @@ function bindEvents(gid){
 })();
 </script>
 </body>
-  </html>
+</html>
