@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
+<script>try{if(localStorage.getItem('trof_lang')==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr'}}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TROF System</title>
 <meta name="theme-color" content="#0d0c0a">
@@ -14,7 +15,7 @@
 <body>
 <div id="dust" aria-hidden="true"></div>
 <header class="wrap bar">
-<a class="brand" href="./"><img src="logo.webp" alt="" width="36" height="36">TROF System</a>
+<div class="hd"><a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a><button class="lang" id="lang" type="button"></button></div>
 <div id="acct"></div>
 </header>
 <main class="wrap page" id="page"></main>
@@ -28,13 +29,13 @@ TROF.load(function(){
   TROF.mountAccount();
   var s=TROF.SECTIONS.filter(function(x){return x.id===id})[0],n=0;
   function r(){return ' rise" style="--d:'+(n++)}
-  var h='<a class="back'+r()+'" href="./">'+CHEV+'الرجوع للأقسام</a>';
-  if(!s){h+='<p class="soon'+r()+'">هذا القسم غير موجود.</p>'}
-  else if(!TROF.can(s)){h+='<p class="soon'+r()+'">هذا القسم متاح لرتب محددة فقط. إذا رتبتك تسمح، سجّل الدخول عبر Discord.</p>'}
+  var h='<a class="back'+r()+'" href="./">'+CHEV+TROF.t('back')+'</a>';
+  if(!s){h+='<p class="soon'+r()+'">'+TROF.t('missing')+'</p>'}
+  else if(!TROF.can(s)){h+='<p class="soon'+r()+'">'+TROF.t('restricted')+'</p>'}
   else{
-    document.title=s.t+' | TROF System';
-    h+='<div class="sec-head'+r()+'"><div class="sec-ic"><span class="ring"></span><span class="face">'+s.icon+'</span></div><div><h1 class="sec-title">'+s.t+'</h1><p>'+s.d+'</p></div></div>';
-    h+=s.cmds.length?'<ul class="cmds'+r()+'">'+s.cmds.map(function(c){return '<li><code>'+c[0]+'</code><span>'+c[1]+'</span></li>'}).join('')+'</ul>':'<p class="soon'+r()+'">أوامر هذا القسم تنضاف هنا قريباً.</p>';
+    document.title=TROF.name(s)+' | TROF System';
+    h+='<div class="sec-head'+r()+'"><div class="sec-ic"><span class="ring"></span><span class="face">'+s.icon+'</span></div><div><h1 class="sec-title">'+TROF.name(s)+'</h1><p>'+TROF.desc(s)+'</p></div></div>';
+    h+=s.cmds.length?'<ul class="cmds'+r()+'">'+s.cmds.map(function(c){return '<li><code>'+c[0]+'</code><span>'+TROF.cmdDesc(c)+'</span></li>'}).join('')+'</ul>':'<p class="soon'+r()+'">'+TROF.t('soon')+'</p>';
   }
   document.getElementById('page').innerHTML=h;
 });
