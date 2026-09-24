@@ -10,7 +10,6 @@ var CONFIG={
 };
 var RANK={everyone:0,staff:1,admin:2,owner:3};
 var ROLE=['عضو','إدارة','ادمن ستريت','المالك'];
-/* الأقسام: need = من يشوف القسم. cmds = قائمة الأوامر [['/اسم','الوصف']] */
 var SECTIONS=[
  {id:'general',icon:'👤',t:'أوامر عامة',d:'الأوامر اللي تقدر تعدّلها بسيرفرك',need:'everyone',cmds:[]},
  {id:'tickets',icon:'🎫',t:'تكت',d:'نظام التكتات',need:'everyone',cmds:[]},
@@ -103,8 +102,107 @@ function dust(){
 }
 
 /* ============================================
-   🔢 دالة تنسيق الأرقام (K, M, B, T)
+   🖥️ منتقي السيرفرات (Server Selector)
    ============================================ */
+var selectedGuild = null;
+
+function getSelectedGuild(){
+  try{
+    var saved = localStorage.getItem('trof_selected_guild');
+    return saved ? saved : null;
+  }catch(e){return null}
+}
+
+function setSelectedGuild(guildId){
+  try{localStorage.setItem('trof_selected_guild', guildId)}catch(e){}
+  selectedGuild = guildId;
+}
+
+async function fetchUserGuilds(){
+  var t = token();
+  if(!t) return [];
+  try{
+    var res = await fetch(API + '/users/@me/guilds', {
+      headers: {Authorization: 'Bearer ' + t}
+    });
+    if(!res.ok) return [];
+    var guilds = await res.json();
+    return guilds.filter(function(g){
+      return (parseInt(g.permissions) & 0x20) === 0x20;
+    });
+  }catch(e){
+    return [];
+  }
+}
+
+async function renderServerSelector(){
+  var box = document.getElementById('server-selector');
+  if(!box) return;
+
+  if(!auth.user){
+    box.innerHTML = '';
+    return;
+  }
+
+  var guilds = await fetchUserGuilds();
+  var current = getSelectedGuild();
+
+  var html = '<button class="server-btn" id="server-toggle" type="button" aria-label="اختيار السيرفر">';
+  html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
+  html += '</button>';
+
+  html += '<div class="server-dropdown" id="server-dropdown" hidden>';
+  html += '<div class="server-dropdown-header">';
+  html += '<span>اختر السيرفر</span>';
+  html += '</div>';
+
+  if(guilds.length === 0){
+    html += '<div class="server-empty">لا توجد سيرفرات تملك فيها صلاحية إدارية</div>';
+  } else {
+    html += '<ul class="server-list">';
+    guilds.forEach(function(g){
+      var isActive = (String(g.id) === String(current));
+      var icon = g.icon
+        ? 'https://cdn.discordapp.com/icons/' + g.id + '/' + g.icon + '.png?size=64'
+        : 'https://cdn.discordapp.com/embed/avatars/0.png';
+      html += '<li>';
+      html += '<button class="server-item' + (isActive ? ' active' : '') + '" data-guild-id="' + g.id + '">';
+      html += '<img src="' + icon + '" alt="">';
+      html += '<span>' + g.name + '</span>';
+      if(isActive) html += '<span class="server-check">✓</span>';
+      html += '</button>';
+      html += '</li>';
+    });
+    html += '</ul>';
+  }
+  html += '</div>';
+
+  box.innerHTML = html;
+
+  var toggle = document.getElementById('server-toggle');
+  var dropdown = document.getElementById('server-dropdown');
+
+  toggle.onclick = function(e){
+    e.stopPropagation();
+    dropdown.hidden = !dropdown.hidden;
+  };
+
+  document.addEventListener('click', function(){
+    if(dropdown) dropdown.hidden = true;
+  });
+
+  dropdown.onclick = function(e){ e.stopPropagation(); };
+
+  box.querySelectorAll('.server-item').forEach(function(btn){
+    btn.onclick = function(){
+      var gid = btn.getAttribute('data-guild-id');
+      setSelectedGuild(gid);
+      location.reload();
+    };
+  });
+}
+
+/* دالة تنسيق الأرقام */
 function formatNumber(num){
   if(num === null || num === undefined) return '0';
   num = Number(num);
@@ -123,6 +221,9 @@ window.TROF={
   load:load, login:login, logout:logout,
   dust:dust, mountAccount:mountAccount, avatar:avatar, token:token,
   formatNumber:formatNumber,
+  getSelectedGuild:getSelectedGuild,
+  setSelectedGuild:setSelectedGuild,
+  renderServerSelector:renderServerSelector,
   roleName:function(){return (lang==='en'?ROLE_EN:ROLE)[auth.rank]},
   can:function(s){return auth.rank>=RANK[s.need]}
 };
