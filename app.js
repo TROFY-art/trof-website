@@ -101,8 +101,30 @@ function dust(){
     box.appendChild(d);
   }
 }
-window.TROF={t:t,name:name,desc:desc,cmdDesc:cmdDesc,CONFIG:CONFIG,SECTIONS:SECTIONS,auth:auth,load:load,login:login,logout:logout,dust:dust,mountAccount:mountAccount,avatar:avatar,token:token,
+
+/* ============================================
+   🔢 دالة تنسيق الأرقام (K, M, B, T)
+   ============================================ */
+function formatNumber(num){
+  if(num === null || num === undefined) return '0';
+  num = Number(num);
+  if(isNaN(num)) return '0';
+  var abs = Math.abs(num);
+  if(abs >= 1e12) return (num / 1e12).toFixed(2).replace(/\.?0+$/, '') + 'T';
+  if(abs >= 1e9)  return (num / 1e9).toFixed(2).replace(/\.?0+$/, '') + 'B';
+  if(abs >= 1e6)  return (num / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M';
+  if(abs >= 1e3)  return (num / 1e3).toFixed(2).replace(/\.?0+$/, '') + 'K';
+  return num.toString();
+}
+
+window.TROF={
+  t:t, name:name, desc:desc, cmdDesc:cmdDesc,
+  CONFIG:CONFIG, SECTIONS:SECTIONS, auth:auth,
+  load:load, login:login, logout:logout,
+  dust:dust, mountAccount:mountAccount, avatar:avatar, token:token,
+  formatNumber:formatNumber,
   roleName:function(){return (lang==='en'?ROLE_EN:ROLE)[auth.rank]},
-  can:function(s){return auth.rank>=RANK[s.need]}};
+  can:function(s){return auth.rank>=RANK[s.need]}
+};
 mountLang();translate();
 })();
