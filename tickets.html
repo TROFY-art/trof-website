@@ -35,6 +35,8 @@
 var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
 TROF.dust();
 
+var guildRoles = []; // cache
+
 TROF.load(function(){
   TROF.mountAccount();
   TROF.renderServerSelector();
@@ -74,11 +76,6 @@ function buildTicketsPage(gid){
     '<div class="form-row">' +
       '<label class="form-label">📢 قناة السجل</label>' +
       '<select class="form-select" id="t-log"><option value="">-- بدون --</option></select>' +
-    '</div>' +
-
-    '<div class="form-row">' +
-      '<label class="form-label">🛡️ رتبة الدعم</label>' +
-      '<select class="form-select" id="t-support"><option value="">-- بدون --</option></select>' +
     '</div>' +
 
     '<div class="form-actions">' +
@@ -134,7 +131,7 @@ function buildTicketsPage(gid){
 
   '</div>' +
 
-  // Modal لإضافة نوع
+  // Modal إضافة نوع
   '<div class="modal" id="type-modal" hidden>' +
     '<div class="modal-content">' +
       '<div class="modal-header">' +
@@ -160,16 +157,23 @@ function buildTicketsPage(gid){
         '</div>' +
         '<div class="form-row form-row-col">' +
           '<label>💬 رسالة الترحيب</label>' +
-          '<textarea class="form-textarea" id="m-welcome" rows="2" placeholder="مرحباً {user}! سيتم مساعدتك قريباً."></textarea>' +
+          '<textarea class="form-textarea" id="m-welcome" rows="2" placeholder="مرحباً {user}!"></textarea>' +
         '</div>' +
-        '<div class="form-row">' +
-          '<label>🛡️ رتبة الدعم</label>' +
-          '<select class="form-select" id="m-support"><option value="">-- بدون --</option></select>' +
+
+        // ===== رتب الدعم =====
+        '<div class="form-row form-row-col">' +
+          '<label>🛡️ رتب الدعم</label>' +
+          '<div class="roles-container" id="m-support-roles"></div>' +
+          '<button class="small-btn add-role-btn" type="button" data-target="m-support-roles">➕ إضافة رتبة دعم</button>' +
         '</div>' +
-        '<div class="form-row">' +
-          '<label>🔔 رتبة الإشعار</label>' +
-          '<select class="form-select" id="m-mention"><option value="">-- بدون --</option></select>' +
+
+        // ===== رتب الإشعار =====
+        '<div class="form-row form-row-col">' +
+          '<label>🔔 رتب الإشعار</label>' +
+          '<div class="roles-container" id="m-mention-roles"></div>' +
+          '<button class="small-btn add-role-btn" type="button" data-target="m-mention-roles">➕ إضافة رتبة إشعار</button>' +
         '</div>' +
+
       '</div>' +
       '<div class="modal-footer">' +
         '<button class="btn" id="m-save" type="button">💾 حفظ</button>' +
@@ -179,11 +183,40 @@ function buildTicketsPage(gid){
   '</div>';
 }
 
+// ============================================
+// إدارة الرتب المتعددة
+// ============================================
+function addRoleRow(container, roleId){
+  var div = document.createElement('div');
+  div.className = 'role-row';
+  
+  var select = document.createElement('select');
+  select.className = 'form-select';
+  select.innerHTML = '<option value="">-- اختر رتبة --</option>';
+  guildRoles.forEach(function(r){
+    var opt = document.createElement('option');
+    opt.value = r.id;
+    opt.textContent = r.name;
+    if(roleId && String(r.id) === String(roleId)) opt.selected = true;
+    select.appendChild(opt);
+  });
+  
+  var removeBtn = document.createElement('button');
+  removeBtn.className = 'small-btn remove-role-btn';
+  removeBtn.type = 'button';
+  removeBtn.textContent = '🗑️';
+  removeBtn.onclick = function(){ div.remove(); };
+  
+  div.appendChild(select);
+  div.appendChild(removeBtn);
+  container.appendChild(div);
+}
+
 async function loadAll(gid){
   var api = TROF.CONFIG.apiUrl;
   var token = TROF.token();
   
-  // 1. جلب القنوات والرتب
+  // جلب القنوات
   try{
     var res = await fetch(api + '/guild/' + gid + '/channels', {headers: {Authorization: 'Bearer ' + token}});
     if(res.ok){
@@ -197,21 +230,16 @@ async function loadAll(gid){
     }
   }catch(e){}
   
+  // جلب الرتب (cache)
   try{
     var res = await fetch(api + '/guild/' + gid + '/roles', {headers: {Authorization: 'Bearer ' + token}});
     if(res.ok){
       var data = await res.json();
-      ['t-support', 'm-support', 'm-mention'].forEach(function(id){
-        var sel = document.getElementById(id);
-        if(!sel) return;
-        data.roles.forEach(function(r){
-          sel.innerHTML += '<option value="' + r.id + '">' + r.name + '</option>';
-        });
-      });
+      guildRoles = data.roles;
     }
   }catch(e){}
   
-  // 2. جلب إعدادات التكت
+  // جلب إعدادات التكت
   try{
     var res = await fetch(api + '/guild/' + gid + '/tickets/settings', {headers: {Authorization: 'Bearer ' + token}});
     if(res.ok){
@@ -219,15 +247,11 @@ async function loadAll(gid){
       if(data.settings){
         if(data.settings.category_id) document.getElementById('t-category').value = data.settings.category_id;
         if(data.settings.log_channel_id) document.getElementById('t-log').value = data.settings.log_channel_id;
-        if(data.settings.support_role_id) document.getElementById('t-support').value = data.settings.support_role_id;
       }
     }
   }catch(e){}
   
-  // 3. جلب أنواع التكتات
   await loadTypes(gid);
-  
-  // 4. جلب التكتات المفتوحة
   await loadOpenTickets(gid);
 }
 
@@ -238,7 +262,7 @@ async function loadTypes(gid){
     if(res.ok){
       var data = await res.json();
       if(data.types.length === 0){
-        list.innerHTML = '<p class="form-hint">لا توجد أنواع بعد. اضغط "إضافة نوع جديد".</p>';
+        list.innerHTML = '<p class="form-hint">لا توجد أنواع بعد.</p>';
         return;
       }
       list.innerHTML = data.types.map(function(t){
@@ -252,10 +276,9 @@ async function loadTypes(gid){
         '</div>';
       }).join('');
       
-      // ربط أزرار الحذف
       list.querySelectorAll('.delete-type').forEach(function(btn){
         btn.onclick = async function(){
-          if(!confirm('حذف النوع ' + btn.getAttribute('data-name') + '؟')) return;
+          if(!confirm('حذف النوع؟')) return;
           try{
             await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/tickets/types/' + encodeURIComponent(btn.getAttribute('data-name')), {
               method: 'DELETE',
@@ -306,8 +329,7 @@ function bindEvents(gid){
         headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
         body: JSON.stringify({
           category_id: document.getElementById('t-category').value || null,
-          log_channel_id: document.getElementById('t-log').value || null,
-          support_role_id: document.getElementById('t-support').value || null
+          log_channel_id: document.getElementById('t-log').value || null
         })
       });
       if(res.ok){
@@ -325,15 +347,15 @@ function bindEvents(gid){
     setTimeout(function(){ msg.textContent = ''; }, 3000);
   };
   
-  // فتح modal إضافة نوع
+  // فتح modal
   document.getElementById('t-add-type').onclick = function(){
     document.getElementById('type-modal').hidden = false;
     document.getElementById('modal-title').textContent = 'إضافة نوع تكت';
     ['m-name', 'm-desc', 'm-welcome'].forEach(function(id){ document.getElementById(id).value = ''; });
     document.getElementById('m-emoji').value = '🎫';
     document.getElementById('m-color').value = '#5865F2';
-    document.getElementById('m-support').value = '';
-    document.getElementById('m-mention').value = '';
+    document.getElementById('m-support-roles').innerHTML = '';
+    document.getElementById('m-mention-roles').innerHTML = '';
   };
   
   document.getElementById('modal-close').onclick = function(){
@@ -343,11 +365,29 @@ function bindEvents(gid){
     document.getElementById('type-modal').hidden = true;
   };
   
+  // أزرار إضافة رتب
+  document.querySelectorAll('.add-role-btn').forEach(function(btn){
+    btn.onclick = function(){
+      var target = document.getElementById(btn.getAttribute('data-target'));
+      addRoleRow(target);
+    };
+  });
+  
   // حفظ النوع
   document.getElementById('m-save').onclick = async function(){
     var name = document.getElementById('m-name').value.trim();
     if(!name){ alert('اكتب الاسم'); return; }
     var btn = this; btn.disabled = true;
+    
+    // جمع الرتب
+    var supportRoles = [];
+    document.querySelectorAll('#m-support-roles .role-row select').forEach(function(s){
+      if(s.value) supportRoles.push(s.value);
+    });
+    var mentionRoles = [];
+    document.querySelectorAll('#m-mention-roles .role-row select').forEach(function(s){
+      if(s.value) mentionRoles.push(s.value);
+    });
     
     try{
       var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/tickets/types', {
@@ -359,8 +399,8 @@ function bindEvents(gid){
           description: document.getElementById('m-desc').value,
           color: document.getElementById('m-color').value,
           welcome_message: document.getElementById('m-welcome').value,
-          support_role_id: document.getElementById('m-support').value || null,
-          mention_role_id: document.getElementById('m-mention').value || null
+          support_roles: supportRoles,
+          mention_roles: mentionRoles
         })
       });
       if(res.ok){
@@ -379,7 +419,6 @@ function bindEvents(gid){
     var btn = this; btn.disabled = true;
     var msg = document.getElementById('t-panel-msg');
     msg.textContent = '⏳ جاري الإرسال...';
-    
     var channel = document.getElementById('t-panel-channel').value;
     if(!channel){
       msg.textContent = '❌ اختر قناة';
@@ -387,7 +426,6 @@ function bindEvents(gid){
       btn.disabled = false;
       return;
     }
-    
     try{
       var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/tickets/panel', {
         method: 'POST',
@@ -418,4 +456,4 @@ function bindEvents(gid){
 })();
 </script>
 </body>
-  </html>
+</html>
