@@ -42,6 +42,19 @@ TROF.load(function(){
   }
   h+='<div class="pf'+r()+'"><div class="sec-ic pf-av"><span class="ring"></span><img class="face" alt="" src="'+TROF.avatar(128)+'"></div><div><h1 class="sec-title" id="nm"></h1><p id="un"></p></div></div>';
   h+='<div class="stats'+r()+'"><div class="stat"><i>💰</i><b id="s-bal">—</b><span>'+TROF.t('balance')+'</span></div><div class="stat"><i>📊</i><b id="s-lvl">—</b><span>'+TROF.t('level')+'</span></div><div class="stat"><i>🏆</i><b id="s-rank">—</b><span>'+TROF.t('rank')+'</span></div></div>';
+  
+  // بطاقة المكافأة اليومية
+  h+='<div class="daily-card'+r()+'">' +
+     '<div class="daily-header">' +
+       '<span class="daily-icon">🎁</span>' +
+       '<div>' +
+         '<b>المكافأة اليومية</b>' +
+         '<small id="daily-status">جاري التحقق...</small>' +
+       '</div>' +
+     '</div>' +
+     '<button class="daily-btn" id="daily-btn" type="button" disabled>🎁 استلام المكافأة</button>' +
+   '</div>';
+  
   h+='<p class="note2'+r()+'" id="note"></p><button class="btn alt'+r()+'" id="out" type="button">'+TROF.t('logout')+'</button>';
   page.innerHTML=h;
   document.getElementById('nm').textContent=u.global_name||u.username||'';
@@ -63,6 +76,71 @@ TROF.load(function(){
       count(document.getElementById('s-rank'), d.rank);
     })
     .catch(function(){note.textContent=TROF.t('apiErr')});
+
+  // ============================================
+  // 🎁 المكافأة اليومية
+  // ============================================
+  var dailyBtn = document.getElementById('daily-btn');
+  var dailyStatus = document.getElementById('daily-status');
+
+  function updateDailyStatus(){
+    fetch(api + '/user/' + u.id + '/daily/status', {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    })
+    .then(function(r){return r.json()})
+    .then(function(d){
+      if(d.can_claim){
+        dailyBtn.disabled = false;
+        dailyStatus.textContent = 'يمكنك الاستلام الآن!';
+        dailyStatus.style.color = '#4ade80';
+      }else{
+        dailyBtn.disabled = true;
+        var hours = Math.floor(d.time_left / 3600);
+        var minutes = Math.floor((d.time_left % 3600) / 60);
+        dailyStatus.textContent = 'انتظر ' + hours + 'س ' + minutes + 'د';
+        dailyStatus.style.color = '#f2c23c';
+      }
+    })
+    .catch(function(){
+      dailyStatus.textContent = 'خطأ في التحميل';
+    });
+  }
+
+  dailyBtn.onclick = function(){
+    dailyBtn.disabled = true;
+    dailyStatus.textContent = '⏳ جاري الاستلام...';
+    
+    fetch(api + '/user/' + u.id + '/daily/claim', {
+      method: 'POST',
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    })
+    .then(function(r){return r.json()})
+    .then(function(d){
+      if(d.success){
+        dailyStatus.textContent = '✅ حصلت على ' + d.reward + ' 💰!';
+        dailyStatus.style.color = '#4ade80';
+        
+        var balEl = document.getElementById('s-bal');
+        if(balEl) balEl.textContent = TROF.formatNumber(d.new_balance);
+        
+        setTimeout(updateDailyStatus, 2000);
+      }else{
+        dailyStatus.textContent = '❌ ' + (d.detail || 'فشل');
+        dailyStatus.style.color = '#f87171';
+        dailyBtn.disabled = false;
+      }
+    })
+    .catch(function(e){
+      dailyStatus.textContent = '❌ خطأ في الاتصال';
+      dailyStatus.style.color = '#f87171';
+      dailyBtn.disabled = false;
+    });
+  };
+
+  // فحص الحالة عند التحميل
+  updateDailyStatus();
+  // تحديث كل دقيقة
+  setInterval(updateDailyStatus, 60000);
 });
 </script>
 </body>
