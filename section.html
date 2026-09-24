@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TROF System</title>
+<meta name="theme-color" content="#0d0c0a">
+<link rel="icon" type="image/webp" href="logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="wrap bar">
+<a class="brand" href="./"><img src="logo.webp" alt="" width="36" height="36">TROF System</a>
+</header>
+<main class="wrap page" id="page"></main>
+<footer class="wrap">TROF System.</footer>
+<script src="app.js"></script>
+<script>
+var id=new URLSearchParams(location.search).get('p');
+TROF.load(function(){
+  var s=TROF.SECTIONS.filter(function(x){return x.id===id})[0],h='<a class="crumb" href="./">الرجوع للأقسام</a>';
+  if(!s){h+='<p class="soon">هذا القسم غير موجود.</p>'}
+  else if(!TROF.can(s)){h+='<p class="soon">هذا القسم متاح لرتب محددة فقط. إذا رتبتك تسمح، سجّل الدخول بدسكورد من الصفحة الرئيسية.</p>'}
+  else{
+    document.title=s.t+' | TROF System';
+    h+='<div class="sec-head"><span class="ic">'+s.icon+'</span><div><h1 class="sec-title">'+s.t+'</h1><p>'+s.d+'</p></div></div>';
+    h+=s.cmds.length?'<ul class="cmds">'+s.cmds.map(function(c){return '<li><code>'+c[0]+'</code><span>'+c[1]+'</span></li>'}).join('')+'</ul>':'<p class="soon">أوامر هذا القسم تنضاف هنا قريباً.</p>';
+  }
+  document.getElementById('page').innerHTML=h;
+});
+</script>
+</body>
+</html>
