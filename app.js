@@ -6,7 +6,7 @@ var CONFIG={
   ownerId:'986328374010073118',
   staffRoleIds:[],
   adminStreetRoleIds:[],
-  apiUrl:'https://api.trof.dpdns.org'
+  apiUrl:'/api'
 };
 var RANK={everyone:0,staff:1,admin:2,owner:3};
 var ROLE=['عضو','إدارة','ادمن ستريت','المالك'];
