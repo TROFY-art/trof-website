@@ -139,3 +139,13 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
 .stat b{display:block;font-size:1.7rem;line-height:1.4;color:var(--gold-hi)}
 .stat span{font-size:.9rem;color:var(--muted)}
 .note2{margin:0;font-size:.9rem;color:var(--muted)}
+
+/* زر اللغة */
+.hd{display:flex;align-items:center;gap:12px}
+.lang{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--text);font:inherit;font-size:.95rem;cursor:pointer;transition:border-color .2s}
+.lang svg{width:17px;height:17px;color:var(--gold)}
+.lang:hover{border-color:var(--gold)}
+.lang:focus-visible{outline:3px solid var(--gold-hi);outline-offset:3px}
+.cmds code{display:inline-block;direction:ltr;unicode-bidi:isolate}
+[dir=ltr] .back svg{transform:scaleX(-1)}
+[dir=ltr] .back:hover svg{transform:scaleX(-1) translateX(4px)}
