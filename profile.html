@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ملفي | TROF System</title>
+<meta name="theme-color" content="#0d0c0a">
+<link rel="icon" type="image/webp" href="logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="dust" aria-hidden="true"></div>
+<header class="wrap bar">
+<a class="brand" href="./"><img src="logo.webp" alt="" width="36" height="36">TROF System</a>
+<div id="acct"></div>
+</header>
+<main class="wrap page" id="page"></main>
+<footer class="wrap">TROF System.</footer>
+<script src="app.js"></script>
+<script>
+var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
+TROF.dust();
+TROF.load(function(){
+  TROF.mountAccount();
+  var u=TROF.auth.user,page=document.getElementById('page'),n=0;
+  function r(){return ' rise" style="--d:'+(n++)}
+  var h='<a class="back'+r()+'" href="./">'+CHEV+'الرجوع للأقسام</a>';
+  if(!u){
+    page.innerHTML=h+'<p class="soon'+r()+'">سجّل الدخول عبر Discord حتى تشوف ملفك الشخصي.</p>';
+    return;
+  }
+  h+='<div class="pf'+r()+'"><div class="sec-ic pf-av"><span class="ring"></span><img class="face" alt="" src="'+TROF.avatar(128)+'"></div><div><h1 class="sec-title" id="nm"></h1><p id="un"></p></div></div>';
+  h+='<div class="stats'+r()+'"><div class="stat"><i>💰</i><b id="s-bal">—</b><span>الرصيد</span></div><div class="stat"><i>📊</i><b id="s-lvl">—</b><span>المستوى</span></div><div class="stat"><i>🏆</i><b id="s-rank">—</b><span>الرانك</span></div></div>';
+  h+='<p class="note2'+r()+'" id="note"></p><button class="btn alt'+r()+'" id="out" type="button">تسجيل الخروج</button>';
+  page.innerHTML=h;
+  document.getElementById('nm').textContent=u.global_name||u.username||'';
+  document.getElementById('un').textContent='@'+(u.username||'')+' | '+TROF.roleName();
+  document.getElementById('out').onclick=function(){TROF.logout()};
+  var note=document.getElementById('note');
+  function count(el,v){
+    if(typeof v!=='number'||matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=v==null?'—':v.toLocaleString('en');return}
+    var t0=performance.now();
+    (function step(t){var k=Math.min((t-t0)/900,1);el.textContent=Math.round(v*(1-Math.pow(1-k,3))).toLocaleString('en');if(k<1)requestAnimationFrame(step)})(t0);
+  }
+  var api=TROF.CONFIG.apiUrl;
+  if(!api){note.textContent='الرصيد والمستوى والرانك تظهر بعد ربط الموقع بقاعدة بيانات البوت.';return}
+  fetch(api.replace(/\/$/,'')+'/users/'+u.id,{headers:{Authorization:'Bearer '+TROF.token()}})
+    .then(function(x){if(!x.ok)throw 0;return x.json()})
+    .then(function(d){count(document.getElementById('s-bal'),d.balance);count(document.getElementById('s-lvl'),d.level);count(document.getElementById('s-rank'),d.rank)})
+    .catch(function(){note.textContent='تعذر جلب بياناتك من البوت الآن.'});
+});
+</script>
+</body>
+</html>
