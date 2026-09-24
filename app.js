@@ -3,7 +3,7 @@
 var CONFIG={
   clientId:'1536360221906178088',
   guildId:'',              /* آيدي السيرفر */
-  ownerId:'986328374010073118',              /* آيدي حسابك (المالك) */
+  ownerId:'',              /* آيدي حسابك (المالك) */
   staffRoleIds:[],         /* آيدي رتب المشرفين والإداريين */
   adminStreetRoleIds:[],   /* آيدي رتبة ادمن ستريت */
   apiUrl:''                /* رابط API البوت لجلب الرصيد والمستوى والرانك */
@@ -23,6 +23,31 @@ var SECTIONS=[
  {id:'admin-street',icon:'👑',t:'ادمن ستريت',d:'لأعضاء ادمن ستريت',need:'admin',cmds:[]},
  {id:'owner',icon:'⚡',t:'المالك',d:'للمالك فقط',need:'owner',cmds:[]}
 ];
+var LANGS=['ar','en'],NAMES={ar:'العربية',en:'English'},lang='ar';
+try{lang=localStorage.getItem('trof_lang')||'ar'}catch(e){}
+if(LANGS.indexOf(lang)<0)lang='ar';
+document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+var STR={
+ar:{lead:'بوت دسكورد واحد يدير سيرفرك كله: مستويات، موسيقى، جيفاواي، تكتات وأدوات إدارة.',addBot:'أضف البوت إلى سيرفرك',note:'مشروع غير تجاري.',tap:'اضغط على أي قسم لفتح صفحته.',choose:'📁 اختر قسماً...',hint:'سجّل الدخول لتظهر لك الأقسام الخاصة برتبتك.',login:'دخول عبر Discord',myProfile:'ملفي الشخصي',back:'الرجوع للأقسام',missing:'هذا القسم غير موجود.',restricted:'هذا القسم متاح لرتب محددة فقط. إذا رتبتك تسمح، سجّل الدخول عبر Discord.',soon:'أوامر هذا القسم تنضاف هنا قريباً.',profileLogin:'سجّل الدخول عبر Discord حتى تشوف ملفك الشخصي.',balance:'الرصيد',level:'المستوى',rank:'الرانك',logout:'تسجيل الخروج',noApi:'الرصيد والمستوى والرانك تظهر بعد ربط الموقع بقاعدة بيانات البوت.',apiErr:'تعذر جلب بياناتك من البوت الآن.',home:'TROF System | بوت دسكورد',profile:'ملفي | TROF System'},
+en:{lead:'One Discord bot to run your whole server: levels, music, giveaways, tickets and moderation tools.',addBot:'Add the bot to your server',note:'A non-commercial project.',tap:'Tap any section to open its page.',choose:'📁 Choose a section...',hint:'Log in to see the sections for your role.',login:'Log in with Discord',myProfile:'My profile',back:'Back to sections',missing:"This section doesn't exist.",restricted:'This section is only for certain roles. If your role allows it, log in with Discord.',soon:"This section's commands will be added here soon.",profileLogin:'Log in with Discord to see your profile.',balance:'Balance',level:'Level',rank:'Rank',logout:'Log out',noApi:"Balance, level and rank will appear once the site is connected to the bot's database.",apiErr:"Couldn't load your data from the bot right now.",home:'TROF System | Discord bot',profile:'My profile | TROF System'}
+};
+var EN={general:['General commands','Commands you can customize in your server'],levels:['Levels','Text and voice XP'],music:['Music','Play songs'],giveaway:['Giveaways','Giveaway system'],tickets:['Tickets','Ticket system'],'shop-avatar':['Avatar shop','Avatar store'],'shop-banner':['Banner shop','Banner store'],moderation:['Moderation commands','For moderators and admins'],'admin-street':['Admin Street','For Admin Street members'],owner:['Owner','Owner only']};
+var ROLE_EN=['Member','Staff','Admin Street','Owner'];
+function t(k){return (STR[lang]&&STR[lang][k])||STR.ar[k]||k}
+function name(s){return lang==='en'&&EN[s.id]?EN[s.id][0]:s.t}
+function desc(s){return lang==='en'&&EN[s.id]?EN[s.id][1]:s.d}
+function cmdDesc(c){return lang==='en'&&c[2]?c[2]:c[1]}
+function translate(){
+  [].forEach.call(document.querySelectorAll('[data-i18n]'),function(e){e.textContent=t(e.getAttribute('data-i18n'))});
+  var k=document.body.getAttribute('data-title');if(k)document.title=t(k);
+}
+function mountLang(){
+  var b=document.getElementById('lang');if(!b)return;
+  var next=LANGS[(LANGS.indexOf(lang)+1)%LANGS.length];
+  b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span></span>';
+  b.lastChild.textContent=NAMES[next];
+  b.onclick=function(){try{localStorage.setItem('trof_lang',next)}catch(e){}location.reload()};
+}
 var auth={rank:0,user:null};
 var API='https://discord.com/api/v10';
 function base(){return new URL('./',location.href).href}
@@ -64,10 +89,10 @@ function mountAccount(){
   var box=document.getElementById('acct');if(!box)return;
   box.innerHTML='';
   if(auth.user){
-    var a=document.createElement('a');a.className='me';a.href='profile.html';a.setAttribute('aria-label','ملفي الشخصي');
+    var a=document.createElement('a');a.className='me';a.href='profile.html';a.setAttribute('aria-label',t('myProfile'));
     var i=document.createElement('img');i.src=avatar(64);i.alt='';a.appendChild(i);box.appendChild(a);
   }else{
-    var b=document.createElement('button');b.type='button';b.className='btn alt';b.textContent='دخول عبر Discord';b.onclick=login;box.appendChild(b);
+    var b=document.createElement('button');b.type='button';b.className='btn alt';b.textContent=t('login');b.onclick=login;box.appendChild(b);
   }
 }
 function dust(){
@@ -79,7 +104,8 @@ function dust(){
     box.appendChild(d);
   }
 }
-window.TROF={CONFIG:CONFIG,SECTIONS:SECTIONS,auth:auth,load:load,login:login,logout:logout,dust:dust,mountAccount:mountAccount,avatar:avatar,token:token,
-  roleName:function(){return ROLE[auth.rank]},
+window.TROF={t:t,name:name,desc:desc,cmdDesc:cmdDesc,CONFIG:CONFIG,SECTIONS:SECTIONS,auth:auth,load:load,login:login,logout:logout,dust:dust,mountAccount:mountAccount,avatar:avatar,token:token,
+  roleName:function(){return (lang==='en'?ROLE_EN:ROLE)[auth.rank]},
   can:function(s){return auth.rank>=RANK[s.need]}};
+mountLang();translate();
 })();
