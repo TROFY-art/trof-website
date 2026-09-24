@@ -193,8 +193,13 @@ async function renderServerSelector(){
   html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
   html += '</button>';
 
+  html += '<div id="server-overlay"></div>';
+
   html += '<div class="server-dropdown" id="server-dropdown" hidden>';
-  html += '<div class="server-dropdown-header"><span>'+t('selectServer')+'</span></div>';
+  html += '<div class="server-dropdown-header">';
+  html += '<span>'+t('selectServer')+'</span>';
+  html += '<button class="server-close" id="server-close" type="button">✕</button>';
+  html += '</div>';
 
   if(guilds.length === 0){
     html += '<div class="server-empty">'+t('noServers')+'</div>';
@@ -221,17 +226,29 @@ async function renderServerSelector(){
 
   var toggle = document.getElementById('server-toggle');
   var dropdown = document.getElementById('server-dropdown');
+  var overlay = document.getElementById('server-overlay');
+  var close = document.getElementById('server-close');
+
+  function openMenu(){
+    dropdown.hidden = false;
+    setTimeout(function(){ overlay.classList.add('show'); }, 10);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu(){
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+    setTimeout(function(){ dropdown.hidden = true; }, 300);
+  }
 
   toggle.onclick = function(e){
     e.stopPropagation();
-    dropdown.hidden = !dropdown.hidden;
+    if(dropdown.hidden) openMenu();
+    else closeMenu();
   };
 
-  document.addEventListener('click', function(){
-    if(dropdown) dropdown.hidden = true;
-  });
-
-  dropdown.onclick = function(e){ e.stopPropagation(); };
+  close.onclick = closeMenu;
+  overlay.onclick = closeMenu;
 
   box.querySelectorAll('.server-item').forEach(function(btn){
     btn.onclick = function(){
