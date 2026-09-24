@@ -63,7 +63,8 @@ root.classList.add('js');
 TROF.load(function(){
   var list=document.getElementById('list'),hint=document.getElementById('hint'),menu=document.getElementById('menu');
   list.innerHTML=TROF.SECTIONS.filter(TROF.can).map(function(s,i){
-    return '<li><a class="row" style="--i:'+i+'" href="section.html?p='+s.id+'"><span class="ic">'+s.icon+'</span><span><b>'+TROF.name(s)+'</b><small>'+TROF.desc(s)+'</small></span></a></li>';
+    var url = s.url ? s.url : 'section.html?p='+s.id;
+    return '<li><a class="row" style="--i:'+i+'" href="'+url+'"><span class="ic">'+s.icon+'</span><span><b>'+TROF.name(s)+'</b><small>'+TROF.desc(s)+'</small></span></a></li>';
   }).join('');
   TROF.mountAccount();
   TROF.renderServerSelector();
