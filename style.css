@@ -6,7 +6,6 @@ body{margin:0;min-height:100vh;background:radial-gradient(70% 50% at 50% 0%,#2a2
 .bar{padding-block:18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand{display:inline-flex;align-items:center;gap:10px;color:var(--text);font-weight:700;text-decoration:none}
 .brand img{width:36px;height:36px;border-radius:50%}
-
 .hero{display:grid;gap:28px;justify-items:center;text-align:center;padding-block:12px 40px}
 .hero>div:first-child{display:grid;gap:18px;justify-items:center;width:100%}
 .logo{order:-1;position:relative;width:min(74vw,340px);aspect-ratio:1;animation:float 6s ease-in-out infinite}
@@ -21,7 +20,6 @@ h1{margin:0;font-size:clamp(2.8rem,12vw,5rem);line-height:1.1;font-weight:800;le
 .btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px -8px #f2c23ccc}
 .btn.alt{padding:10px 24px;font-size:1rem;background:none;border:1px solid var(--gold);color:var(--gold-hi);box-shadow:none}
 .note{margin:0;font-size:.9rem;color:var(--muted)}
-
 .demo{display:grid;justify-items:center;gap:14px;padding-bottom:56px}
 .demo>p{margin:0;color:var(--muted);text-align:center}
 .menu{width:100%;max-width:460px;padding:12px;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 60px -30px #000}
@@ -36,10 +34,8 @@ li{border-top:1px solid var(--line)}
 .row b{display:block;line-height:1.4}
 .row small{font-size:.9rem;color:var(--muted)}
 footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:center}
-
 #dust{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 #dust i{position:absolute;bottom:-10px;border-radius:50%;background:var(--gold-hi);box-shadow:0 0 8px var(--gold);opacity:0;animation:rise linear infinite}
-
 @keyframes float{50%{transform:translateY(-10px)}}
 @keyframes pulse{50%{opacity:.45;transform:scale(1.06)}}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -49,7 +45,6 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
 @keyframes rise{0%{opacity:0;transform:translateY(0)}15%{opacity:.8}100%{opacity:0;transform:translateY(-105vh)}}
 .js .row{opacity:0}
 .js .in .row{animation:drop .4s both;animation-delay:calc(var(--i) * 60ms)}
-
 @media(max-width:639px){
 .btn{display:block;width:100%;padding:16px;text-align:center}
 .row{padding:13px 8px}
@@ -224,6 +219,30 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
 .save-msg{margin:0;font-size:.95rem;font-weight:700;transition:color .2s}
 
 /* ============================================
+   🎫 أنواع التكتات
+   ============================================ */
+.types-list{display:flex;flex-direction:column;gap:10px;width:100%;padding:10px;background:var(--bg);border-radius:12px;border:1px solid var(--line);min-height:60px}
+.type-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;background:var(--panel);border:1px solid var(--line)}
+.type-emoji{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.type-info{flex:1}
+.type-info b{display:block;font-size:.95rem}
+.type-info small{font-size:.8rem;color:var(--muted)}
+.tickets-list{display:flex;flex-direction:column;gap:8px;width:100%;padding:10px;background:var(--bg);border-radius:12px;border:1px solid var(--line)}
+.ticket-item{display:flex;gap:12px;flex-wrap:wrap;padding:10px;border-radius:8px;background:var(--panel);font-size:.9rem}
+.modal{position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal[hidden]{display:none}
+.modal-content{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.modal-header h3{margin:0;color:var(--gold-hi)}
+.modal-close{background:none;border:0;color:var(--muted);font-size:1.5rem;cursor:pointer}
+.modal-close:hover{color:var(--gold-hi)}
+.modal-body{display:grid;gap:16px;margin-bottom:20px}
+.modal-body .form-row{flex-direction:column;align-items:stretch;gap:6px;border:0;padding:0}
+.modal-body .form-row label{font-size:.9rem;color:var(--gold-hi);font-weight:700}
+.modal-body .form-row input,.modal-body .form-row textarea,.modal-body .form-row select{width:100%;padding:10px 12px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;font:inherit;font-size:.9rem}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;padding-top:14px;border-top:1px solid var(--line)}
+
+/* ============================================
    📱 الجوال
    ============================================ */
 @media(max-width:639px){
@@ -252,6 +271,7 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
   .upload-preview img{max-height:200px}
   .size-item label{font-size:.8rem}
   .size-item span{font-size:.8rem}
+  .type-item{flex-wrap:wrap}
 }
 
 /* ============================================
@@ -289,4 +309,4 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
   .preview-container{padding:20px 0}
   .preview-card{max-width:500px}
   .form-actions{flex-direction:row;align-items:center;flex-wrap:wrap}
-}
+   }
