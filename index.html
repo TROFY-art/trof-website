@@ -17,8 +17,14 @@
 <div id="dust" aria-hidden="true"></div>
 
 <header class="wrap bar">
-<div class="hd"><a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a><button class="lang" id="lang" type="button"></button></div>
-<div id="acct"></div>
+  <div class="hd">
+    <a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a>
+    <button class="lang" id="lang" type="button"></button>
+  </div>
+  <div class="hd-right">
+    <div id="server-selector"></div>
+    <div id="acct"></div>
+  </div>
 </header>
 
 <main class="wrap">
@@ -28,7 +34,6 @@
 <p class="lead" data-i18n="lead">بوت دسكورد واحد يدير سيرفرك كله: مستويات، موسيقى، جيفاواي، تكتات وأدوات إدارة.</p>
 <a class="btn" href="https://discord.com/oauth2/authorize?client_id=1536360221906178088&amp;permissions=8&amp;integration_type=0&amp;scope=bot" data-i18n="addBot">أضف البوت إلى سيرفرك</a>
 <p class="note" data-i18n="note">مشروع غير تجاري.</p>
-<!-- لإضافة زر سيرفر الدعم لاحقاً: انسخ سطر الزر أعلاه وبدّل الرابط والنص -->
 </div>
 <div class="logo" id="logo">
 <span class="ring"></span>
@@ -61,6 +66,7 @@ TROF.load(function(){
     return '<li><a class="row" style="--i:'+i+'" href="section.html?p='+s.id+'"><span class="ic">'+s.icon+'</span><span><b>'+TROF.name(s)+'</b><small>'+TROF.desc(s)+'</small></span></a></li>';
   }).join('');
   TROF.mountAccount();
+  TROF.renderServerSelector();
   if(!TROF.auth.user)hint.textContent=TROF.t('hint');
   if('IntersectionObserver' in window){
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){menu.classList.add('in');io.disconnect()}})},{threshold:.1});
