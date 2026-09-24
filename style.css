@@ -101,3 +101,17 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
 .cmds code{color:var(--gold-hi);font-size:1.05rem}
 .cmds span{color:var(--muted)}
 .soon{margin:0;padding:18px 20px;width:100%;max-width:720px;background:var(--panel);border:1px dashed var(--line);border-radius:16px;color:var(--muted)}
+
+/* صفحة القسم */
+@view-transition{navigation:auto}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.rise{animation:up .55s both;animation-delay:calc(var(--d,0) * 90ms)}
+.row:active{transform:scale(.98)}
+.sec-ic{position:relative;flex:none;width:84px;height:84px;margin:9px;animation:float 6s ease-in-out infinite}
+.sec-ic::before{content:"";position:absolute;inset:-40%;border-radius:50%;background:radial-gradient(closest-side,#f2c23c40,transparent);animation:pulse 4s ease-in-out infinite}
+.sec-ic .face{position:absolute;inset:0;display:grid;place-items:center;font-size:2.6rem;border-radius:50%;background:var(--panel)}
+.cmds li:first-child{border-top:0}
+.soon::before{content:"";display:inline-block;width:8px;height:8px;margin-inline-end:10px;border-radius:50%;background:var(--gold);animation:pulse 2s ease-in-out infinite}
+.more{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.more a{padding:8px 16px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--text);text-decoration:none;transition:border-color .2s,transform .15s}
+.more a:hover{border-color:var(--gold);transform:translateY(-2px)}
