@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<script>try{if(localStorage.getItem('trof_lang')==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr'}}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>المستويات | TROF System</title>
+<meta name="theme-color" content="#0d0c0a">
+<link rel="icon" type="image/webp" href="logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="dust" aria-hidden="true"></div>
+
+<header class="wrap bar">
+  <div class="hd">
+    <a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a>
+    <button class="lang" id="lang" type="button"></button>
+  </div>
+  <div class="hd-right">
+    <div id="server-selector"></div>
+    <div id="acct"></div>
+  </div>
+</header>
+
+<main class="wrap page" id="page"></main>
+<footer class="wrap">TROF System.</footer>
+
+<script src="app.js"></script>
+<script>
+(function(){
+var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
+TROF.dust();
+
+var guildRoles = [];
+var currentLBType = 'total';
+
+TROF.load(function(){
+  TROF.mountAccount();
+  TROF.renderServerSelector();
+  var page=document.getElementById('page');
+  var u=TROF.auth.user;
+
+  if(!u){
+    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">سجّل الدخول للوصول للإعدادات.</p>';
+    return;
+  }
+
+  var gid = TROF.getSelectedGuild();
+  if(!gid){
+    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">⚠️ اختر سيرفراً أولاً.</p>';
+    return;
+  }
+
+  page.innerHTML = buildLevelsPage(gid);
+  loadAll(gid);
+  bindEvents(gid);
+});
+
+function buildLevelsPage(gid){
+  return '' +
+  '<a class="back" href="./">'+CHEV+'الرجوع</a>' +
+  '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">📊</span></div><div><h1 class="sec-title">نظام المستويات</h1><p>تحكم كامل بالمستويات و XP</p></div></div>' +
+  '<div class="welcome-form">' +
+
+    // ===== الإعدادات العامة =====
+    '<div class="form-section-title">⚙️ الإعدادات العامة</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">✅ تفعيل نظام المستويات</label>' +
+      '<label class="switch"><input type="checkbox" id="l-enabled" checked><span class="slider"></span></label>' +
+    '</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">📢 قناة إشعارات المستوى</label>' +
+      '<select class="form-select" id="l-channel"><option value="">-- بدون --</option></select>' +
+    '</div>' +
+
+    // ===== إعدادات XP =====
+    '<div class="form-section-title">⚙️ إعدادات XP</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">💬 تفعيل XP الكتابي</label>' +
+      '<label class="switch"><input type="checkbox" id="l-text-xp" checked><span class="slider"></span></label>' +
+    '</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">🎤 تفعيل XP الصوتي</label>' +
+      '<label class="switch"><input type="checkbox" id="l-voice-xp" checked><span class="slider"></span></label>' +
+    '</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">📊 XP لكل رسالة</label>' +
+      '<div class="inline-controls">' +
+        '<input type="range" id="l-xp-msg" min="1" max="50" value="5">' +
+        '<span id="l-xp-msg-val">5</span>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">🎤 XP لكل دقيقة صوتية</label>' +
+      '<div class="inline-controls">' +
+        '<input type="range" id="l-xp-voice" min="1" max="50" value="10">' +
+        '<span id="l-xp-voice-val">10</span>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">📈 XP المطلوب لكل مستوى</label>' +
+      '<div class="inline-controls">' +
+        '<input type="range" id="l-xp-level" min="50" max="1000" value="100" step="10">' +
+        '<span id="l-xp-level-val">100</span>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="form-actions">' +
+      '<button class="btn save-btn" id="l-save" type="button">💾 حفظ الإعدادات</button>' +
+      '<p class="save-msg" id="l-msg"></p>' +
+    '</div>' +
+
+    // ===== الرتب التلقائية =====
+    '<div class="form-section-title">🎭 الرتب التلقائية (لكل مستوى)</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<div class="level-roles-list" id="level-roles-list"><p class="form-hint">جاري التحميل...</p></div>' +
+      '<div class="add-level-role">' +
+        '<input type="number" class="form-select small-select" id="new-level" placeholder="المستوى" min="1">' +
+        '<select class="form-select small-select" id="new-role"><option value="">-- اختر رتبة --</option></select>' +
+        '<button class="btn small-btn" id="add-level-role" type="button">➕ إضافة</button>' +
+      '</div>' +
+    '</div>' +
+
+    // ===== التوب =====
+    '<div class="form-section-title">🏆 لوحة الصدارة</div>' +
+
+    '<div class="form-row">' +
+      '<div class="lb-tabs">' +
+        '<button class="lb-tab active" data-type="total">🏆 الكلي</button>' +
+        '<button class="lb-tab" data-type="text">📝 الكتابي</button>' +
+        '<button class="lb-tab" data-type="voice">🎤 الصوتي</button>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<div class="leaderboard" id="leaderboard"><p class="form-hint">جاري التحميل...</p></div>' +
+    '</div>' +
+
+    // ===== الإحصائيات =====
+    '<div class="form-section-title">📈 إحصائيات السيرفر</div>' +
+    '<div class="stats-grid" id="stats-grid"><p class="form-hint">جاري التحميل...</p></div>' +
+
+  '</div>';
+}
+
+async function loadAll(gid){
+  var api = TROF.CONFIG.apiUrl;
+  var token = TROF.token();
+  
+  // 1. جلب القنوات
+  try{
+    var res = await fetch(api + '/guild/' + gid + '/channels', {headers: {Authorization: 'Bearer ' + token}});
+    if(res.ok){
+      var data = await res.json();
+      var sel = document.getElementById('l-channel');
+      data.channels.forEach(function(c){
+        sel.innerHTML += '<option value="' + c.id + '">#' + c.name + '</option>';
+      });
+    }
+  }catch(e){}
+  
+  // 2. جلب الرتب
+  try{
+    var res = await fetch(api + '/guild/' + gid + '/roles', {headers: {Authorization: 'Bearer ' + token}});
+    if(res.ok){
+      var data = await res.json();
+      guildRoles = data.roles;
+      var sel = document.getElementById('new-role');
+      data.roles.forEach(function(r){
+        sel.innerHTML += '<option value="' + r.id + '">' + r.name + '</option>';
+      });
+    }
+  }catch(e){}
+  
+  // 3. جلب الإعدادات
+  try{
+    var res = await fetch(api + '/guild/' + gid + '/levels/settings', {headers: {Authorization: 'Bearer ' + token}});
+    if(res.ok){
+      var data = await res.json();
+      var s = data.settings;
+      document.getElementById('l-enabled').checked = s.enabled;
+      document.getElementById('l-text-xp').checked = s.text_xp_enabled;
+      document.getElementById('l-voice-xp').checked = s.voice_xp_enabled;
+      if(s.channel_id) document.getElementById('l-channel').value = s.channel_id;
+      document.getElementById('l-xp-msg').value = s.xp_per_message;
+      document.getElementById('l-xp-msg-val').textContent = s.xp_per_message;
+      document.getElementById('l-xp-voice').value = s.xp_per_voice_minute;
+      document.getElementById('l-xp-voice-val').textContent = s.xp_per_voice_minute;
+      document.getElementById('l-xp-level').value = s.xp_per_level;
+      document.getElementById('l-xp-level-val').textContent = s.xp_per_level;
+    }
+  }catch(e){}
+  
+  await loadLevelRoles(gid);
+  await loadLeaderboard(gid, 'total');
+  await loadStats(gid);
+}
+
+async function loadLevelRoles(gid){
+  var list = document.getElementById('level-roles-list');
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/levels/roles', {headers: {Authorization: 'Bearer ' + TROF.token()}});
+    if(res.ok){
+      var data = await res.json();
+      if(data.roles.length === 0){
+        list.innerHTML = '<p class="form-hint">لا توجد رتب تلقائية بعد.</p>';
+        return;
+      }
+      list.innerHTML = data.roles.map(function(r){
+        var role = guildRoles.find(function(gr){return String(gr.id) === String(r.role_id)});
+        var roleName = role ? role.name : 'رتبة محذوفة';
+        return '<div class="type-item">' +
+          '<span class="type-emoji" style="background:#f2c23c20;color:#f2c23c">' + r.level + '</span>' +
+          '<div class="type-info"><b>المستوى ' + r.level + '</b><small>' + roleName + '</small></div>' +
+          '<button class="small-btn delete-level-role" data-level="' + r.level + '">🗑️</button>' +
+        '</div>';
+      }).join('');
+      
+      list.querySelectorAll('.delete-level-role').forEach(function(btn){
+        btn.onclick = async function(){
+          if(!confirm('حذف الرتبة؟')) return;
+          await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/levels/roles/' + btn.getAttribute('data-level'), {
+            method: 'DELETE',
+            headers: {Authorization: 'Bearer ' + TROF.token()}
+          });
+          await loadLevelRoles(gid);
+        };
+      });
+    }
+  }catch(e){}
+}
+
+async function loadLeaderboard(gid, type){
+  currentLBType = type;
+  var list = document.getElementById('leaderboard');
+  list.innerHTML = '<p class="form-hint">جاري التحميل...</p>';
+  
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/levels/leaderboard?type=' + type, {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+    if(res.ok){
+      var data = await res.json();
+      if(data.leaderboard.length === 0){
+        list.innerHTML = '<p class="form-hint">لا توجد بيانات</p>';
+        return;
+      }
+      var medals = ['🥇','🥈','🥉'];
+      list.innerHTML = data.leaderboard.map(function(u){
+        var medal = u.rank <= 3 ? medals[u.rank - 1] : '#' + u.rank;
+        var value = type === 'voice' ? (u.voice_xp + ' XP صوتي') : (type === 'text' ? (u.xp + ' XP') : ('Lvl ' + u.level));
+        return '<div class="lb-item">' +
+          '<span class="lb-rank">' + medal + '</span>' +
+          '<span class="lb-user"><@' + u.user_id + '></span>' +
+          '<span class="lb-value">' + value + '</span>' +
+        '</div>';
+      }).join('');
+    }
+  }catch(e){
+    list.innerHTML = '<p class="form-hint">خطأ في التحميل</p>';
+  }
+}
+
+async function loadStats(gid){
+  var grid = document.getElementById('stats-grid');
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/levels/stats', {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+    if(res.ok){
+      var data = await res.json();
+      var s = data.stats;
+      grid.innerHTML = 
+        '<div class="stat"><i>👥</i><b>' + s.total_users + '</b><span>عضو مسجل</span></div>' +
+        '<div class="stat"><i>📊</i><b>' + s.avg_level + '</b><span>متوسط المستوى</span></div>' +
+        '<div class="stat"><i>🏆</i><b>' + s.max_level + '</b><span>أعلى مستوى</span></div>' +
+        '<div class="stat"><i>⚡</i><b>' + TROF.formatNumber(s.total_xp) + '</b><span>إجمالي XP</span></div>';
+    }
+  }catch(e){}
+}
+
+function bindEvents(gid){
+  // منزلقات XP
+  ['l-xp-msg', 'l-xp-voice', 'l-xp-level'].forEach(function(id){
+    var el = document.getElementById(id);
+    el.addEventListener('input', function(){
+      document.getElementById(id + '-val').textContent = el.value;
+    });
+  });
+  
+  // تبويبات التوب
+  document.querySelectorAll('.lb-tab').forEach(function(tab){
+    tab.onclick = function(){
+      document.querySelectorAll('.lb-tab').forEach(function(t){t.classList.remove('active')});
+      tab.classList.add('active');
+      loadLeaderboard(gid, tab.getAttribute('data-type'));
+    };
+  });
+  
+  // إضافة رتبة
+  document.getElementById('add-level-role').onclick = async function(){
+    var level = document.getElementById('new-level').value;
+    var role = document.getElementById('new-role').value;
+    if(!level || !role){ alert('اكتب المستوى واختر رتبة'); return; }
+    
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/levels/roles', {
+      method: 'POST',
+      headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+      body: JSON.stringify({level: parseInt(level), role_id: role})
+    });
+    
+    if(res.ok){
+      document.getElementById('new-level').value = '';
+      document.getElementById('new-role').value = '';
+      await loadLevelRoles(gid);
+    }else{
+      alert('❌ فشل');
+    }
+  };
+  
+  // حفظ الإعدادات
+  document.getElementById('l-save').onclick = async function(){
+    var btn = this; btn.disabled = true;
+    var msg = document.getElementById('l-msg');
+    msg.textContent = '⏳ جاري الحفظ...';
+    
+    var payload = {
+      enabled: document.getElementById('l-enabled').checked,
+      text_xp_enabled: document.getElementById('l-text-xp').checked,
+      voice_xp_enabled: document.getElementById('l-voice-xp').checked,
+      channel_id: document.getElementById('l-channel').value || null,
+      xp_per_message: parseInt(document.getElementById('l-xp-msg').value),
+      xp_per_voice_minute: parseInt(document.getElementById('l-xp-voice').value),
+      xp_per_level: parseInt(document.getElementById('l-xp-level').value)
+    };
+    
+    try{
+      var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/levels/settings', {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if(res.ok){
+        msg.textContent = '✅ تم الحفظ';
+        msg.style.color = '#4ade80';
+      }else{
+        msg.textContent = '❌ فشل';
+        msg.style.color = '#f87171';
+      }
+    }catch(e){
+      msg.textContent = '❌ خطأ';
+      msg.style.color = '#f87171';
+    }
+    btn.disabled = false;
+    setTimeout(function(){ msg.textContent = ''; }, 3000);
+  };
+}
+})();
+</script>
+</body>
+</html>
