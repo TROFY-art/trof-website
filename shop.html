@@ -35,7 +35,7 @@
 var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
 TROF.dust();
 
-var currentTab = 'background';
+var currentTab = 'games';
 var userItems = [];
 var shopItems = [];
 var userBalance = 0;
@@ -59,7 +59,7 @@ TROF.load(function(){
 function buildShopPage(){
   return '' +
   '<a class="back" href="./">'+CHEV+'الرجوع</a>' +
-  '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">🏪</span></div><div><h1 class="sec-title">المتجر</h1><p>اشترِ خلفيات، شارات، ألوان، وأحجام</p></div></div>' +
+  '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">🏪</span></div><div><h1 class="sec-title">المتجر</h1><p>اشترِ خلفيات وأغراض مميزة</p></div></div>' +
   
   '<div class="balance-card">' +
     '<div class="balance-icon">💰</div>' +
@@ -70,10 +70,13 @@ function buildShopPage(){
   '</div>' +
   
   '<div class="shop-tabs">' +
-    '<button class="shop-tab active" data-tab="background">🖼️ خلفيات</button>' +
-    '<button class="shop-tab" data-tab="badge">🏅 شارات</button>' +
-    '<button class="shop-tab" data-tab="name_color">🎨 ألوان الأسماء</button>' +
-    '<button class="shop-tab" data-tab="profile_size">📐 أحجام</button>' +
+    '<button class="shop-tab active" data-tab="games">🎮 ألعاب</button>' +
+    '<button class="shop-tab" data-tab="anime">🌸 أنمي</button>' +
+    '<button class="shop-tab" data-tab="nature">🌄 طبيعة</button>' +
+    '<button class="shop-tab" data-tab="sports">⚽ رياضة</button>' +
+    '<button class="shop-tab" data-tab="space">🌌 فضاء</button>' +
+    '<button class="shop-tab" data-tab="premium">💎 مميزة</button>' +
+    '<button class="shop-tab" data-tab="owner">👑 المالك</button>' +
   '</div>' +
   
   '<div class="shop-content" id="shop-content">' +
@@ -262,4 +265,4 @@ function bindEvents(){
 })();
 </script>
 </body>
-  </html>
+</html>
