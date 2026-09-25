@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<script>try{if(localStorage.getItem('trof_lang')==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr'}}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>المتجر | TROF System</title>
+<meta name="theme-color" content="#0d0c0a">
+<link rel="icon" type="image/webp" href="logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="dust" aria-hidden="true"></div>
+
+<header class="wrap bar">
+  <div class="hd">
+    <a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a>
+    <button class="lang" id="lang" type="button"></button>
+  </div>
+  <div class="hd-right">
+    <div id="server-selector"></div>
+    <div id="acct"></div>
+  </div>
+</header>
+
+<main class="wrap page" id="page"></main>
+<footer class="wrap">TROF System.</footer>
+
+<script src="app.js"></script>
+<script>
+(function(){
+var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
+TROF.dust();
+
+var currentTab = 'background';
+var userItems = [];
+var shopItems = [];
+var userBalance = 0;
+
+TROF.load(function(){
+  TROF.mountAccount();
+  TROF.renderServerSelector();
+  var page=document.getElementById('page');
+  var u=TROF.auth.user;
+
+  if(!u){
+    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">سجّل الدخول للوصول للمتجر.</p>';
+    return;
+  }
+
+  page.innerHTML = buildShopPage();
+  loadAll();
+  bindEvents();
+});
+
+function buildShopPage(){
+  return '' +
+  '<a class="back" href="./">'+CHEV+'الرجوع</a>' +
+  '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">🏪</span></div><div><h1 class="sec-title">المتجر</h1><p>اشترِ خلفيات، شارات، ألوان، وأحجام</p></div></div>' +
+  
+  '<div class="balance-card">' +
+    '<div class="balance-icon">💰</div>' +
+    '<div class="balance-info">' +
+      '<span>رصيدك</span>' +
+      '<b id="my-balance">—</b>' +
+    '</div>' +
+  '</div>' +
+  
+  '<div class="shop-tabs">' +
+    '<button class="shop-tab active" data-tab="background">🖼️ خلفيات</button>' +
+    '<button class="shop-tab" data-tab="badge">🏅 شارات</button>' +
+    '<button class="shop-tab" data-tab="name_color">🎨 ألوان الأسماء</button>' +
+    '<button class="shop-tab" data-tab="profile_size">📐 أحجام</button>' +
+  '</div>' +
+  
+  '<div class="shop-content" id="shop-content">' +
+    '<p class="form-hint">جاري التحميل...</p>' +
+  '</div>';
+}
+
+async function loadAll(){
+  var u = TROF.auth.user;
+  
+  // جلب الرصيد
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/users/' + u.id, {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+    if(res.ok){
+      var data = await res.json();
+      userBalance = data.balance || 0;
+      document.getElementById('my-balance').textContent = TROF.formatNumber(userBalance) + ' 💰';
+    }
+  }catch(e){}
+  
+  // جلب مشتريات المستخدم
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/shop/my-items', {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+    if(res.ok){
+      var data = await res.json();
+      userItems = data.items || [];
+    }
+  }catch(e){}
+  
+  // جلب منتجات المتجر
+  await loadShopItems();
+}
+
+async function loadShopItems(){
+  var content = document.getElementById('shop-content');
+  content.innerHTML = '<p class="form-hint">جاري التحميل...</p>';
+  
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/shop/items?category=' + currentTab, {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+    if(res.ok){
+      var data = await res.json();
+      shopItems = data.items || [];
+      
+      if(shopItems.length === 0){
+        content.innerHTML = '<p class="form-hint">لا توجد منتجات في هذا القسم بعد</p>';
+        return;
+      }
+      
+      var html = '<div class="shop-grid">';
+      shopItems.forEach(function(item){
+        var owned = userItems.some(function(ui){ return ui.id === item.id });
+        var equipped = userItems.some(function(ui){ return ui.id === item.id && ui.equipped });
+        var rarityClass = 'rarity-' + item.rarity;
+        var rarityLabel = {
+          'common': 'عادي',
+          'rare': 'نادر',
+          'epic': 'ملحمي',
+          'legendary': 'أسطوري'
+        }[item.rarity] || 'عادي';
+        
+        html += '<div class="shop-item ' + rarityClass + '">';
+        html += '<div class="shop-item-img" style="background-image: url(\'' + (item.image_url || '') + '\')">';
+        if(owned && equipped) html += '<span class="item-badge">✓ مجهز</span>';
+        html += '</div>';
+        html += '<div class="shop-item-body">';
+        html += '<div class="shop-item-name">' + (item.name || '') + '</div>';
+        html += '<div class="shop-item-desc">' + (item.description || '') + '</div>';
+        html += '<div class="shop-item-footer">';
+        html += '<span class="rarity-tag">' + rarityLabel + '</span>';
+        html += '<span class="item-price">' + TROF.formatNumber(item.price) + ' 💰</span>';
+        html += '</div>';
+        
+        if(owned){
+          if(equipped){
+            html += '<button class="btn small-btn item-btn equipped" disabled>✓ مجهز</button>';
+          }else{
+            html += '<button class="btn small-btn item-btn equip-btn" data-id="' + item.id + '">✨ تجهيز</button>';
+          }
+        }else{
+          html += '<button class="btn small-btn item-btn buy-btn" data-id="' + item.id + '" data-price="' + item.price + '">🛒 شراء</button>';
+        }
+        
+        html += '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+      content.innerHTML = html;
+      
+      content.querySelectorAll('.buy-btn').forEach(function(btn){
+        btn.onclick = function(){ buyItem(btn); };
+      });
+      content.querySelectorAll('.equip-btn').forEach(function(btn){
+        btn.onclick = function(){ equipItem(btn); };
+      });
+    }
+  }catch(e){
+    content.innerHTML = '<p class="form-hint">خطأ في التحميل</p>';
+  }
+}
+
+async function buyItem(btn){
+  var itemId = parseInt(btn.getAttribute('data-id'));
+  var price = parseInt(btn.getAttribute('data-price'));
+  var item = shopItems.find(function(i){ return i.id === itemId });
+  
+  if(!item) return;
+  
+  if(userBalance < price){
+    alert('❌ رصيدك غير كافٍ! تحتاج ' + TROF.formatNumber(price - userBalance) + ' 💰');
+    return;
+  }
+  
+  if(!confirm('هل تريد شراء "' + item.name + '" بسعر ' + TROF.formatNumber(price) + ' 💰؟')) return;
+  
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري الشراء...';
+  
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/shop/buy/' + itemId, {
+      method: 'POST',
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+    var data = await res.json();
+    
+    if(res.ok){
+      alert('✅ ' + data.message);
+      userBalance = data.new_balance;
+      document.getElementById('my-balance').textContent = TROF.formatNumber(userBalance) + ' 💰';
+      await loadAll();
+    }else{
+      alert('❌ ' + (data.detail || 'فشل الشراء'));
+      btn.disabled = false;
+      btn.textContent = '🛒 شراء';
+    }
+  }catch(e){
+    alert('❌ خطأ في الاتصال');
+    btn.disabled = false;
+    btn.textContent = '🛒 شراء';
+  }
+}
+
+async function equipItem(btn){
+  var itemId = parseInt(btn.getAttribute('data-id'));
+  
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري التجهيز...';
+  
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/shop/equip/' + itemId, {
+      method: 'POST',
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+    var data = await res.json();
+    
+    if(res.ok){
+      alert('✅ ' + data.message);
+      await loadAll();
+    }else{
+      alert('❌ ' + (data.detail || 'فشل التجهيز'));
+      btn.disabled = false;
+      btn.textContent = '✨ تجهيز';
+    }
+  }catch(e){
+    alert('❌ خطأ في الاتصال');
+    btn.disabled = false;
+    btn.textContent = '✨ تجهيز';
+  }
+}
+
+function bindEvents(){
+  document.querySelectorAll('.shop-tab').forEach(function(tab){
+    tab.onclick = function(){
+      document.querySelectorAll('.shop-tab').forEach(function(t){ t.classList.remove('active') });
+      tab.classList.add('active');
+      currentTab = tab.getAttribute('data-tab');
+      loadShopItems();
+    };
+  });
+}
+})();
+</script>
+</body>
+  </html>
