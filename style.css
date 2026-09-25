@@ -599,64 +599,178 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
   }
 }
 /* ============================================
-   ⚡ الاختصارات
+   ⚡ الاختصارات - عرض الأوامر
    ============================================ */
-.shortcuts-list{
-  display:flex;flex-direction:column;gap:10px;
-  width:100%;padding:10px;
-  background:var(--bg);border-radius:12px;
-  border:1px solid var(--line);
-  min-height:60px;
-}
 
-.shortcut-item{
-  display:flex;align-items:center;gap:12px;
-  padding:12px 14px;border-radius:10px;
-  background:var(--panel);border:1px solid var(--line);
-  transition:border-color .2s,transform .15s;
+.shortcuts-search{
+  width:100%;max-width:720px;
+  margin-bottom:8px;
 }
-.shortcut-item:hover{
-  border-color:var(--gold);
-  transform:translateY(-2px);
-}
-
-.shortcut-icon{
-  flex-shrink:0;width:40px;height:40px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.3rem;
-  background:linear-gradient(135deg,var(--gold-hi),var(--gold-lo));
-  border-radius:10px;
-}
-
-.shortcut-info{flex:1;min-width:0}
-.shortcut-info b{
-  display:block;
-  color:var(--gold-hi);
+.shortcuts-search .form-select{
+  max-width:100%;
+  padding:14px 18px;
   font-size:1rem;
-  font-weight:800;
-  margin-bottom:2px;
-  direction:ltr;
-  text-align:left;
+  border-radius:14px;
+  background:var(--panel);
+  border:2px solid var(--line);
 }
-.shortcut-info small{
-  display:block;
-  font-size:.85rem;
-  color:var(--muted);
+.shortcuts-search .form-select:focus{
+  border-color:var(--gold);
+  outline:none;
+}
+
+.commands-container{
+  width:100%;max-width:720px;
+  display:flex;flex-direction:column;gap:12px;
+}
+
+.category-section{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:16px;
   overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+  transition:border-color .2s;
 }
-.shortcut-info code{
+.category-section:hover{
+  border-color:var(--gold-lo);
+}
+
+.category-header{
+  display:flex;align-items:center;gap:12px;
+  padding:16px 18px;
+  cursor:pointer;
+  user-select:none;
+  transition:background .15s;
+  background:var(--panel);
+}
+.category-header:hover{
+  background:#221b0d;
+}
+
+.category-icon{
+  font-size:1.4rem;
+  flex-shrink:0;
+}
+.category-name{
+  flex:1;
+  font-weight:800;
+  color:var(--gold-hi);
+  font-size:1.05rem;
+}
+.category-count{
   background:var(--bg);
-  padding:2px 6px;
-  border-radius:6px;
   color:var(--gold);
   font-size:.8rem;
-  direction:ltr;
+  font-weight:800;
+  padding:3px 10px;
+  border-radius:999px;
+  border:1px solid var(--line);
+}
+.category-arrow{
+  color:var(--muted);
+  font-size:.8rem;
+  transition:transform .2s;
+}
+
+.category-commands{
+  display:none;
+  padding:6px;
+  background:var(--bg);
+  border-top:1px solid var(--line);
+}
+
+.command-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:10px;
+  transition:background .15s;
+  margin-bottom:4px;
+}
+.command-item:hover{
+  background:var(--panel);
+}
+.command-item:last-child{
+  margin-bottom:0;
+}
+
+.command-info{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.command-name{
   display:inline-block;
+  color:var(--gold-hi);
+  font-weight:800;
+  font-size:.95rem;
+  direction:ltr;
+  text-align:left;
+  background:var(--panel);
+  padding:3px 10px;
+  border-radius:6px;
+  border:1px solid var(--line);
+  align-self:flex-start;
+}
+
+.command-desc{
+  font-size:.85rem;
+  color:var(--muted);
+  padding-inline-start:4px;
+}
+
+.shortcut-badge{
+  background:linear-gradient(180deg,#4ade80,#22c55e);
+  color:#0d0c0a;
+  font-weight:900;
+  font-size:.75rem;
+  padding:4px 10px;
+  border-radius:999px;
+  direction:ltr;
+  white-space:nowrap;
+}
+
+.add-shortcut{
+  background:linear-gradient(180deg,var(--gold-hi),var(--gold));
+  color:#1a1305;
+  border:0;
+  white-space:nowrap;
+  font-size:.8rem !important;
+  padding:8px 14px !important;
+}
+.add-shortcut:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 12px -4px #f2c23ccc;
+}
+
+.remove-shortcut{
+  background:var(--bg);
+  color:#f87171;
+  border:1px solid #f8717155;
+  padding:6px 10px !important;
+}
+.remove-shortcut:hover{
+  background:#f8717122;
+  border-color:#f87171;
 }
 
 @media(max-width:639px){
-  .shortcut-item{flex-wrap:wrap}
-  .shortcut-info{width:100%}
+  .command-item{
+    flex-wrap:wrap;
+    padding:12px 10px;
+  }
+  .command-info{
+    width:100%;
+    margin-bottom:6px;
+  }
+  .add-shortcut,
+  .remove-shortcut,
+  .shortcut-badge{
+    width:100%;
+    text-align:center;
+  }
 }
