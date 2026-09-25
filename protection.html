@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<script>try{if(localStorage.getItem('trof_lang')==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr'}}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الحماية | TROF System</title>
+<meta name="theme-color" content="#0d0c0a">
+<link rel="icon" type="image/webp" href="logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="dust" aria-hidden="true"></div>
+
+<header class="wrap bar">
+  <div class="hd">
+    <a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a>
+    <button class="lang" id="lang" type="button"></button>
+  </div>
+  <div class="hd-right">
+    <div id="server-selector"></div>
+    <div id="acct"></div>
+  </div>
+</header>
+
+<main class="wrap page" id="page"></main>
+<footer class="wrap">TROF System.</footer>
+
+<script src="app.js"></script>
+<script>
+(function(){
+var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
+TROF.dust();
+
+var currentGuildId = null;
+var guildRoles = [];
+var channels = [];
+
+TROF.load(function(){
+  TROF.mountAccount();
+  TROF.renderServerSelector();
+  var page=document.getElementById('page');
+  var u=TROF.auth.user;
+
+  if(!u){
+    page.innerHTML='<p class="soon">سجّل الدخول للوصول للإعدادات.</p>';
+    return;
+  }
+
+  currentGuildId = TROF.getSelectedGuild();
+  if(!currentGuildId){
+    page.innerHTML='<p class="soon">⚠️ اختر سيرفراً أولاً.</p>';
+    return;
+  }
+
+  page.innerHTML = buildProtectionPage();
+  loadAll();
+  bindEvents();
+});
+
+function buildProtectionPage(){
+  return '' +
+  '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">🛡️</span></div><div><h1 class="sec-title">الحماية</h1><p>حماية سيرفرك من التخريب والسبام</p></div></div>' +
+  '<div class="welcome-form">' +
+
+    // ===== الإعدادات العامة =====
+    '<div class="form-section-title">⚙️ الإعدادات العامة</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">🛡️ تفعيل الحماية</label>' +
+      '<label class="switch"><input type="checkbox" id="p-enabled" checked><span class="slider"></span></label>' +
+    '</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">🚫 الحماية من السبام</label>' +
+      '<label class="switch"><input type="checkbox" id="p-antispam" checked><span class="slider"></span></label>' +
+    '</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">🔗 حظر الروابط</label>' +
+      '<label class="switch"><input type="checkbox" id="p-antilink"><span class="slider"></span></label>' +
+    '</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">📢 حظر الإعلانات</label>' +
+      '<label class="switch"><input type="checkbox" id="p-antinvite" checked><span class="slider"></span></label>' +
+    '</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">👥 الحماية من الحسابات الجديدة</label>' +
+      '<label class="switch"><input type="checkbox" id="p-antinew"><span class="slider"></span></label>' +
+    '</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">🚨 الحماية من التخريب (Raid)</label>' +
+      '<label class="switch"><input type="checkbox" id="p-antiraid" checked><span class="slider"></span></label>' +
+    '</div>' +
+
+    // ===== قنوات السجل =====
+    '<div class="form-section-title">📢 قنوات السجل</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">📝 قناة سجل الحماية</label>' +
+      '<select class="form-select" id="p-log-channel"><option value="">-- بدون --</option></select>' +
+    '</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">⚠️ قناة التحذيرات</label>' +
+      '<select class="form-select" id="p-warn-channel"><option value="">-- بدون --</option></select>' +
+    '</div>' +
+
+    // ===== الإجراءات =====
+    '<div class="form-section-title">⚡ الإجراءات التلقائية</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">👥 الحد الأقصى للطرد في الساعة</label>' +
+      '<div class="inline-controls">' +
+        '<input type="range" id="p-max-kick" min="1" max="50" value="5">' +
+        '<span id="p-max-kick-val">5</span>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">🚫 الحد الأقصى للحظر في الساعة</label>' +
+      '<div class="inline-controls">' +
+        '<input type="range" id="p-max-ban" min="1" max="50" value="3">' +
+        '<span id="p-max-ban-val">3</span>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">⏱️ مدة الحظر المؤقت (بالدقائق)</label>' +
+      '<div class="inline-controls">' +
+        '<input type="range" id="p-timeout-duration" min="1" max="1440" value="10" step="1">' +
+        '<span id="p-timeout-duration-val">10</span>' +
+      '</div>' +
+    '</div>' +
+
+    // ===== الرتب المحمية =====
+    '<div class="form-section-title">🎭 الرتب المحمية</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">الرتب التي لا يمكن المساس بها</label>' +
+      '<div class="roles-container" id="p-protected-roles">' +
+        '<p class="form-hint">جاري التحميل...</p>' +
+      '</div>' +
+      '<div class="add-role-row">' +
+        '<select class="form-select small-select" id="p-add-role">' +
+          '<option value="">-- اختر رتبة --</option>' +
+        '</select>' +
+        '<button class="small-btn" id="p-add-role-btn" type="button">➕ إضافة</button>' +
+      '</div>' +
+    '</div>' +
+
+    // ===== الإجراءات =====
+    '<div class="form-actions">' +
+      '<button class="btn save-btn" id="p-save" type="button">💾 حفظ الإعدادات</button>' +
+      '<p class="save-msg" id="p-msg"></p>' +
+    '</div>' +
+
+    // ===== السجل =====
+    '<div class="form-section-title">📜 سجل الأحداث</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<div class="logs-list" id="p-logs">' +
+        '<p class="form-hint">جاري التحميل...</p>' +
+      '</div>' +
+      '<button class="small-btn" id="p-refresh-logs" type="button">🔄 تحديث السجل</button>' +
+    '</div>' +
+
+  '</div>';
+}
+
+async function loadAll(){
+  var api = TROF.CONFIG.apiUrl;
+  var token = TROF.token();
+
+  // جلب القنوات
+  try{
+    var res = await fetch(api + '/guild/' + currentGuildId + '/channels', {headers: {Authorization: 'Bearer ' + token}});
+    if(res.ok){
+      var data = await res.json();
+      channels = data.channels || [];
+      ['p-log-channel', 'p-warn-channel'].forEach(function(id){
+        var sel = document.getElementById(id);
+        data.channels.forEach(function(c){
+          sel.innerHTML += '<option value="' + c.id + '">#' + c.name + '</option>';
+        });
+      });
+    }
+  }catch(e){}
+
+  // جلب الرتب
+  try{
+    var res = await fetch(api + '/guild/' + currentGuildId + '/roles', {headers: {Authorization: 'Bearer ' + token}});
+    if(res.ok){
+      var data = await res.json();
+      guildRoles = data.roles || [];
+      var sel = document.getElementById('p-add-role');
+      guildRoles.forEach(function(r){
+        sel.innerHTML += '<option value="' + r.id + '">' + r.name + '</option>';
+      });
+    }
+  }catch(e){}
+
+  // جلب الإعدادات
+  try{
+    var res = await fetch(api + '/guild/' + currentGuildId + '/protection/settings', {headers: {Authorization: 'Bearer ' + token}});
+    if(res.ok){
+      var data = await res.json();
+      var s = data.settings || {};
+      if(s.enabled !== undefined) document.getElementById('p-enabled').checked = s.enabled;
+      if(s.antispam !== undefined) document.getElementById('p-antispam').checked = s.antispam;
+      if(s.antilink !== undefined) document.getElementById('p-antilink').checked = s.antilink;
+      if(s.antinvite !== undefined) document.getElementById('p-antinvite').checked = s.antinvite;
+      if(s.antinew !== undefined) document.getElementById('p-antinew').checked = s.antinew;
+      if(s.antiraid !== undefined) document.getElementById('p-antiraid').checked = s.antiraid;
+      if(s.log_channel_id) document.getElementById('p-log-channel').value = s.log_channel_id;
+      if(s.warn_channel_id) document.getElementById('p-warn-channel').value = s.warn_channel_id;
+      if(s.max_kick) { document.getElementById('p-max-kick').value = s.max_kick; document.getElementById('p-max-kick-val').textContent = s.max_kick; }
+      if(s.max_ban) { document.getElementById('p-max-ban').value = s.max_ban; document.getElementById('p-max-ban-val').textContent = s.max_ban; }
+      if(s.timeout_duration) { document.getElementById('p-timeout-duration').value = s.timeout_duration; document.getElementById('p-timeout-duration-val').textContent = s.timeout_duration; }
+    }
+  }catch(e){}
+
+  await loadProtectedRoles();
+  await loadLogs();
+}
+
+async function loadProtectedRoles(){
+  var box = document.getElementById('p-protected-roles');
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/protection/roles', {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+    if(res.ok){
+      var data = await res.json();
+      if(!data.roles || data.roles.length === 0){
+        box.innerHTML = '<p class="form-hint">لا توجد رتب محمية بعد</p>';
+        return;
+      }
+      box.innerHTML = data.roles.map(function(r){
+        var role = guildRoles.find(function(gr){ return String(gr.id) === String(r.role_id) });
+        var roleName = role ? role.name : 'رتبة محذوفة';
+        return '<div class="type-item">' +
+          '<span class="type-emoji" style="background:#f2c23c20;color:#f2c23c">🛡️</span>' +
+          '<div class="type-info"><b>' + roleName + '</b></div>' +
+          '<button class="small-btn delete-protected-role" data-role="' + r.role_id + '">🗑️</button>' +
+        '</div>';
+      }).join('');
+
+      box.querySelectorAll('.delete-protected-role').forEach(function(btn){
+        btn.onclick = async function(){
+          if(!confirm('حذف الحماية عن هذه الرتبة؟')) return;
+          await fetch(TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/protection/roles/' + btn.getAttribute('data-role'), {
+            method: 'DELETE',
+            headers: {Authorization: 'Bearer ' + TROF.token()}
+          });
+          await loadProtectedRoles();
+        };
+      });
+    }
+  }catch(e){
+    box.innerHTML = '<p class="form-hint">خطأ في التحميل</p>';
+  }
+}
+
+async function loadLogs(){
+  var box = document.getElementById('p-logs');
+  box.innerHTML = '<p class="form-hint">جاري التحميل...</p>';
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/protection/logs?limit=30', {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+    if(res.ok){
+      var data = await res.json();
+      if(!data.logs || data.logs.length === 0){
+        box.innerHTML = '<p class="form-hint">لا يوجد سجل أحداث</p>';
+        return;
+      }
+      box.innerHTML = data.logs.map(function(l){
+        var icon = l.type === 'ban' ? '🚫' : l.type === 'kick' ? '👢' : l.type === 'timeout' ? '⏱️' : '⚠️';
+        return '<div class="type-item">' +
+          '<span class="type-emoji" style="background:#f8717120;color:#f87171">' + icon + '</span>' +
+          '<div class="type-info">' +
+            '<b>' + (l.action || 'حدث') + '</b>' +
+            '<small>' + (l.user_name || l.user_id || '') + ' | ' + (l.timestamp || '') + '</small>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+  }catch(e){
+    box.innerHTML = '<p class="form-hint">خطأ في التحميل</p>';
+  }
+}
+
+function bindEvents(){
+  // منزلقات
+  ['p-max-kick', 'p-max-ban', 'p-timeout-duration'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){
+      el.addEventListener('input', function(){
+        document.getElementById(id + '-val').textContent = el.value;
+      });
+    }
+  });
+
+  // إضافة رتبة محمية
+  document.getElementById('p-add-role-btn').onclick = async function(){
+    var roleId = document.getElementById('p-add-role').value;
+    if(!roleId){ alert('اختر رتبة'); return; }
+
+    try{
+      var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/protection/roles', {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+        body: JSON.stringify({role_id: roleId})
+      });
+      if(res.ok){
+        document.getElementById('p-add-role').value = '';
+        await loadProtectedRoles();
+      }else{
+        var err = await res.json();
+        alert('❌ ' + (err.detail || 'فشل'));
+      }
+    }catch(e){ alert('❌ خطأ'); }
+  };
+
+  // حفظ الإعدادات
+  document.getElementById('p-save').onclick = async function(){
+    var btn = this; btn.disabled = true;
+    var msg = document.getElementById('p-msg');
+    msg.textContent = '⏳ جاري الحفظ...';
+
+    var payload = {
+      enabled: document.getElementById('p-enabled').checked,
+      antispam: document.getElementById('p-antispam').checked,
+      antilink: document.getElementById('p-antilink').checked,
+      antinvite: document.getElementById('p-antinvite').checked,
+      antinew: document.getElementById('p-antinew').checked,
+      antiraid: document.getElementById('p-antiraid').checked,
+      log_channel_id: document.getElementById('p-log-channel').value || null,
+      warn_channel_id: document.getElementById('p-warn-channel').value || null,
+      max_kick: parseInt(document.getElementById('p-max-kick').value),
+      max_ban: parseInt(document.getElementById('p-max-ban').value),
+      timeout_duration: parseInt(document.getElementById('p-timeout-duration').value)
+    };
+
+    try{
+      var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/protection/settings', {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if(res.ok){
+        msg.textContent = '✅ تم الحفظ';
+        msg.style.color = '#4ade80';
+      }else{
+        msg.textContent = '❌ فشل';
+        msg.style.color = '#f87171';
+      }
+    }catch(e){
+      msg.textContent = '❌ خطأ';
+      msg.style.color = '#f87171';
+    }
+    btn.disabled = false;
+    setTimeout(function(){ msg.textContent = ''; }, 3000);
+  };
+
+  // تحديث السجل
+  document.getElementById('p-refresh-logs').onclick = function(){ loadLogs(); };
+}
+})();
+</script>
+</body>
+</html>
