@@ -77,6 +77,7 @@ function buildShopPage(){
     '<button class="shop-tab" data-tab="space">🌌 فضاء</button>' +
     '<button class="shop-tab" data-tab="premium">💎 مميزة</button>' +
     '<button class="shop-tab" data-tab="owner">👑 المالك</button>' +
+    '<button class="shop-tab" data-tab="profile_size">📐 أحجام</button>' +
   '</div>' +
 
   '<div class="shop-content" id="shop-content">' +
@@ -110,7 +111,6 @@ async function loadAll(){
     }
   }catch(e){}
 
-  // جلب منتجات المتجر
   await loadShopItems();
 }
 
@@ -143,8 +143,25 @@ async function loadShopItems(){
           'legendary': 'أسطوري'
         }[item.rarity] || 'عادي';
 
+        // صورة خاصة للأحجام
+        var imgStyle;
+        if(currentTab === 'profile_size'){
+          // استخراج اللون من image_url (size:WxH:COLOR)
+          var sizeColor = '#888888';
+          if(item.image_url && item.image_url.indexOf(':') > -1){
+            var parts = item.image_url.split(':');
+            if(parts.length >= 3) sizeColor = parts[2];
+          }
+          imgStyle = 'background: linear-gradient(135deg, ' + sizeColor + ' 0%, #1a1a1a 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-size:2.5rem;';
+        }else{
+          imgStyle = 'background-image: url(\'' + (item.image_url || '') + '\');';
+        }
+
         html += '<div class="shop-item ' + rarityClass + '">';
-        html += '<div class="shop-item-img" style="background-image: url(\'' + (item.image_url || '') + '\')">';
+        html += '<div class="shop-item-img" style="' + imgStyle + '">';
+        if(currentTab === 'profile_size'){
+          html += item.image_url ? '' : '📐';
+        }
         if(owned && equipped) html += '<span class="item-badge">✓ مجهز</span>';
         html += '</div>';
         html += '<div class="shop-item-body">';
