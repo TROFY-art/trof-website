@@ -18,8 +18,8 @@ var SECTIONS=[
  {id:'levels',icon:'📊',t:'المستويات',d:'XP كتابي وصوتي',need:'everyone',url:'levels.html',cmds:[]},
  {id:'protection',icon:'🛡️',t:'الحماية',d:'حماية السيرفر',need:'staff',url:'protection.html',cmds:[]},
  {id:'moderation',icon:'🔒',t:'أوامر الإدارة',d:'للمشرفين والإداريين',need:'staff',cmds:[]},
- {id:'shortcuts',icon:'⚡',t:'اختصارات',d:'اختصارات الأوامر',need:'everyone',cmds:[]}
-];
+ {id:'shortcuts',icon:'⚡',t:'اختصارات',d:'اختصارات الأوامر',need:'everyone',url:'shortcuts.html',cmds:[]},
+]
 var LANGS=['ar','en'],NAMES={ar:'العربية',en:'English'},lang='ar';
 try{lang=localStorage.getItem('trof_lang')||'ar'}catch(e){}
 if(LANGS.indexOf(lang)<0)lang='ar';
