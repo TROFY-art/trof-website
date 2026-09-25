@@ -63,11 +63,7 @@
     </button>
     <h2 id="section-title"></h2>
   </div>
-  <div class="section-loader" id="section-loader">
-    <div class="loader-spinner"></div>
-    <p>جاري التحميل...</p>
-  </div>
-  <iframe id="section-frame" src="" frameborder="0" hidden></iframe>
+  <div id="section-body" class="section-body"></div>
 </section>
 </main>
 
@@ -83,7 +79,7 @@ TROF.load(function(){
   var list=document.getElementById('list'),hint=document.getElementById('hint'),menu=document.getElementById('menu');
   list.innerHTML=TROF.SECTIONS.filter(TROF.can).map(function(s,i){
     var url = s.url ? s.url : 'section.html?p='+s.id;
-    return '<li><a class="row" style="--i:'+i+'" href="'+url+'" data-section-url="'+url+'" data-section-title="'+TROF.name(s)+'"><span class="ic">'+s.icon+'</span><span><b>'+TROF.name(s)+'</b><small>'+TROF.desc(s)+'</small></span></a></li>';
+    return '<li><a class="row" style="--i:'+i+'" href="#" data-section-url="'+url+'" data-section-title="'+TROF.name(s)+'"><span class="ic">'+s.icon+'</span><span><b>'+TROF.name(s)+'</b><small>'+TROF.desc(s)+'</small></span></a></li>';
   }).join('');
   TROF.mountAccount();
   TROF.renderServerSelector();
@@ -122,63 +118,109 @@ function bindSectionButtons(){
   });
 }
 
-function loadSection(url, title){
+/* ============================================
+   🚀 تحميل القسم عبر fetch (بدون iframe)
+   ============================================ */
+async function loadSection(url, title){
   var mainView = document.getElementById('main-view');
   var sectionView = document.getElementById('section-view');
-  var loader = document.getElementById('section-loader');
-  var frame = document.getElementById('section-frame');
   var titleEl = document.getElementById('section-title');
+  var body = document.getElementById('section-body');
 
   mainView.hidden = true;
   sectionView.hidden = false;
   titleEl.textContent = title;
 
-  loader.hidden = false;
-  frame.hidden = true;
+  // عرض مؤشر تحميل صغير
+  body.innerHTML = '<div class="section-loader-inline"><div class="loader-spinner"></div><p>جاري التحميل...</p></div>';
 
-  frame.src = url;
+  try {
+    // جلب الصفحة
+    var res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var html = await res.text();
 
-  frame.onload = function(){
-    loader.hidden = true;
-    frame.hidden = false;
+    // استخراج الـ body فقط
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(html, 'text/html');
 
-    try {
-      var frameDoc = frame.contentDocument || frame.contentWindow.document;
+    // إزالة الهيدر والفوتر والسكربتات المكررة
+    var innerHeader = doc.querySelector('header.bar');
+    var innerFooter = doc.querySelector('footer.wrap');
+    var dust = doc.getElementById('dust');
+    if (innerHeader) innerHeader.remove();
+    if (innerFooter) innerFooter.remove();
+    if (dust) dust.remove();
 
-      var innerHeader = frameDoc.querySelector('header.bar');
-      var innerFooter = frameDoc.querySelector('footer.wrap');
-      if (innerHeader) innerHeader.style.display = 'none';
-      if (innerFooter) innerFooter.style.display = 'none';
+    // إزالة كل الـ scripts لأن app.js محمّل مسبقاً
+    doc.querySelectorAll('script').forEach(function(s){ s.remove(); });
 
-      function resizeFrame() {
-        var h = frameDoc.body.scrollHeight;
-        if (h && h > 200) frame.style.height = h + 'px';
-      }
-      resizeFrame();
-      setTimeout(resizeFrame, 300);
-      setTimeout(resizeFrame, 1000);
-
-      if (window.ResizeObserver) {
-        var ro = new ResizeObserver(resizeFrame);
-        ro.observe(frameDoc.body);
-      }
-    } catch(e) {
-      console.warn('Cannot access iframe content:', e);
+    // استخراج محتوى main
+    var mainContent = doc.querySelector('main.page');
+    if (mainContent) {
+      body.innerHTML = mainContent.innerHTML;
+    } else {
+      body.innerHTML = doc.body.innerHTML;
     }
-  };
+
+    // تشغيل أكواد الصفحة يدوياً بعد الحقن
+    await runPageScript(url, body);
+
+  } catch(e) {
+    console.error('Load section error:', e);
+    body.innerHTML = '<p class="soon">❌ تعذر تحميل القسم. حاول مرة أخرى.</p>';
+  }
 
   window.scrollTo({top: 0, behavior: 'smooth'});
-  history.pushState({section: url}, title, '#' + url);
+  history.pushState({section: url, title: title}, title, '#' + url);
+}
+
+/* ============================================
+   ⚙️ تشغيل أكواد الصفحة بعد الحقن
+   ============================================ */
+async function runPageScript(url, container){
+  // جلب السكربت الموجود داخل الصفحة
+  try {
+    var res = await fetch(url);
+    var html = await res.text();
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(html, 'text/html');
+
+    // البحث عن السكربتات داخل الصفحة (بعد app.js)
+    var scripts = doc.querySelectorAll('script');
+    var lastScript = null;
+
+    scripts.forEach(function(s){
+      // تجاهل سكربت app.js
+      if (s.src && s.src.indexOf('app.js') > -1) return;
+      // تجاهل سكربت اللغة
+      if (s.textContent.indexOf('trof_lang') > -1) return;
+      if (s.textContent.trim().length > 50) {
+        lastScript = s.textContent;
+      }
+    });
+
+    if (lastScript) {
+      // تنفيذ السكربت داخل الصفحة الحالية
+      var scriptEl = document.createElement('script');
+      scriptEl.textContent = lastScript;
+      document.body.appendChild(scriptEl);
+      // إزالة السكربت بعد التنفيذ لتجنب التكرار
+      setTimeout(function(){ scriptEl.remove(); }, 100);
+    }
+  } catch(e) {
+    console.warn('runPageScript error:', e);
+  }
 }
 
 function backToMain(){
   var mainView = document.getElementById('main-view');
   var sectionView = document.getElementById('section-view');
-  var frame = document.getElementById('section-frame');
+  var body = document.getElementById('section-body');
 
   sectionView.hidden = true;
   mainView.hidden = false;
-  frame.src = '';
+  body.innerHTML = '';
 
   history.pushState({}, document.title, './');
   window.scrollTo({top: 0, behavior: 'smooth'});
@@ -188,7 +230,7 @@ document.getElementById('back-to-main').onclick = backToMain;
 
 window.onpopstate = function(e){
   if(e.state && e.state.section){
-    loadSection(e.state.section, document.getElementById('section-title').textContent);
+    loadSection(e.state.section, e.state.title || '');
   }else{
     backToMain();
   }
