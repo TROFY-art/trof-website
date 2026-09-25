@@ -1,4 +1,4 @@
-id إعدادات الموقع */
+/* إعدادات الموقع */
 (function(){
 var CONFIG={
   clientId:'1536360221906178088',
@@ -13,14 +13,14 @@ var ROLE=['عضو','إدارة','ادمن ستريت','المالك'];
 var SECTIONS=[
  {id:'general',icon:'🎨',t:'صانع Embed',d:'أنشئ رسائل مخصصة',need:'everyone',url:'embed.html',cmds:[]},
  {id:'shop',icon:'🏪',t:'المتجر',d:'اشترِ خلفيات وشارات',need:'everyone',url:'shop.html',cmds:[]},
+ {id:'vip',icon:'💎',t:'VIP',d:'تفعيل VIP في سيرفرك',need:'everyone',url:'vip.html',cmds:[]},
  {id:'tickets',icon:'🎫',t:'تكت',d:'نظام التكتات',need:'everyone',url:'tickets.html',cmds:[]},
  {id:'welcome',icon:'👋',t:'الترحيب',d:'رسائل الترحيب بالأعضاء الجدد',need:'everyone',url:'welcome.html',cmds:[]},
  {id:'levels',icon:'📊',t:'المستويات',d:'XP كتابي وصوتي',need:'everyone',url:'levels.html',cmds:[]},
  {id:'protection',icon:'🛡️',t:'الحماية',d:'حماية السيرفر',need:'staff',url:'protection.html',cmds:[]},
  {id:'moderation',icon:'⚙️',t:'إدارة السيرفر',d:'تحكم كامل بالفئات والقنوات والرتب',need:'staff',url:'server-manager.html',cmds:[]},
- {id:'shortcuts',icon:'⚡',t:'اختصارات',d:'اختصارات الأوامر',need:'everyone',url:'shortcuts.html',cmds:[]},
- {id:'vip',icon:'💎',t:'VIP',d:'تفعيل VIP في سيرفرك',need:'everyone',url:'vip.html',cmds:[]},
-]
+ {id:'shortcuts',icon:'⚡',t:'اختصارات',d:'اختصارات الأوامر',need:'everyone',url:'shortcuts.html',cmds:[]}
+];
 var LANGS=['ar','en'],NAMES={ar:'العربية',en:'English'},lang='ar';
 try{lang=localStorage.getItem('trof_lang')||'ar'}catch(e){}
 if(LANGS.indexOf(lang)<0)lang='ar';
@@ -29,7 +29,7 @@ var STR={
 ar:{lead:'بوت دسكورد واحد يدير سيرفرك كله: مستويات، موسيقى، جيفاواي، تكتات وأدوات إدارة.',addBot:'أضف البوت إلى سيرفرك',note:'مشروع غير تجاري.',tap:'اضغط على أي قسم لفتح صفحته.',choose:'📁 اختر قسماً...',hint:'سجّل الدخول لتظهر لك الأقسام الخاصة برتبتك.',login:'Login',myProfile:'ملفي الشخصي',back:'الرجوع للأقسام',missing:'هذا القسم غير موجود.',restricted:'هذا القسم متاح لرتب محددة فقط. إذا رتبتك تسمح، سجّل الدخول عبر Discord.',soon:'أوامر هذا القسم تنضاف هنا قريباً.',profileLogin:'سجّل الدخول عبر Discord حتى تشوف ملفك الشخصي.',balance:'الرصيد',level:'المستوى',rank:'الرانك',logout:'تسجيل الخروج',noApi:'الرصيد والمستوى والرانك تظهر بعد ربط الموقع بقاعدة بيانات البوت.',apiErr:'تعذر جلب بياناتك من البوت الآن.',home:'TROF System | بوت دسكورد',profile:'ملفي | TROF System',selectServer:'اختر السيرفر',noServers:'لا توجد سيرفرات تملك فيها رتبة إدارية',loading:'جاري التحميل...',checking:'جاري التحقق...'},
 en:{lead:'One Discord bot to run your whole server: levels, music, giveaways, tickets and moderation tools.',addBot:'Add the bot to your server',note:'A non-commercial project.',tap:'Tap any section to open its page.',choose:'📁 Choose a section...',hint:'Log in to see the sections for your role.',login:'Login',myProfile:'My profile',back:'Back to sections',missing:"This section doesn't exist.",restricted:'This section is only for certain roles. If your role allows it, log in with Discord.',soon:"This section's commands will be added here soon.",profileLogin:'Log in with Discord to see your profile.',balance:'Balance',level:'Level',rank:'Rank',logout:'Log out',noApi:"Balance, level and rank will appear once the site is connected to the bot's database.",apiErr:"Couldn't load your data from the bot right now.",home:'TROF System | Discord bot',profile:'My profile | TROF System',selectServer:'Select Server',noServers:'No servers where you have an admin role',loading:'Loading...',checking:'Checking...'}
 };
-var EN={general:['Embed Builder','Create custom messages'],shop:['Shop','Buy backgrounds and badges'],tickets:['Tickets','Ticket system'],welcome:['Welcome','Welcome messages for new members'],levels:['Levels','Text and voice XP'],protection:['Protection','Server protection'],moderation:['Moderation commands','For moderators and admins'],shortcuts:['Shortcuts','Command shortcuts']};
+var EN={general:['Embed Builder','Create custom messages'],shop:['Shop','Buy backgrounds and badges'],vip:['VIP','Activate VIP in your server'],tickets:['Tickets','Ticket system'],welcome:['Welcome','Welcome messages for new members'],levels:['Levels','Text and voice XP'],protection:['Protection','Server protection'],moderation:['Server Manager','Full control over channels and roles'],shortcuts:['Shortcuts','Command shortcuts']};
 var ROLE_EN=['Member','Staff','Admin Street','Owner'];
 function t(k){return (STR[lang]&&STR[lang][k])||STR.ar[k]||k}
 function name(s){return lang==='en'&&EN[s.id]?EN[s.id][0]:s.t}
