@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<script>try{if(localStorage.getItem('trof_lang')==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr'}}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الاختصارات | TROF System</title>
+<meta name="theme-color" content="#0d0c0a">
+<link rel="icon" type="image/webp" href="logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="dust" aria-hidden="true"></div>
+
+<header class="wrap bar">
+  <div class="hd">
+    <a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a>
+    <button class="lang" id="lang" type="button"></button>
+  </div>
+  <div class="hd-right">
+    <div id="server-selector"></div>
+    <div id="acct"></div>
+  </div>
+</header>
+
+<main class="wrap page" id="page"></main>
+<footer class="wrap">TROF System.</footer>
+
+<script src="app.js"></script>
+<script>
+(function(){
+var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
+TROF.dust();
+
+TROF.load(function(){
+  TROF.mountAccount();
+  TROF.renderServerSelector();
+  var page=document.getElementById('page');
+  var u=TROF.auth.user;
+
+  if(!u){
+    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">سجّل الدخول للوصول للإعدادات.</p>';
+    return;
+  }
+
+  var gid = TROF.getSelectedGuild();
+  if(!gid){
+    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">⚠️ اختر سيرفراً أولاً من القائمة العلوية.</p>';
+    return;
+  }
+
+  page.innerHTML = buildShortcutsPage();
+  loadShortcuts(gid);
+  bindEvents(gid);
+});
+
+function buildShortcutsPage(){
+  return '' +
+  '<a class="back" href="./">'+CHEV+'الرجوع</a>' +
+  '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">⚡</span></div><div><h1 class="sec-title">الاختصارات</h1><p>أنشئ اختصارات لأوامر البوت</p></div></div>' +
+  '<div class="welcome-form">' +
+
+    // ===== إضافة اختصار =====
+    '<div class="form-section-title">➕ إضافة اختصار جديد</div>' +
+
+    '<div class="form-row">' +
+      '<label class="form-label">⚡ الاختصار</label>' +
+      '<input type="text" class="form-select" id="sc-name" placeholder="مثال: clr" maxlength="20">' +
+    '</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">📝 الأمر الكامل</label>' +
+      '<input type="text" class="form-select" id="sc-command" placeholder="مثال: /مسح 5">' +
+      '<p class="form-hint">اكتب الأمر كما هو (مثال: <code>/مسح 5</code> أو <code>/حظر @عضو</code>)</p>' +
+    '</div>' +
+
+    '<div class="form-actions">' +
+      '<button class="btn save-btn" id="sc-add" type="button">➕ إضافة اختصار</button>' +
+      '<p class="save-msg" id="sc-msg"></p>' +
+    '</div>' +
+
+    // ===== القائمة =====
+    '<div class="form-section-title">📋 الاختصارات الحالية</div>' +
+
+    '<div class="form-row form-row-col">' +
+      '<div class="shortcuts-list" id="shortcuts-list">' +
+        '<p class="form-hint">جاري التحميل...</p>' +
+      '</div>' +
+    '</div>' +
+
+    // ===== حذف الكل =====
+    '<div class="form-row">' +
+      '<button class="btn alt" id="sc-delete-all" type="button">🗑️ حذف كل الاختصارات</button>' +
+    '</div>' +
+
+  '</div>';
+}
+
+async function loadShortcuts(gid){
+  var list = document.getElementById('shortcuts-list');
+
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/shortcuts', {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+
+    if(res.ok){
+      var data = await res.json();
+
+      if(data.shortcuts.length === 0){
+        list.innerHTML = '<p class="form-hint">لا توجد اختصارات بعد. أضف واحداً من الأعلى.</p>';
+        return;
+      }
+
+      list.innerHTML = data.shortcuts.map(function(s){
+        return '<div class="shortcut-item">' +
+          '<div class="shortcut-icon">⚡</div>' +
+          '<div class="shortcut-info">' +
+            '<b>!' + s.shortcut + '</b>' +
+            '<small>ينفذ: <code>' + s.command + '</code></small>' +
+          '</div>' +
+          '<button class="small-btn delete-sc" data-name="' + s.shortcut + '">🗑️</button>' +
+        '</div>';
+      }).join('');
+
+      // ربط أزرار الحذف
+      list.querySelectorAll('.delete-sc').forEach(function(btn){
+        btn.onclick = async function(){
+          if(!confirm('حذف الاختصار !' + btn.getAttribute('data-name') + '؟')) return;
+
+          try{
+            var res = await fetch(
+              TROF.CONFIG.apiUrl + '/guild/' + gid + '/shortcuts/' + encodeURIComponent(btn.getAttribute('data-name')),
+              {
+                method: 'DELETE',
+                headers: {Authorization: 'Bearer ' + TROF.token()}
+              }
+            );
+
+            if(res.ok){
+              await loadShortcuts(gid);
+            }else{
+              var err = await res.json();
+              alert('❌ ' + (err.detail || 'فشل الحذف'));
+            }
+          }catch(e){
+            alert('❌ خطأ في الاتصال');
+          }
+        };
+      });
+    }
+  }catch(e){
+    list.innerHTML = '<p class="form-hint">خطأ في التحميل</p>';
+  }
+}
+
+function bindEvents(gid){
+  // إضافة اختصار
+  document.getElementById('sc-add').onclick = async function(){
+    var name = document.getElementById('sc-name').value.trim();
+    var command = document.getElementById('sc-command').value.trim();
+    var msg = document.getElementById('sc-msg');
+
+    if(!name){ msg.textContent = '❌ اكتب اسم الاختصار'; msg.style.color = '#f87171'; return; }
+    if(!command){ msg.textContent = '❌ اكتب الأمر'; msg.style.color = '#f87171'; return; }
+
+    var btn = this;
+    btn.disabled = true;
+    msg.textContent = '⏳ جاري الإضافة...';
+    msg.style.color = '#f2c23c';
+
+    try{
+      var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/shortcuts', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + TROF.token(),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({shortcut: name, command: command})
+      });
+
+      var data = await res.json();
+
+      if(res.ok){
+        msg.textContent = '✅ تم إضافة الاختصار!';
+        msg.style.color = '#4ade80';
+
+        document.getElementById('sc-name').value = '';
+        document.getElementById('sc-command').value = '';
+
+        await loadShortcuts(gid);
+      }else{
+        msg.textContent = '❌ ' + (data.detail || 'فشل');
+        msg.style.color = '#f87171';
+      }
+    }catch(e){
+      msg.textContent = '❌ خطأ في الاتصال';
+      msg.style.color = '#f87171';
+    }
+
+    btn.disabled = false;
+    setTimeout(function(){ msg.textContent = ''; }, 4000);
+  };
+
+  // حذف الكل
+  document.getElementById('sc-delete-all').onclick = async function(){
+    if(!confirm('⚠️ حذف كل الاختصارات؟ لا يمكن التراجع!')) return;
+
+    try{
+      var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + gid + '/shortcuts', {
+        method: 'DELETE',
+        headers: {Authorization: 'Bearer ' + TROF.token()}
+      });
+
+      if(res.ok){
+        await loadShortcuts(gid);
+        alert('✅ تم حذف كل الاختصارات');
+      }
+    }catch(e){
+      alert('❌ خطأ في الاتصال');
+    }
+  };
+}
+})();
+</script>
+</body>
+  </html>
