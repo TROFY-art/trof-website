@@ -93,7 +93,6 @@ TROF.load(function(){
     io.observe(menu);
   }else{menu.classList.add('in')}
 
-  // ربط أزرار الأقسام
   bindSectionButtons();
 });
 
@@ -112,9 +111,6 @@ if(!calm){
   }
 }
 
-// ============================================
-// تحميل الأقسام في نفس الصفحة
-// ============================================
 function bindSectionButtons(){
   document.querySelectorAll('[data-section-url]').forEach(function(btn){
     btn.onclick = function(e){
@@ -133,28 +129,45 @@ function loadSection(url, title){
   var frame = document.getElementById('section-frame');
   var titleEl = document.getElementById('section-title');
 
-  // إخفاء الرئيسية، إظهار القسم
   mainView.hidden = true;
   sectionView.hidden = false;
   titleEl.textContent = title;
 
-  // إظهار الـ loader
   loader.hidden = false;
   frame.hidden = true;
 
-  // تحميل الصفحة
   frame.src = url;
 
-  // عند اكتمال التحميل
   frame.onload = function(){
     loader.hidden = true;
     frame.hidden = false;
+
+    try {
+      var frameDoc = frame.contentDocument || frame.contentWindow.document;
+
+      var innerHeader = frameDoc.querySelector('header.bar');
+      var innerFooter = frameDoc.querySelector('footer.wrap');
+      if (innerHeader) innerHeader.style.display = 'none';
+      if (innerFooter) innerFooter.style.display = 'none';
+
+      function resizeFrame() {
+        var h = frameDoc.body.scrollHeight;
+        if (h && h > 200) frame.style.height = h + 'px';
+      }
+      resizeFrame();
+      setTimeout(resizeFrame, 300);
+      setTimeout(resizeFrame, 1000);
+
+      if (window.ResizeObserver) {
+        var ro = new ResizeObserver(resizeFrame);
+        ro.observe(frameDoc.body);
+      }
+    } catch(e) {
+      console.warn('Cannot access iframe content:', e);
+    }
   };
 
-  // التمرير لأعلى
   window.scrollTo({top: 0, behavior: 'smooth'});
-
-  // تغيير الرابط (بدون إعادة تحميل)
   history.pushState({section: url}, title, '#' + url);
 }
 
@@ -163,22 +176,16 @@ function backToMain(){
   var sectionView = document.getElementById('section-view');
   var frame = document.getElementById('section-frame');
 
-  // إخفاء القسم، إظهار الرئيسية
   sectionView.hidden = true;
   mainView.hidden = false;
   frame.src = '';
 
-  // تغيير الرابط
   history.pushState({}, document.title, './');
-
-  // التمرير لأعلى
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
-// زر الرجوع
 document.getElementById('back-to-main').onclick = backToMain;
 
-// زر الرجوع في المتصفح
 window.onpopstate = function(e){
   if(e.state && e.state.section){
     loadSection(e.state.section, document.getElementById('section-title').textContent);
