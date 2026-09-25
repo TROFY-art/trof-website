@@ -1,95 +1,331 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="utf-8">
-<script>try{if(localStorage.getItem('trof_lang')==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr'}}catch(e){}</script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TROF System | بوت دسكورد</title>
-<meta name="description" content="TROF System: بوت دسكورد للمستويات والموسيقى والجيفاواي والتكتات والإدارة.">
-<meta name="theme-color" content="#0d0c0a">
-<link rel="icon" type="image/webp" href="logo.webp">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-</head>
-<body data-title="home">
-<div id="dust" aria-hidden="true"></div>
-
-<header class="wrap bar">
-  <div class="hd">
-    <a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a>
-    <button class="lang" id="lang" type="button"></button>
-  </div>
-  <div class="hd-right">
-    <div id="server-selector"></div>
-    <div id="acct"></div>
-  </div>
-</header>
-
-<main class="wrap">
-<section class="hero">
-<div>
-<h1>TROF System</h1>
-<p class="lead" data-i18n="lead">بوت دسكورد واحد يدير سيرفرك كله: مستويات، موسيقى، جيفاواي، تكتات وأدوات إدارة.</p>
-<a class="btn" href="https://discord.com/oauth2/authorize?client_id=1536360221906178088&amp;permissions=8&amp;integration_type=0&amp;scope=bot" data-i18n="addBot">أضف البوت إلى سيرفرك</a>
-<p class="note" data-i18n="note">مشروع غير تجاري.</p>
-</div>
-<div class="logo" id="logo">
-<span class="ring"></span>
-<div class="tilt" id="tilt"><img src="logo.webp" alt="شعار TROF System" width="640" height="640"></div>
-</div>
-</section>
-
-<section class="demo">
-<p data-i18n="tap">اضغط على أي قسم لفتح صفحته.</p>
-<div class="menu" id="menu" aria-label="أقسام الأوامر">
-<div class="grab"></div>
-<h2 data-i18n="choose">📁 اختر قسماً...</h2>
-<ul id="list"></ul>
-<p class="hint" id="hint"></p>
-</div>
-</section>
-</main>
-
-<footer class="wrap">TROF System.</footer>
-
-<script src="app.js"></script>
-<script>
+/* إعدادات الموقع */
 (function(){
-var root=document.documentElement,calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
-root.classList.add('js');
+var CONFIG={
+  clientId:'1536360221906178088',
+  guildId:'1320024268364320778',
+  ownerId:'986328374010073118',
+  staffRoleIds:[],
+  adminStreetRoleIds:[],
+  apiUrl:'/api'
+};
+var RANK={everyone:0,staff:1,admin:2,owner:3};
+var ROLE=['عضو','إدارة','ادمن ستريت','المالك'];
+var SECTIONS=[
+ {id:'general',icon:'🎨',t:'صانع Embed',d:'أنشئ رسائل مخصصة',need:'everyone',url:'embed.html',cmds:[]},
+ {id:'shop',icon:'🏪',t:'المتجر',d:'اشترِ خلفيات وشارات',need:'everyone',url:'shop.html',cmds:[]},
+ {id:'vip',icon:'💎',t:'VIP',d:'تفعيل VIP في سيرفرك',need:'everyone',url:'vip.html',cmds:[]},
+ {id:'tickets',icon:'🎫',t:'تكت',d:'نظام التكتات',need:'everyone',url:'tickets.html',cmds:[]},
+ {id:'welcome',icon:'👋',t:'الترحيب',d:'رسائل الترحيب بالأعضاء الجدد',need:'everyone',url:'welcome.html',cmds:[]},
+ {id:'levels',icon:'📊',t:'المستويات',d:'XP كتابي وصوتي',need:'everyone',url:'levels.html',cmds:[]},
+ {id:'protection',icon:'🛡️',t:'الحماية',d:'حماية السيرفر',need:'staff',url:'protection.html',cmds:[]},
+ {id:'moderation',icon:'⚙️',t:'إدارة السيرفر',d:'تحكم كامل بالفئات والقنوات والرتب',need:'staff',url:'server-manager.html',cmds:[]},
+ {id:'shortcuts',icon:'⚡',t:'اختصارات',d:'اختصارات الأوامر',need:'everyone',url:'shortcuts.html',cmds:[]}
+];
+var LANGS=['ar','en'],NAMES={ar:'العربية',en:'English'},lang='ar';
+try{lang=localStorage.getItem('trof_lang')||'ar'}catch(e){}
+if(LANGS.indexOf(lang)<0)lang='ar';
+document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+var STR={
+ar:{lead:'بوت دسكورد واحد يدير سيرفرك كله: مستويات، موسيقى، جيفاواي، تكتات وأدوات إدارة.',addBot:'أضف البوت إلى سيرفرك',note:'مشروع غير تجاري.',tap:'اضغط على أي قسم لفتح صفحته.',choose:'📁 اختر قسماً...',hint:'سجّل الدخول لتظهر لك الأقسام الخاصة برتبتك.',login:'Login',myProfile:'ملفي الشخصي',back:'الرجوع للأقسام',missing:'هذا القسم غير موجود.',restricted:'هذا القسم متاح لرتب محددة فقط. إذا رتبتك تسمح، سجّل الدخول عبر Discord.',soon:'أوامر هذا القسم تنضاف هنا قريباً.',profileLogin:'سجّل الدخول عبر Discord حتى تشوف ملفك الشخصي.',balance:'الرصيد',level:'المستوى',rank:'الرانك',logout:'تسجيل الخروج',noApi:'الرصيد والمستوى والرانك تظهر بعد ربط الموقع بقاعدة بيانات البوت.',apiErr:'تعذر جلب بياناتك من البوت الآن.',home:'TROF System | بوت دسكورد',profile:'ملفي | TROF System',selectServer:'اختر السيرفر',noServers:'لا توجد سيرفرات تملك فيها رتبة إدارية',loading:'جاري التحميل...',checking:'جاري التحقق...'},
+en:{lead:'One Discord bot to run your whole server: levels, music, giveaways, tickets and moderation tools.',addBot:'Add the bot to your server',note:'A non-commercial project.',tap:'Tap any section to open its page.',choose:'📁 Choose a section...',hint:'Log in to see the sections for your role.',login:'Login',myProfile:'My profile',back:'Back to sections',missing:"This section doesn't exist.",restricted:'This section is only for certain roles. If your role allows it, log in with Discord.',soon:"This section's commands will be added here soon.",profileLogin:'Log in with Discord to see your profile.',balance:'Balance',level:'Level',rank:'Rank',logout:'Log out',noApi:"Balance, level and rank will appear once the site is connected to the bot's database.",apiErr:"Couldn't load your data from the bot right now.",home:'TROF System | Discord bot',profile:'My profile | TROF System',selectServer:'Select Server',noServers:'No servers where you have an admin role',loading:'Loading...',checking:'Checking...'}
+};
+var EN={general:['Embed Builder','Create custom messages'],shop:['Shop','Buy backgrounds and badges'],vip:['VIP','Activate VIP in your server'],tickets:['Tickets','Ticket system'],welcome:['Welcome','Welcome messages for new members'],levels:['Levels','Text and voice XP'],protection:['Protection','Server protection'],moderation:['Server Manager','Full control over channels and roles'],shortcuts:['Shortcuts','Command shortcuts']};
+var ROLE_EN=['Member','Staff','Admin Street','Owner'];
+function t(k){return (STR[lang]&&STR[lang][k])||STR.ar[k]||k}
+function name(s){return lang==='en'&&EN[s.id]?EN[s.id][0]:s.t}
+function desc(s){return lang==='en'&&EN[s.id]?EN[s.id][1]:s.d}
+function cmdDesc(c){return lang==='en'&&c[2]?c[2]:c[1]}
+function translate(){
+  [].forEach.call(document.querySelectorAll('[data-i18n]'),function(e){e.textContent=t(e.getAttribute('data-i18n'))});
+  var k=document.body.getAttribute('data-title');if(k)document.title=t(k);
+}
+function mountLang(){
+  var b=document.getElementById('lang');if(!b)return;
+  var next=LANGS[(LANGS.indexOf(lang)+1)%LANGS.length];
+  b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span></span>';
+  b.lastChild.textContent=NAMES[next];
+  b.onclick=function(){try{localStorage.setItem('trof_lang',next)}catch(e){}location.reload()};
+}
+var auth={rank:0,user:null};
+var API='https://discord.com/api/v10';
+function base(){return new URL('./',location.href).href}
+function token(){
+  if(location.hash.indexOf('access_token=')>-1){
+    var p=new URLSearchParams(location.hash.slice(1));
+    try{sessionStorage.setItem('trof_token',p.get('access_token'))}catch(e){}
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  try{return sessionStorage.getItem('trof_token')}catch(e){return null}
+}
+function has(ids,list){return ids.some(function(i){return list.indexOf(i)>-1})}
+function ok(r){if(!r.ok)throw 0;return r.json()}
+function logout(silent){try{sessionStorage.removeItem('trof_token')}catch(e){}if(!silent)location.href=base()}
 
-TROF.load(function(){
-  var list=document.getElementById('list'),hint=document.getElementById('hint'),menu=document.getElementById('menu');
-  list.innerHTML=TROF.SECTIONS.filter(TROF.can).map(function(s,i){
-    var url = s.url ? s.url : 'section.html?p='+s.id;
-    return '<li><a class="row" style="--i:'+i+'" href="'+url+'"><span class="ic">'+s.icon+'</span><span><b>'+TROF.name(s)+'</b><small>'+TROF.desc(s)+'</small></span></a></li>';
-  }).join('');
-  TROF.mountAccount();
-  TROF.renderServerSelector();
-  if(!TROF.auth.user)hint.textContent=TROF.t('hint');
-  if('IntersectionObserver' in window){
-    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){menu.classList.add('in');io.disconnect()}})},{threshold:.1});
-    io.observe(menu);
-  }else{menu.classList.add('in')}
-});
+function load(cb){
+  var t=token();
+  if(!t){cb();return}
+  var H={headers:{Authorization:'Bearer '+t}};
+  fetch(API+'/users/@me',H)
+    .then(function(r){
+      if(r.status === 429){
+        return new Promise(function(resolve){setTimeout(resolve, 2000)})
+          .then(function(){return fetch(API+'/users/@me',H)});
+      }
+      return r;
+    })
+    .then(ok)
+    .then(function(u){
+      auth.user=u;
+      auth.rank=(CONFIG.ownerId&&u.id===CONFIG.ownerId)?3:0;
+      if(!CONFIG.guildId){
+        cb();
+        return;
+      }
+      setTimeout(function(){
+        fetch(API+'/users/@me/guilds/'+CONFIG.guildId+'/member',H)
+          .then(function(r){
+            if(r.status === 429) throw new Error('rate_limit');
+            return r;
+          })
+          .then(ok)
+          .then(function(m){
+            var roles=m.roles||[];
+            if(auth.rank<3){
+              auth.rank = has(CONFIG.adminStreetRoleIds,roles) ? 2 :
+                          has(CONFIG.staffRoleIds,roles) ? 1 : 0;
+            }
+          })
+          .catch(function(){})
+          .finally(function(){ cb(); });
+      }, 500);
+    })
+    .catch(function(){
+      logout(true);
+      cb();
+    });
+}
 
-var logo=document.getElementById('logo'),tilt=document.getElementById('tilt');
-if(!calm){
-  logo.addEventListener('pointermove',function(e){
-    var b=logo.getBoundingClientRect(),x=(e.clientX-b.left)/b.width-.5,y=(e.clientY-b.top)/b.height-.5;
-    tilt.style.transform='perspective(600px) rotateY('+(x*18)+'deg) rotateX('+(-y*18)+'deg) scale(1.03)';
-  });
-  logo.addEventListener('pointerleave',function(){tilt.style.transform=''});
-  var dust=document.getElementById('dust');
-  for(var k=0;k<16;k++){
-    var d=document.createElement('i'),s=2+Math.random()*3;
-    d.style.cssText='left:'+(Math.random()*100)+'%;width:'+s+'px;height:'+s+'px;animation-duration:'+(9+Math.random()*10)+'s;animation-delay:-'+(Math.random()*15)+'s';
-    dust.appendChild(d);
+function login(){
+  var scopes = 'identify guilds guilds.members.read';
+  location.href='https://discord.com/oauth2/authorize?client_id='+CONFIG.clientId+'&response_type=token&scope='+encodeURIComponent(scopes)+'&redirect_uri='+encodeURIComponent(base());
+}
+function avatar(size){
+  var u=auth.user;if(!u)return '';
+  if(u.avatar)return 'https://cdn.discordapp.com/avatars/'+u.id+'/'+u.avatar+'.png?size='+(size||64);
+  var n=0;try{n=Number((BigInt(u.id)>>BigInt(22))%BigInt(6))}catch(e){}
+  return 'https://cdn.discordapp.com/embed/avatars/'+n+'.png';
+}
+function mountAccount(){
+  var box=document.getElementById('acct');if(!box)return;
+  box.innerHTML='';
+  if(auth.user){
+    var a=document.createElement('a');a.className='me';a.href='profile.html';a.setAttribute('aria-label',t('myProfile'));
+    var i=document.createElement('img');i.src=avatar(64);i.alt='';a.appendChild(i);box.appendChild(a);
+  }else{
+    var b=document.createElement('button');b.type='button';b.className='btn alt';b.textContent=t('login');b.onclick=login;box.appendChild(b);
   }
 }
+function dust(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var box=document.getElementById('dust');if(!box)return;
+  for(var k=0;k<16;k++){
+    var d=document.createElement('i'),z=2+Math.random()*3;
+    d.style.cssText='left:'+(Math.random()*100)+'%;width:'+z+'px;height:'+z+'px;animation-duration:'+(9+Math.random()*10)+'s;animation-delay:-'+(Math.random()*15)+'s';
+    box.appendChild(d);
+  }
+}
+
+var selectedGuild = null;
+var botGuildIds = null;
+
+function getSelectedGuild(){
+  try{
+    var saved = localStorage.getItem('trof_selected_guild');
+    return saved ? saved : null;
+  }catch(e){return null}
+}
+
+function setSelectedGuild(guildId){
+  try{localStorage.setItem('trof_selected_guild', guildId)}catch(e){}
+  selectedGuild = guildId;
+}
+
+async function fetchBotGuilds(){
+  if(botGuildIds !== null) return botGuildIds;
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/bot/guilds');
+    if(res.ok){
+      var data = await res.json();
+      botGuildIds = data.guild_ids || [];
+      return botGuildIds;
+    }
+  }catch(e){}
+  return [];
+}
+
+async function checkUserAccess(userId, guildId){
+  try{
+    var res = await fetch(
+      TROF.CONFIG.apiUrl + '/user/' + userId + '/guilds/' + guildId + '/check',
+      {headers: {Authorization: 'Bearer ' + token()}}
+    );
+    if(res.ok){
+      var data = await res.json();
+      return data.has_access === true;
+    }
+  }catch(e){}
+  return false;
+}
+
+async function fetchUserGuilds(){
+  var t = token();
+  if(!t) return [];
+  try{
+    var res = await fetch(API + '/users/@me/guilds', {
+      headers: {Authorization: 'Bearer ' + t}
+    });
+    if(res.status === 429){
+      await new Promise(function(r){setTimeout(r, 3000)});
+      res = await fetch(API + '/users/@me/guilds', {
+        headers: {Authorization: 'Bearer ' + t}
+      });
+    }
+    if(!res.ok) return [];
+    var guilds = await res.json();
+    var botGuilds = await fetchBotGuilds();
+    var candidateGuilds = guilds.filter(function(g){
+      return botGuilds.length === 0 || botGuilds.indexOf(String(g.id)) > -1;
+    });
+    var adminGuilds = [];
+    for(var i = 0; i < candidateGuilds.length; i++){
+      var g = candidateGuilds[i];
+      if(g.owner === true){
+        adminGuilds.push(g);
+        continue;
+      }
+      var perms = parseInt(g.permissions) || 0;
+      var hasAdmin = (perms & 0x8) === 0x8;
+      var hasManageGuild = (perms & 0x20) === 0x20;
+      var hasManageRoles = (perms & 0x10000000) === 0x10000000;
+      var hasKick = (perms & 0x2) === 0x2;
+      var hasBan = (perms & 0x4) === 0x4;
+      if(hasAdmin || hasManageGuild || hasManageRoles || hasKick || hasBan){
+        adminGuilds.push(g);
+        continue;
+      }
+      var hasAccess = await checkUserAccess(auth.user.id, g.id);
+      if(hasAccess){
+        adminGuilds.push(g);
+      }
+    }
+    return adminGuilds;
+  }catch(e){
+    return [];
+  }
+}
+
+async function renderServerSelector(){
+  var box = document.getElementById('server-selector');
+  if(!box) return;
+  if(!auth.user){
+    box.innerHTML = '';
+    box.classList.remove('has-user');
+    return;
+  }
+  box.classList.add('has-user');
+  box.innerHTML = '<button class="server-btn" id="server-toggle" type="button" aria-label="' + t('selectServer') + '">' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>' +
+    '</button>';
+  var guilds = await fetchUserGuilds();
+  var current = getSelectedGuild();
+  var toggle = document.getElementById('server-toggle');
+  var oldDropdown = document.getElementById('server-dropdown');
+  if(oldDropdown) oldDropdown.remove();
+  var oldOverlay = document.getElementById('server-overlay');
+  if(oldOverlay) oldOverlay.remove();
+  var overlay = document.createElement('div');
+  overlay.id = 'server-overlay';
+  document.body.appendChild(overlay);
+  var dropdown = document.createElement('div');
+  dropdown.id = 'server-dropdown';
+  dropdown.className = 'server-dropdown';
+  dropdown.hidden = true;
+  var dropHTML = '<div class="server-dropdown-header">';
+  dropHTML += '<span>' + t('selectServer') + '</span>';
+  dropHTML += '<button class="server-close" id="server-close" type="button">✕</button>';
+  dropHTML += '</div>';
+  if(guilds.length === 0){
+    dropHTML += '<div class="server-empty">' + t('noServers') + '</div>';
+  } else {
+    dropHTML += '<ul class="server-list">';
+    guilds.forEach(function(g){
+      var isActive = (String(g.id) === String(current));
+      var icon = g.icon
+        ? 'https://cdn.discordapp.com/icons/' + g.id + '/' + g.icon + '.png?size=64'
+        : 'https://cdn.discordapp.com/embed/avatars/0.png';
+      dropHTML += '<li>';
+      dropHTML += '<button class="server-item' + (isActive ? ' active' : '') + '" data-guild-id="' + g.id + '">';
+      dropHTML += '<img src="' + icon + '" alt="">';
+      dropHTML += '<span>' + g.name + '</span>';
+      if(isActive) dropHTML += '<span class="server-check">✓</span>';
+      dropHTML += '</button>';
+      dropHTML += '</li>';
+    });
+    dropHTML += '</ul>';
+  }
+  dropdown.innerHTML = dropHTML;
+  document.body.appendChild(dropdown);
+  var close = document.getElementById('server-close');
+  function openMenu(){
+    dropdown.hidden = false;
+    setTimeout(function(){ overlay.classList.add('show'); }, 10);
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu(){
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+    setTimeout(function(){ dropdown.hidden = true; }, 300);
+  }
+  toggle.onclick = function(e){
+    e.stopPropagation();
+    if(dropdown.hidden) openMenu();
+    else closeMenu();
+  };
+  close.onclick = closeMenu;
+  overlay.onclick = closeMenu;
+  dropdown.querySelectorAll('.server-item').forEach(function(btn){
+    btn.onclick = function(){
+      var gid = btn.getAttribute('data-guild-id');
+      setSelectedGuild(gid);
+      location.reload();
+    };
+  });
+}
+
+function formatNumber(num){
+  if(num === null || num === undefined) return '0';
+  num = Number(num);
+  if(isNaN(num)) return '0';
+  var abs = Math.abs(num);
+  if(abs >= 1e12) return (num / 1e12).toFixed(2).replace(/\.?0+$/, '') + 'T';
+  if(abs >= 1e9)  return (num / 1e9).toFixed(2).replace(/\.?0+$/, '') + 'B';
+  if(abs >= 1e6)  return (num / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M';
+  if(abs >= 1e3)  return (num / 1e3).toFixed(2).replace(/\.?0+$/, '') + 'K';
+  return num.toString();
+}
+
+window.TROF={
+  t:t, name:name, desc:desc, cmdDesc:cmdDesc,
+  CONFIG:CONFIG, SECTIONS:SECTIONS, auth:auth,
+  load:load, login:login, logout:logout,
+  dust:dust, mountAccount:mountAccount, avatar:avatar, token:token,
+  formatNumber:formatNumber,
+  getSelectedGuild:getSelectedGuild,
+  setSelectedGuild:setSelectedGuild,
+  renderServerSelector:renderServerSelector,
+  fetchUserGuilds:fetchUserGuilds,
+  roleName:function(){return (lang==='en'?ROLE_EN:ROLE)[auth.rank]},
+  can:function(s){return auth.rank>=RANK[s.need]}
+};
+mountLang();translate();
 })();
-</script>
-</body>
-</html>
