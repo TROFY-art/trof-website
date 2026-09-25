@@ -637,3 +637,100 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
   .sm-actions .small-btn{flex:1}
   .sm-section{padding:14px}
 }
+/* ============================================
+   💎 VIP
+   ============================================ */
+.vip-container{
+  width:100%;max-width:720px;
+  display:flex;flex-direction:column;gap:20px;
+}
+
+.vip-status-card{
+  display:flex;align-items:center;gap:16px;
+  padding:20px 24px;
+  background:var(--panel);
+  border:2px solid var(--line);
+  border-radius:20px;
+  transition:all .3s;
+}
+.vip-status-card.active{
+  background:linear-gradient(135deg,#1a1305 0%,#2a1f08 100%);
+  border-color:var(--gold);
+  box-shadow:0 0 30px -10px #f2c23c66;
+}
+.vip-status-card.inactive{
+  border-color:#f8717155;
+}
+
+.vip-status-icon{
+  font-size:2.5rem;
+  filter:drop-shadow(0 0 10px #f2c23c88);
+  flex-shrink:0;
+}
+.vip-status-info{flex:1}
+.vip-status-info b{
+  display:block;
+  color:var(--gold-hi);
+  font-size:1.15rem;
+  font-weight:800;
+  margin-bottom:4px;
+}
+.vip-status-info small{
+  display:block;
+  color:var(--muted);
+  font-size:.9rem;
+}
+
+.vip-redeem-card,
+.vip-features-card{
+  width:100%;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:24px;
+  display:grid;gap:16px;
+}
+
+.vip-features{
+  list-style:none;
+  padding:0;margin:0;
+  display:flex;flex-direction:column;gap:10px;
+}
+.vip-features li{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 14px;
+  background:var(--bg);
+  border:1px solid var(--line);
+  border-radius:12px;
+  border-top:1px solid var(--line) !important;
+}
+.vip-features li span{
+  font-size:1.5rem;flex-shrink:0;
+}
+.vip-features li b{
+  display:block;
+  color:var(--gold-hi);
+  font-size:.95rem;
+  margin-bottom:2px;
+}
+.vip-features li small{
+  display:block;
+  color:var(--muted);
+  font-size:.8rem;
+}
+
+#vip-code{
+  max-width:100%;
+  text-align:center;
+  font-size:1.1rem;
+  letter-spacing:2px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+
+@media(max-width:639px){
+  .vip-status-card{padding:16px}
+  .vip-status-icon{font-size:2rem}
+  .vip-redeem-card,.vip-features-card{padding:16px}
+  #vip-code{font-size:.95rem;letter-spacing:1px}
+}
