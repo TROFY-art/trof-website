@@ -32,7 +32,6 @@
 <script src="app.js"></script>
 <script>
 (function(){
-var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
 TROF.dust();
 
 var currentGuildId = null;
@@ -48,27 +47,54 @@ TROF.load(function(){
   var u=TROF.auth.user;
 
   if(!u){
-    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">سجّل الدخول للوصول.</p>';
+    page.innerHTML='<p class="soon">سجّل الدخول للوصول.</p>';
     return;
   }
 
   currentGuildId = TROF.getSelectedGuild();
   if(!currentGuildId){
-    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">⚠️ اختر سيرفراً أولاً.</p>';
+    page.innerHTML='<p class="soon">⚠️ اختر سيرفراً أولاً.</p>';
     return;
   }
 
-  page.innerHTML = buildSMPage();
-  loadAll();
-  bindEvents();
+  // 🔐 تحقق من الصلاحيات الإدارية
+  fetch(TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/check-admin/' + u.id, {
+    headers: {Authorization: 'Bearer ' + TROF.token()}
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(!data.has_access){
+      page.innerHTML =
+        '<div class="sec-head">' +
+          '<div class="sec-ic"><span class="ring"></span><span class="face">🔒</span></div>' +
+          '<div><h1 class="sec-title">إدارة السيرفر</h1><p>ميزة إدارية</p></div>' +
+        '</div>' +
+        '<div class="welcome-form" style="text-align:center">' +
+          '<div class="form-section-title" style="color:#f87171;border-color:#f87171">🔒 صلاحيات غير كافية</div>' +
+          '<p class="form-hint" style="font-size:1.05rem;line-height:2.2;padding:20px 0">' +
+            'هذه الميزة مخصصة فقط للإدارة في السيرفر:<br><br>' +
+            '👑 <b>المالك</b><br>' +
+            '🛡️ <b>الرتب الإدارية</b><br>' +
+            '⚙️ <b>صلاحيات Administrator / Manage Server</b><br><br>' +
+            '<span style="color:#a89f88">' + (data.reason || '') + '</span>' +
+          '</p>' +
+        '</div>';
+      return;
+    }
+
+    page.innerHTML = buildSMPage();
+    loadAll();
+    bindEvents();
+  })
+  .catch(function(){
+    page.innerHTML='<p class="soon">❌ خطأ في التحقق من الصلاحيات.</p>';
+  });
 });
 
 function buildSMPage(){
   return '' +
-  '<a class="back" href="./">'+CHEV+'الرجوع</a>' +
   '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">⚙️</span></div><div><h1 class="sec-title">إدارة السيرفر</h1><p>تحكم كامل بالفئات، القنوات، والرتب</p></div></div>' +
 
-  // التبويبات
   '<div class="sm-tabs">' +
     '<button class="sm-tab active" data-tab="categories">📁 الفئات</button>' +
     '<button class="sm-tab" data-tab="text">💬 قنوات نصية</button>' +
@@ -78,12 +104,10 @@ function buildSMPage(){
     '<button class="sm-tab" data-tab="log">📜 السجل</button>' +
   '</div>' +
 
-  // المحتوى
   '<div class="sm-content" id="sm-content">' +
     '<p class="form-hint">جاري التحميل...</p>' +
   '</div>' +
 
-  // Modal
   '<div class="modal" id="sm-modal" hidden>' +
     '<div class="modal-content">' +
       '<div class="modal-header">' +
@@ -326,7 +350,6 @@ async function loadLog(){
       html += '</div></div>';
       document.getElementById('sm-content').innerHTML = html;
 
-      // ربط زر الحذف
       var clearBtn = document.getElementById('clear-log');
       if(clearBtn){
         clearBtn.onclick = async function(){
@@ -351,7 +374,6 @@ function bindTabButtons(){
     };
   });
 
-  // أزرار الإضافة
   var addCat = document.getElementById('add-category');
   if(addCat) addCat.onclick = function(){ openCategoryModal(); };
 
@@ -364,7 +386,6 @@ function bindTabButtons(){
   var addRole = document.getElementById('add-role');
   if(addRole) addRole.onclick = function(){ openRoleModal(); };
 
-  // أزرار التعديل والحذف
   document.querySelectorAll('.edit-cat').forEach(function(btn){
     btn.onclick = function(){ openCategoryModal(btn.getAttribute('data-id'), btn.getAttribute('data-name')); };
   });
@@ -393,7 +414,6 @@ function bindTabButtons(){
     btn.onclick = function(){ deleteItem('role', btn.getAttribute('data-id'), btn.getAttribute('data-name')); };
   });
 
-  // إعدادات السيرفر
   var saveSettings = document.getElementById('save-settings');
   if(saveSettings) saveSettings.onclick = saveGuildSettings;
 }
@@ -409,9 +429,6 @@ function closeModal(){
   document.getElementById('sm-modal').hidden = true;
 }
 
-// ============================================
-// الفئات
-// ============================================
 function openCategoryModal(id, name){
   var isEdit = !!id;
   var body = '<div class="form-row form-row-col">' +
@@ -444,9 +461,6 @@ function openCategoryModal(id, name){
   });
 }
 
-// ============================================
-// القنوات النصية
-// ============================================
 function openTextModal(id, name, parentId){
   var isEdit = !!id;
   var catOptions = '<option value="">-- بدون فئة --</option>';
@@ -489,9 +503,6 @@ function openTextModal(id, name, parentId){
   });
 }
 
-// ============================================
-// القنوات الصوتية
-// ============================================
 function openVoiceModal(id, name, parentId, limit){
   var isEdit = !!id;
   var catOptions = '<option value="">-- بدون فئة --</option>';
@@ -539,9 +550,6 @@ function openVoiceModal(id, name, parentId, limit){
   });
 }
 
-// ============================================
-// الرتب
-// ============================================
 function openRoleModal(id, name, color){
   var isEdit = !!id;
   var body = '<div class="form-row form-row-col">' +
@@ -579,9 +587,6 @@ function openRoleModal(id, name, color){
   });
 }
 
-// ============================================
-// الحذف
-// ============================================
 async function deleteItem(type, id, name){
   if(!confirm('⚠️ حذف "' + name + '"؟\nلا يمكن التراجع!')) return;
 
@@ -605,9 +610,6 @@ async function deleteItem(type, id, name){
   }catch(e){ alert('❌ خطأ'); }
 }
 
-// ============================================
-// إعدادات السيرفر
-// ============================================
 async function saveGuildSettings(){
   var name = document.getElementById('sm-guild-name').value.trim();
   var msg = document.getElementById('settings-msg');
@@ -636,9 +638,6 @@ async function saveGuildSettings(){
   }
 }
 
-// ============================================
-// الأحداث
-// ============================================
 function bindEvents(){
   var closeBtn = document.getElementById('sm-modal-close');
   if(closeBtn) closeBtn.onclick = closeModal;
