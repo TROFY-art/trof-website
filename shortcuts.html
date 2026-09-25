@@ -152,6 +152,8 @@ var COMMANDS = {
       {name: "/توقف", desc: "إيقاف اللعبة"},
       {name: "/setup_games", desc: "إعداد الألعاب"}
     ]
+  }
+};
 
 var currentGuildId = null;
 var existingShortcuts = {};
@@ -183,17 +185,14 @@ function buildShortcutsPage(){
   '<a class="back" href="./">'+CHEV+'الرجوع</a>' +
   '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">⚡</span></div><div><h1 class="sec-title">الاختصارات</h1><p>أنشئ اختصارات لكل أمر في البوت</p></div></div>' +
 
-  // حقل البحث
   '<div class="shortcuts-search">' +
     '<input type="text" class="form-select" id="sc-search" placeholder="🔍 ابحث عن أمر...">' +
   '</div>' +
 
-  // قائمة الأقسام
   '<div class="commands-container" id="commands-container">' +
     buildCommandsHTML() +
   '</div>' +
 
-  // المودال (نافذة إضافة الاختصار)
   '<div class="modal" id="shortcut-modal" hidden>' +
     '<div class="modal-content">' +
       '<div class="modal-header">' +
@@ -283,13 +282,11 @@ async function loadExistingShortcuts(gid){
     if(res.ok){
       var data = await res.json();
 
-      // نبني قاموس: {command: shortcut}
       existingShortcuts = {};
       data.shortcuts.forEach(function(s){
         existingShortcuts[s.command] = s.shortcut;
       });
 
-      // نعيد بناء القائمة
       refreshCommandsList();
     }
   }catch(e){
@@ -324,21 +321,18 @@ function bindCategoryToggles(){
     };
   });
 
-  // فتح أول قسم افتراضياً
   var firstBody = document.querySelector('.category-commands');
   if(firstBody){
     firstBody.style.display = 'block';
     var firstArrow = firstBody.previousElementSibling.querySelector('.category-arrow');
     if(firstArrow) firstArrow.textContent = '▼';
   }
-  // إغلاق الباقي
   document.querySelectorAll('.category-commands').forEach(function(body, i){
     if(i > 0) body.style.display = 'none';
   });
 }
 
 function bindCommandButtons(){
-  // زر إضافة اختصار
   document.querySelectorAll('.add-shortcut').forEach(function(btn){
     btn.onclick = function(e){
       e.stopPropagation();
@@ -348,7 +342,6 @@ function bindCommandButtons(){
     };
   });
 
-  // زر حذف اختصار
   document.querySelectorAll('.remove-shortcut').forEach(function(btn){
     btn.onclick = async function(e){
       e.stopPropagation();
@@ -440,7 +433,6 @@ async function saveShortcut(){
 }
 
 function bindEvents(){
-  // البحث
   var search = document.getElementById('sc-search');
   if(search){
     search.addEventListener('input', function(){
@@ -448,7 +440,6 @@ function bindEvents(){
     });
   }
 
-  // المودال
   var closeBtn = document.getElementById('modal-close');
   if(closeBtn) closeBtn.onclick = closeShortcutModal;
 
@@ -458,7 +449,6 @@ function bindEvents(){
   var saveBtn = document.getElementById('m-save');
   if(saveBtn) saveBtn.onclick = saveShortcut;
 
-  // إغلاق المودال عند الضغط خارج المحتوى
   var modal = document.getElementById('shortcut-modal');
   if(modal){
     modal.onclick = function(e){
@@ -466,7 +456,6 @@ function bindEvents(){
     };
   }
 
-  // Enter في حقل الاختصار
   var input = document.getElementById('m-shortcut');
   if(input){
     input.addEventListener('keypress', function(e){
@@ -474,7 +463,6 @@ function bindEvents(){
     });
   }
 
-  // ربط أزرار الأوامر
   bindCommandButtons();
   bindCategoryToggles();
 }
