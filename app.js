@@ -1,4 +1,4 @@
-/* إعدادات الموقع */
+id إعدادات الموقع */
 (function(){
 var CONFIG={
   clientId:'1536360221906178088',
@@ -19,6 +19,7 @@ var SECTIONS=[
  {id:'protection',icon:'🛡️',t:'الحماية',d:'حماية السيرفر',need:'staff',url:'protection.html',cmds:[]},
  {id:'moderation',icon:'⚙️',t:'إدارة السيرفر',d:'تحكم كامل بالفئات والقنوات والرتب',need:'staff',url:'server-manager.html',cmds:[]},
  {id:'shortcuts',icon:'⚡',t:'اختصارات',d:'اختصارات الأوامر',need:'everyone',url:'shortcuts.html',cmds:[]},
+ {id:'vip',icon:'💎',t:'VIP',d:'تفعيل VIP في سيرفرك',need:'everyone',url:'vip.html',cmds:[]},
 ]
 var LANGS=['ar','en'],NAMES={ar:'العربية',en:'English'},lang='ar';
 try{lang=localStorage.getItem('trof_lang')||'ar'}catch(e){}
