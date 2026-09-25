@@ -598,3 +598,65 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
     transition-duration:0.01ms !important;
   }
 }
+/* ============================================
+   ⚡ الاختصارات
+   ============================================ */
+.shortcuts-list{
+  display:flex;flex-direction:column;gap:10px;
+  width:100%;padding:10px;
+  background:var(--bg);border-radius:12px;
+  border:1px solid var(--line);
+  min-height:60px;
+}
+
+.shortcut-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;border-radius:10px;
+  background:var(--panel);border:1px solid var(--line);
+  transition:border-color .2s,transform .15s;
+}
+.shortcut-item:hover{
+  border-color:var(--gold);
+  transform:translateY(-2px);
+}
+
+.shortcut-icon{
+  flex-shrink:0;width:40px;height:40px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;
+  background:linear-gradient(135deg,var(--gold-hi),var(--gold-lo));
+  border-radius:10px;
+}
+
+.shortcut-info{flex:1;min-width:0}
+.shortcut-info b{
+  display:block;
+  color:var(--gold-hi);
+  font-size:1rem;
+  font-weight:800;
+  margin-bottom:2px;
+  direction:ltr;
+  text-align:left;
+}
+.shortcut-info small{
+  display:block;
+  font-size:.85rem;
+  color:var(--muted);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.shortcut-info code{
+  background:var(--bg);
+  padding:2px 6px;
+  border-radius:6px;
+  color:var(--gold);
+  font-size:.8rem;
+  direction:ltr;
+  display:inline-block;
+}
+
+@media(max-width:639px){
+  .shortcut-item{flex-wrap:wrap}
+  .shortcut-info{width:100%}
+}
