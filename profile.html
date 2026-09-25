@@ -40,6 +40,10 @@ TROF.load(function(){
     page.innerHTML=h+'<p class="soon'+r()+'">'+TROF.t('profileLogin')+'</p>';
     return;
   }
+  
+  // ============================================
+  // بناء الصفحة
+  // ============================================
   h+='<div class="pf'+r()+'"><div class="sec-ic pf-av"><span class="ring"></span><img class="face" alt="" src="'+TROF.avatar(128)+'"></div><div><h1 class="sec-title" id="nm"></h1><p id="un"></p></div></div>';
   h+='<div class="stats'+r()+'"><div class="stat"><i>💰</i><b id="s-bal">—</b><span>'+TROF.t('balance')+'</span></div><div class="stat"><i>📊</i><b id="s-lvl">—</b><span>'+TROF.t('level')+'</span></div><div class="stat"><i>🏆</i><b id="s-rank">—</b><span>'+TROF.t('rank')+'</span></div></div>';
   
@@ -55,19 +59,78 @@ TROF.load(function(){
      '<button class="daily-btn" id="daily-btn" type="button" disabled>🎁 استلام المكافأة</button>' +
    '</div>';
   
+  // ============================================
+  // قسم تخصيص الألوان
+  // ============================================
+  h+='<div class="colors-section'+r()+'">' +
+     '<div class="form-section-title">🎨 تخصيص الألوان</div>' +
+     
+     // القوالب الجاهزة
+     '<div class="form-row form-row-col">' +
+       '<label class="form-label">📋 قوالب جاهزة</label>' +
+       '<div class="templates-grid" id="templates-grid"></div>' +
+     '</div>' +
+     
+     // Color Pickers
+     '<div class="color-pickers">' +
+       '<div class="color-picker-item">' +
+         '<label>لون النص</label>' +
+         '<input type="color" id="c-text" value="#FFFFFF">' +
+       '</div>' +
+       '<div class="color-picker-item">' +
+         '<label>خلفية المربعات</label>' +
+         '<input type="color" id="c-box-bg" value="#000000">' +
+       '</div>' +
+       '<div class="color-picker-item">' +
+         '<label>حدود المربعات</label>' +
+         '<input type="color" id="c-box-border" value="#FFFFFF">' +
+       '</div>' +
+       '<div class="color-picker-item">' +
+         '<label>اللون المميز (XP)</label>' +
+         '<input type="color" id="c-accent" value="#FFD700">' +
+       '</div>' +
+       '<div class="color-picker-item">' +
+         '<label>لون الإطار</label>' +
+         '<input type="color" id="c-border" value="#00d4d4">' +
+       '</div>' +
+     '</div>' +
+     
+     // المعاينة
+     '<div class="form-row form-row-col">' +
+       '<label class="form-label">👁️ المعاينة الحية</label>' +
+       '<div class="preview-container">' +
+         '<img id="preview-img" src="" alt="معاينة البروفايل" style="max-width:100%;border-radius:12px;display:none;">' +
+         '<div id="preview-loading" style="text-align:center;color:var(--muted);padding:40px;">' +
+           '<p>🔄 جاري تحميل المعاينة...</p>' +
+         '</div>' +
+       '</div>' +
+     '</div>' +
+     
+     // زر الحفظ
+     '<div class="form-actions">' +
+       '<button class="btn save-btn" id="save-colors" type="button">💾 حفظ الألوان</button>' +
+       '<p class="save-msg" id="colors-msg"></p>' +
+     '</div>' +
+   '</div>';
+  
   h+='<p class="note2'+r()+'" id="note"></p><button class="btn alt'+r()+'" id="out" type="button">'+TROF.t('logout')+'</button>';
   page.innerHTML=h;
+  
   document.getElementById('nm').textContent=u.global_name||u.username||'';
   document.getElementById('un').textContent='@'+(u.username||'')+' | '+TROF.roleName();
   document.getElementById('out').onclick=function(){TROF.logout()};
+  
   var note=document.getElementById('note');
   function count(el,v){
     if(typeof v!=='number'||matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=v==null?'—':v.toLocaleString('en');return}
     var t0=performance.now();
     (function step(t){var k=Math.min((t-t0)/900,1);el.textContent=Math.round(v*(1-Math.pow(1-k,3))).toLocaleString('en');if(k<1)requestAnimationFrame(step)})(t0);
   }
+  
   var api=TROF.CONFIG.apiUrl;
   if(!api){note.textContent=TROF.t('noApi');return}
+  
+  // جلب البيانات
   fetch(api.replace(/\/$/,'')+'/users/'+u.id,{headers:{Authorization:'Bearer '+TROF.token()}})
     .then(function(x){if(!x.ok)throw 0;return x.json()})
     .then(function(d){
@@ -119,10 +182,8 @@ TROF.load(function(){
       if(d.success){
         dailyStatus.textContent = '✅ حصلت على ' + d.reward + ' 💰!';
         dailyStatus.style.color = '#4ade80';
-        
         var balEl = document.getElementById('s-bal');
         if(balEl) balEl.textContent = TROF.formatNumber(d.new_balance);
-        
         setTimeout(updateDailyStatus, 2000);
       }else{
         dailyStatus.textContent = '❌ ' + (d.detail || 'فشل');
@@ -137,10 +198,192 @@ TROF.load(function(){
     });
   };
 
-  // فحص الحالة عند التحميل
   updateDailyStatus();
-  // تحديث كل دقيقة
   setInterval(updateDailyStatus, 60000);
+  
+  // ============================================
+  // 🎨 القوالب الجاهزة (10 قوالب)
+  // ============================================
+  var TEMPLATES = [
+    {name: "افتراضي", text: "#FFFFFF", boxBg: "#000000", boxBorder: "#FFFFFF", accent: "#FFD700", border: "#00d4d4"},
+    {name: "ذهبي", text: "#FFD700", boxBg: "#1a1305", boxBorder: "#FFD700", accent: "#FFD700", border: "#FFD700"},
+    {name: "فضي", text: "#FFFFFF", boxBg: "#1a1a1a", boxBorder: "#C0C0C0", accent: "#C0C0C0", border: "#C0C0C0"},
+    {name: "أزرق", text: "#FFFFFF", boxBg: "#0a1628", boxBorder: "#00BFFF", accent: "#00BFFF", border: "#00BFFF"},
+    {name: "بنفسجي", text: "#FFFFFF", boxBg: "#1a0a28", boxBorder: "#9B59B6", accent: "#9B59B6", border: "#9B59B6"},
+    {name: "أحمر", text: "#FFFFFF", boxBg: "#1a0505", boxBorder: "#E74C3C", accent: "#E74C3C", border: "#E74C3C"},
+    {name: "أخضر", text: "#FFFFFF", boxBg: "#051a05", boxBorder: "#2ECC71", accent: "#2ECC71", border: "#2ECC71"},
+    {name: "برتقالي", text: "#FFFFFF", boxBg: "#1a0f05", boxBorder: "#E67E22", accent: "#E67E22", border: "#E67E22"},
+    {name: "وردي", text: "#FFFFFF", boxBg: "#1a0510", boxBorder: "#FF69B4", accent: "#FF69B4", border: "#FF69B4"},
+    {name: "أسود", text: "#FFFFFF", boxBg: "#000000", boxBorder: "#333333", accent: "#888888", border: "#333333"},
+  ];
+  
+  var templatesGrid = document.getElementById('templates-grid');
+  TEMPLATES.forEach(function(t, i){
+    var btn = document.createElement('button');
+    btn.className = 'template-btn';
+    btn.type = 'button';
+    btn.innerHTML = '<span class="template-preview" style="background:linear-gradient(135deg, ' + t.border + ' 0%, ' + t.accent + ' 100%)"></span><span>' + t.name + '</span>';
+    btn.onclick = function(){
+      document.querySelectorAll('.template-btn').forEach(function(b){b.classList.remove('active')});
+      btn.classList.add('active');
+      
+      document.getElementById('c-text').value = t.text;
+      document.getElementById('c-box-bg').value = t.boxBg;
+      document.getElementById('c-box-border').value = t.boxBorder;
+      document.getElementById('c-accent').value = t.accent;
+      document.getElementById('c-border').value = t.border;
+      
+      updatePreview();
+    };
+    templatesGrid.appendChild(btn);
+  });
+  
+  // ============================================
+  // تحميل الألوان المحفوظة
+  // ============================================
+  fetch(api + '/user/' + u.id + '/profile/colors', {
+    headers: {Authorization: 'Bearer ' + TROF.token()}
+  })
+  .then(function(r){return r.json()})
+  .then(function(d){
+    if(d.colors){
+      document.getElementById('c-text').value = d.colors.text_color || '#FFFFFF';
+      document.getElementById('c-box-bg').value = convertRgbaToHex(d.colors.box_bg) || '#000000';
+      document.getElementById('c-box-border').value = convertRgbaToHex(d.colors.box_border) || '#FFFFFF';
+      document.getElementById('c-accent').value = d.colors.accent_color || '#FFD700';
+      document.getElementById('c-border').value = d.colors.border_color || '#00d4d4';
+    }
+    updatePreview();
+  })
+  .catch(function(){ updatePreview(); });
+  
+  // ============================================
+  // تحويل rgba إلى hex
+  // ============================================
+  function convertRgbaToHex(rgba){
+    if(!rgba || rgba.indexOf('rgba') === -1) return rgba;
+    var m = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if(m){
+      var r = parseInt(m[1]).toString(16).padStart(2, '0');
+      var g = parseInt(m[2]).toString(16).padStart(2, '0');
+      var b = parseInt(m[3]).toString(16).padStart(2, '0');
+      return '#' + r + g + b;
+    }
+    return rgba;
+  }
+  
+  function hexToRgba(hex, alpha){
+    var r = parseInt(hex.slice(1,3), 16);
+    var g = parseInt(hex.slice(3,5), 16);
+    var b = parseInt(hex.slice(5,7), 16);
+    return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+  }
+  
+  // ============================================
+  // تحديث المعاينة
+  // ============================================
+  var previewTimeout;
+  function updatePreview(){
+    clearTimeout(previewTimeout);
+    previewTimeout = setTimeout(function(){
+      var previewImg = document.getElementById('preview-img');
+      var loading = document.getElementById('preview-loading');
+      
+      loading.style.display = 'block';
+      previewImg.style.display = 'none';
+      
+      // نرسل الألوان الحالية كـ Query Parameters
+      var textColor = document.getElementById('c-text').value;
+      var boxBg = document.getElementById('c-box-bg').value;
+      var boxBorder = document.getElementById('c-box-border').value;
+      var accent = document.getElementById('c-accent').value;
+      var border = document.getElementById('c-border').value;
+      
+      // نرسلها كـ POST أولاً
+      fetch(api + '/user/' + u.id + '/profile/colors', {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          text_color: textColor,
+          box_bg: hexToRgba(boxBg, 0.5),
+          box_border: hexToRgba(boxBorder, 0.15),
+          accent_color: accent,
+          border_color: border
+        })
+      })
+      .then(function(){
+        // ثم نطلب المعاينة
+        return fetch(api + '/user/' + u.id + '/profile/preview', {
+          headers: {Authorization: 'Bearer ' + TROF.token()}
+        });
+      })
+      .then(function(r){
+        if(r.ok) return r.blob();
+        throw new Error('preview failed');
+      })
+      .then(function(blob){
+        var url = URL.createObjectURL(blob);
+        previewImg.src = url;
+        previewImg.onload = function(){
+          loading.style.display = 'none';
+          previewImg.style.display = 'block';
+          URL.revokeObjectURL(url);
+        };
+      })
+      .catch(function(e){
+        console.error('preview error', e);
+        loading.innerHTML = '<p>❌ فشل تحميل المعاينة</p>';
+      });
+    }, 800);
+  }
+  
+  // ============================================
+  // مستمعات Color Pickers
+  // ============================================
+  ['c-text', 'c-box-bg', 'c-box-border', 'c-accent', 'c-border'].forEach(function(id){
+    var el = document.getElementById(id);
+    el.addEventListener('input', updatePreview);
+  });
+  
+  // ============================================
+  // زر الحفظ
+  // ============================================
+  document.getElementById('save-colors').onclick = function(){
+    var btn = this;
+    btn.disabled = true;
+    var msg = document.getElementById('colors-msg');
+    msg.textContent = '⏳ جاري الحفظ...';
+    
+    fetch(api + '/user/' + u.id + '/profile/colors', {
+      method: 'POST',
+      headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        text_color: document.getElementById('c-text').value,
+        box_bg: hexToRgba(document.getElementById('c-box-bg').value, 0.5),
+        box_border: hexToRgba(document.getElementById('c-box-border').value, 0.15),
+        accent_color: document.getElementById('c-accent').value,
+        border_color: document.getElementById('c-border').value
+      })
+    })
+    .then(function(r){return r.json()})
+    .then(function(d){
+      if(d.success){
+        msg.textContent = '✅ تم الحفظ!';
+        msg.style.color = '#4ade80';
+      }else{
+        msg.textContent = '❌ فشل';
+        msg.style.color = '#f87171';
+      }
+    })
+    .catch(function(){
+      msg.textContent = '❌ خطأ';
+      msg.style.color = '#f87171';
+    })
+    .finally(function(){
+      btn.disabled = false;
+      setTimeout(function(){ msg.textContent = ''; }, 3000);
+    });
+  };
 });
 </script>
 </body>
