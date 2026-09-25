@@ -449,3 +449,152 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
   .template-preview{width:40px;height:24px}
   .color-pickers{grid-template-columns:1fr 1fr;gap:10px}
 }
+/* ============================================
+   📱💻 Responsive - جميع الأجهزة
+   ============================================ */
+
+/* 📱 الجوال الصغير (< 480px) */
+@media(max-width:479px){
+  .wrap{padding-inline:12px}
+  .bar{padding-block:12px}
+  .sec-title{font-size:1.5rem}
+  .welcome-form{padding:12px;gap:12px}
+  .colors-section{padding:12px}
+  .daily-card{padding:12px;gap:10px}
+  .stat{padding:12px 6px}
+  .stat b{font-size:1.3rem}
+  .pf-av{width:80px;height:80px}
+  .sec-ic.pf-av{width:80px;height:80px}
+  .sec-ic{width:60px;height:60px;font-size:1.8rem}
+  .shop-grid{grid-template-columns:1fr;gap:10px}
+  .templates-grid{grid-template-columns:repeat(2,1fr);gap:6px}
+  .template-btn{padding:6px;font-size:.7rem}
+  .template-preview{width:35px;height:20px}
+  .color-pickers{grid-template-columns:1fr;gap:8px}
+  .preview-card{max-width:100%}
+}
+
+/* 📱 الجوال (480px - 639px) */
+@media(min-width:480px) and (max-width:639px){
+  .wrap{padding-inline:16px}
+  .welcome-form{padding:16px}
+  .colors-section{padding:16px}
+  .templates-grid{grid-template-columns:repeat(3,1fr);gap:8px}
+  .color-pickers{grid-template-columns:1fr 1fr;gap:10px}
+  .shop-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+}
+
+/* 📱💻 التابلت الصغير (640px - 767px) */
+@media(min-width:640px) and (max-width:767px){
+  .wrap{max-width:640px}
+  .hero{grid-template-columns:1fr 280px;gap:20px 40px;justify-items:start;text-align:start;align-items:center}
+  .hero>div:first-child{justify-items:start}
+  .logo{order:0;width:280px}
+  .menu ul{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .menu li{border:1px solid var(--line);border-radius:14px;background:#120f0b}
+  .welcome-form{max-width:640px}
+  .colors-section{max-width:640px}
+  .shop-grid{grid-template-columns:repeat(3,1fr)}
+  .color-pickers{grid-template-columns:repeat(3,1fr)}
+  .templates-grid{grid-template-columns:repeat(4,1fr)}
+}
+
+/* 📱💻 الآيباد (768px - 1023px) */
+@media(min-width:768px) and (max-width:1023px){
+  .wrap{max-width:760px}
+  .hero{grid-template-columns:1fr 340px;gap:24px 48px;justify-items:start;text-align:start;align-items:center;padding-block:32px 48px}
+  .hero>div:first-child{justify-items:start}
+  .logo{order:0;width:340px}
+  .menu ul{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .menu li{border:1px solid var(--line);border-radius:14px;background:#120f0b}
+  .menu .grab{display:none}
+  .welcome-form{max-width:760px;padding:28px}
+  .colors-section{max-width:760px;padding:28px}
+  .shop-grid{grid-template-columns:repeat(3,1fr);gap:14px}
+  .color-pickers{grid-template-columns:repeat(3,1fr);gap:14px}
+  .templates-grid{grid-template-columns:repeat(5,1fr)}
+  .preview-card{max-width:600px}
+  .stats{grid-template-columns:repeat(3,1fr);gap:16px}
+}
+
+/* 💻 الكمبيوتر (1024px - 1439px) */
+@media(min-width:1024px) and (max-width:1439px){
+  .wrap{max-width:1040px}
+  .hero{grid-template-columns:1fr 420px;gap:24px 72px;justify-items:start;text-align:start;align-items:center}
+  .hero>div:first-child{justify-items:start}
+  .logo{order:0;width:420px}
+  .menu ul{grid-template-columns:repeat(3,1fr)}
+  .menu .grab{display:none}
+  .welcome-form{max-width:900px;padding:32px;gap:24px}
+  .colors-section{max-width:900px;padding:32px}
+  .shop-grid{grid-template-columns:repeat(4,1fr);gap:16px}
+  .color-pickers{grid-template-columns:repeat(5,1fr);gap:16px}
+  .templates-grid{grid-template-columns:repeat(5,1fr);gap:12px}
+  .preview-card{max-width:600px}
+  .stats{grid-template-columns:repeat(3,1fr);gap:16px}
+}
+
+/* 🖥️ الشاشات الكبيرة (≥ 1440px) */
+@media(min-width:1440px){
+  .wrap{max-width:1280px}
+  .hero{grid-template-columns:1fr 500px;gap:40px 96px;padding-block:56px 80px}
+  .logo{width:500px}
+  .menu ul{grid-template-columns:repeat(3,1fr);gap:16px}
+  .welcome-form{max-width:1100px;padding:40px;gap:28px}
+  .colors-section{max-width:1100px;padding:40px}
+  .shop-grid{grid-template-columns:repeat(5,1fr);gap:20px}
+  .color-pickers{grid-template-columns:repeat(5,1fr);gap:20px}
+  .templates-grid{grid-template-columns:repeat(5,1fr);gap:16px}
+  .preview-card{max-width:700px}
+  .stats{grid-template-columns:repeat(3,1fr);gap:20px}
+  .stat{padding:24px 16px}
+  .stat b{font-size:2rem}
+  .stat i{font-size:2rem}
+  .sec-title{font-size:3rem}
+  h1{font-size:5.5rem}
+}
+
+/* 🖥️ شاشات ضخمة (≥ 1920px) */
+@media(min-width:1920px){
+  .wrap{max-width:1440px}
+  .hero{grid-template-columns:1fr 560px;gap:48px 120px;padding-block:64px 96px}
+  .logo{width:560px}
+  .welcome-form{max-width:1200px;padding:48px}
+  .colors-section{max-width:1200px;padding:48px}
+  .shop-grid{grid-template-columns:repeat(6,1fr)}
+  .preview-card{max-width:800px}
+}
+
+/* 🖥️ شاشات 4K (≥ 2560px) */
+@media(min-width:2560px){
+  .wrap{max-width:1600px}
+  .hero{grid-template-columns:1fr 640px;gap:56px 160px}
+  .logo{width:640px}
+  .welcome-form{max-width:1400px;padding:56px}
+  .colors-section{max-width:1400px;padding:56px}
+  h1{font-size:7rem}
+  .sec-title{font-size:3.5rem}
+}
+
+/* 🔄 الوضع الأفقي (Landscape) */
+@media(orientation:landscape) and (max-height:500px){
+  .hero{padding-block:16px 24px}
+  .logo{width:min(40vw,200px)}
+  .demo{padding-bottom:24px}
+}
+
+/* 🖨️ الطباعة */
+@media print{
+  #dust, .bar, footer, .daily-card, .colors-section{display:none}
+  body{background:white;color:black}
+  .btn{background:black;color:white}
+}
+
+/* ♿ تقليل الحركة */
+@media(prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;
+  }
+}
