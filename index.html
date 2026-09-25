@@ -67,7 +67,7 @@
     <div class="loader-spinner"></div>
     <p>جاري التحميل...</p>
   </div>
-  <iframe id="section-frame" src="" frameborder="0" hidden></iframe>
+  <iframe id="section-frame" src="about:blank" frameborder="0" hidden></iframe>
 </section>
 </main>
 
@@ -83,7 +83,7 @@ TROF.load(function(){
   var list=document.getElementById('list'),hint=document.getElementById('hint'),menu=document.getElementById('menu');
   list.innerHTML=TROF.SECTIONS.filter(TROF.can).map(function(s,i){
     var url = s.url ? s.url : 'section.html?p='+s.id;
-    return '<li><a class="row" style="--i:'+i+'" href="'+url+'" data-section-url="'+url+'" data-section-title="'+TROF.name(s)+'"><span class="ic">'+s.icon+'</span><span><b>'+TROF.name(s)+'</b><small>'+TROF.desc(s)+'</small></span></a></li>';
+    return '<li><a class="row" style="--i:'+i+'" href="javascript:void(0)" data-section-url="'+url+'" data-section-title="'+TROF.name(s)+'"><span class="ic">'+s.icon+'</span><span><b>'+TROF.name(s)+'</b><small>'+TROF.desc(s)+'</small></span></a></li>';
   }).join('');
   TROF.mountAccount();
   TROF.renderServerSelector();
@@ -142,20 +142,48 @@ function loadSection(url, title){
   loader.hidden = false;
   frame.hidden = true;
 
-  // تحميل الصفحة
-  frame.src = url;
+  // إعادة تعيين الـ iframe
+  frame.src = 'about:blank';
+
+  // Timeout احتياطي (3 ثواني)
+  var loaded = false;
+  var timeout = setTimeout(function(){
+    if(!loaded){
+      loaded = true;
+      loader.hidden = true;
+      frame.hidden = false;
+    }
+  }, 3000);
 
   // عند اكتمال التحميل
   frame.onload = function(){
+    if(loaded) return;
+    loaded = true;
+    clearTimeout(timeout);
     loader.hidden = true;
     frame.hidden = false;
   };
+
+  // عند حدوث خطأ
+  frame.onerror = function(){
+    if(loaded) return;
+    loaded = true;
+    clearTimeout(timeout);
+    loader.innerHTML = '<p style="color:#f87171;">❌ فشل تحميل القسم</p>';
+  };
+
+  // تحميل الصفحة
+  setTimeout(function(){
+    frame.src = url;
+  }, 50);
 
   // التمرير لأعلى
   window.scrollTo({top: 0, behavior: 'smooth'});
 
   // تغيير الرابط (بدون إعادة تحميل)
-  history.pushState({section: url}, title, '#' + url);
+  try{
+    history.pushState({section: url, title: title}, title, '#' + encodeURIComponent(url));
+  }catch(e){}
 }
 
 function backToMain(){
@@ -166,10 +194,12 @@ function backToMain(){
   // إخفاء القسم، إظهار الرئيسية
   sectionView.hidden = true;
   mainView.hidden = false;
-  frame.src = '';
+  frame.src = 'about:blank';
 
   // تغيير الرابط
-  history.pushState({}, document.title, './');
+  try{
+    history.pushState({}, document.title, './');
+  }catch(e){}
 
   // التمرير لأعلى
   window.scrollTo({top: 0, behavior: 'smooth'});
@@ -181,11 +211,23 @@ document.getElementById('back-to-main').onclick = backToMain;
 // زر الرجوع في المتصفح
 window.onpopstate = function(e){
   if(e.state && e.state.section){
-    loadSection(e.state.section, document.getElementById('section-title').textContent);
+    loadSection(e.state.section, e.state.title || '');
   }else{
     backToMain();
   }
 };
+
+// إذا كان الرابط يحتوي على #section
+if(location.hash && location.hash.length > 1){
+  var url = decodeURIComponent(location.hash.slice(1));
+  setTimeout(function(){
+    // نبحث عن العنوان من القائمة
+    var title = 'قسم';
+    var link = document.querySelector('[data-section-url="' + url + '"]');
+    if(link) title = link.getAttribute('data-section-title');
+    loadSection(url, title);
+  }, 500);
+}
 })();
 </script>
 </body>
