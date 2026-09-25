@@ -28,27 +28,46 @@
 </header>
 
 <main class="wrap">
-<section class="hero">
-<div>
-<h1>TROF System</h1>
-<p class="lead" data-i18n="lead">بوت دسكورد واحد يدير سيرفرك كله: مستويات، موسيقى، جيفاواي، تكتات وأدوات إدارة.</p>
-<a class="btn" href="https://discord.com/oauth2/authorize?client_id=1536360221906178088&amp;permissions=8&amp;integration_type=0&amp;scope=bot" data-i18n="addBot">أضف البوت إلى سيرفرك</a>
-<p class="note" data-i18n="note">مشروع غير تجاري.</p>
-</div>
-<div class="logo" id="logo">
-<span class="ring"></span>
-<div class="tilt" id="tilt"><img src="logo.webp" alt="شعار TROF System" width="640" height="640"></div>
-</div>
+<!-- الصفحة الرئيسية -->
+<section id="main-view">
+  <div class="hero">
+    <div>
+      <h1>TROF System</h1>
+      <p class="lead" data-i18n="lead">بوت دسكورد واحد يدير سيرفرك كله: مستويات، موسيقى، جيفاواي، تكتات وأدوات إدارة.</p>
+      <a class="btn" href="https://discord.com/oauth2/authorize?client_id=1536360221906178088&amp;permissions=8&amp;integration_type=0&amp;scope=bot" data-i18n="addBot">أضف البوت إلى سيرفرك</a>
+      <p class="note" data-i18n="note">مشروع غير تجاري.</p>
+    </div>
+    <div class="logo" id="logo">
+      <span class="ring"></span>
+      <div class="tilt" id="tilt"><img src="logo.webp" alt="شعار TROF System" width="640" height="640"></div>
+    </div>
+  </div>
+
+  <div class="demo">
+    <p data-i18n="tap">اضغط على أي قسم لفتح صفحته.</p>
+    <div class="menu" id="menu" aria-label="أقسام الأوامر">
+      <div class="grab"></div>
+      <h2 data-i18n="choose">📁 اختر قسماً...</h2>
+      <ul id="list"></ul>
+      <p class="hint" id="hint"></p>
+    </div>
+  </div>
 </section>
 
-<section class="demo">
-<p data-i18n="tap">اضغط على أي قسم لفتح صفحته.</p>
-<div class="menu" id="menu" aria-label="أقسام الأوامر">
-<div class="grab"></div>
-<h2 data-i18n="choose">📁 اختر قسماً...</h2>
-<ul id="list"></ul>
-<p class="hint" id="hint"></p>
-</div>
+<!-- صفحة القسم (تظهر عند الضغط) -->
+<section id="section-view" hidden>
+  <div class="section-header">
+    <button class="back-btn" id="back-to-main" type="button">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>
+      <span>الرجوع للأقسام</span>
+    </button>
+    <h2 id="section-title"></h2>
+  </div>
+  <div class="section-loader" id="section-loader">
+    <div class="loader-spinner"></div>
+    <p>جاري التحميل...</p>
+  </div>
+  <iframe id="section-frame" src="" frameborder="0" hidden></iframe>
 </section>
 </main>
 
@@ -64,7 +83,7 @@ TROF.load(function(){
   var list=document.getElementById('list'),hint=document.getElementById('hint'),menu=document.getElementById('menu');
   list.innerHTML=TROF.SECTIONS.filter(TROF.can).map(function(s,i){
     var url = s.url ? s.url : 'section.html?p='+s.id;
-    return '<li><a class="row" style="--i:'+i+'" href="'+url+'"><span class="ic">'+s.icon+'</span><span><b>'+TROF.name(s)+'</b><small>'+TROF.desc(s)+'</small></span></a></li>';
+    return '<li><a class="row" style="--i:'+i+'" href="'+url+'" data-section-url="'+url+'" data-section-title="'+TROF.name(s)+'"><span class="ic">'+s.icon+'</span><span><b>'+TROF.name(s)+'</b><small>'+TROF.desc(s)+'</small></span></a></li>';
   }).join('');
   TROF.mountAccount();
   TROF.renderServerSelector();
@@ -73,6 +92,9 @@ TROF.load(function(){
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){menu.classList.add('in');io.disconnect()}})},{threshold:.1});
     io.observe(menu);
   }else{menu.classList.add('in')}
+
+  // ربط أزرار الأقسام
+  bindSectionButtons();
 });
 
 var logo=document.getElementById('logo'),tilt=document.getElementById('tilt');
@@ -89,6 +111,81 @@ if(!calm){
     dust.appendChild(d);
   }
 }
+
+// ============================================
+// تحميل الأقسام في نفس الصفحة
+// ============================================
+function bindSectionButtons(){
+  document.querySelectorAll('[data-section-url]').forEach(function(btn){
+    btn.onclick = function(e){
+      e.preventDefault();
+      var url = btn.getAttribute('data-section-url');
+      var title = btn.getAttribute('data-section-title');
+      loadSection(url, title);
+    };
+  });
+}
+
+function loadSection(url, title){
+  var mainView = document.getElementById('main-view');
+  var sectionView = document.getElementById('section-view');
+  var loader = document.getElementById('section-loader');
+  var frame = document.getElementById('section-frame');
+  var titleEl = document.getElementById('section-title');
+
+  // إخفاء الرئيسية، إظهار القسم
+  mainView.hidden = true;
+  sectionView.hidden = false;
+  titleEl.textContent = title;
+
+  // إظهار الـ loader
+  loader.hidden = false;
+  frame.hidden = true;
+
+  // تحميل الصفحة
+  frame.src = url;
+
+  // عند اكتمال التحميل
+  frame.onload = function(){
+    loader.hidden = true;
+    frame.hidden = false;
+  };
+
+  // التمرير لأعلى
+  window.scrollTo({top: 0, behavior: 'smooth'});
+
+  // تغيير الرابط (بدون إعادة تحميل)
+  history.pushState({section: url}, title, '#' + url);
+}
+
+function backToMain(){
+  var mainView = document.getElementById('main-view');
+  var sectionView = document.getElementById('section-view');
+  var frame = document.getElementById('section-frame');
+
+  // إخفاء القسم، إظهار الرئيسية
+  sectionView.hidden = true;
+  mainView.hidden = false;
+  frame.src = '';
+
+  // تغيير الرابط
+  history.pushState({}, document.title, './');
+
+  // التمرير لأعلى
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// زر الرجوع
+document.getElementById('back-to-main').onclick = backToMain;
+
+// زر الرجوع في المتصفح
+window.onpopstate = function(e){
+  if(e.state && e.state.section){
+    loadSection(e.state.section, document.getElementById('section-title').textContent);
+  }else{
+    backToMain();
+  }
+};
 })();
 </script>
 </body>
