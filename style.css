@@ -296,7 +296,7 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
 .color-picker-item input[type="color"]{width:100%;height:40px;border:1px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer}
 
 /* ============================================
-   ⚡ الاختصارات - عرض الأوامر
+   ⚡ الاختصارات
    ============================================ */
 .shortcuts-search{width:100%;max-width:720px;margin-bottom:8px}
 .shortcuts-search .form-select{max-width:100%;padding:14px 18px;font-size:1rem;border-radius:14px;background:var(--panel);border:2px solid var(--line)}
@@ -322,6 +322,61 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
 .add-shortcut:hover{transform:translateY(-1px);box-shadow:0 4px 12px -4px #f2c23ccc}
 .remove-shortcut{background:var(--bg);color:#f87171;border:1px solid #f8717155;padding:6px 10px !important}
 .remove-shortcut:hover{background:#f8717122;border-color:#f87171}
+
+/* ============================================
+   ⚙️ إدارة السيرفر
+   ============================================ */
+.sm-tabs{display:flex;gap:8px;width:100%;max-width:720px;flex-wrap:wrap;margin-bottom:16px}
+.sm-tab{flex:1;min-width:100px;padding:10px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--text);font:inherit;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s}
+.sm-tab:hover{border-color:var(--gold)}
+.sm-tab.active{background:linear-gradient(180deg,var(--gold-hi),var(--gold));color:#1a1305;border-color:var(--gold)}
+.sm-content{width:100%;max-width:720px}
+.sm-section{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.sm-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.sm-header h3{margin:0;font-size:1.1rem;color:var(--gold-hi);font-weight:800}
+.sm-list{display:flex;flex-direction:column;gap:8px;max-height:500px;overflow-y:auto}
+.sm-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border:1px solid var(--line);border-radius:10px;transition:border-color .2s,transform .15s}
+.sm-item:hover{border-color:var(--gold);transform:translateY(-1px)}
+.sm-icon{flex-shrink:0;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+.sm-info{flex:1;min-width:0}
+.sm-info b{display:block;color:var(--text);font-size:.95rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sm-info small{display:block;font-size:.8rem;color:var(--muted)}
+.sm-actions{display:flex;gap:6px}
+.sm-actions .small-btn{padding:6px 10px;font-size:.85rem}
+#modal-color{width:60px;height:40px;border:1px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer}
+
+/* ============================================
+   💎 VIP
+   ============================================ */
+.vip-container{width:100%;max-width:720px;display:flex;flex-direction:column;gap:20px}
+.vip-status-card{display:flex;align-items:center;gap:16px;padding:20px 24px;background:var(--panel);border:2px solid var(--line);border-radius:20px;transition:all .3s}
+.vip-status-card.active{background:linear-gradient(135deg,#1a1305 0%,#2a1f08 100%);border-color:var(--gold);box-shadow:0 0 30px -10px #f2c23c66}
+.vip-status-card.inactive{border-color:#f8717155}
+.vip-status-icon{font-size:2.5rem;filter:drop-shadow(0 0 10px #f2c23c88);flex-shrink:0}
+.vip-status-info{flex:1}
+.vip-status-info b{display:block;color:var(--gold-hi);font-size:1.15rem;font-weight:800;margin-bottom:4px}
+.vip-status-info small{display:block;color:var(--muted);font-size:.9rem}
+.vip-redeem-card,.vip-features-card,.vip-admin-card{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px;display:grid;gap:16px}
+.vip-admin-card{border:2px solid var(--gold);background:linear-gradient(135deg,#1a1305 0%,#171410 100%)}
+.vip-features{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.vip-features li{display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--bg);border:1px solid var(--line);border-radius:12px}
+.vip-features li span{font-size:1.5rem;flex-shrink:0}
+.vip-features li b{display:block;color:var(--gold-hi);font-size:.95rem;margin-bottom:2px}
+.vip-features li small{display:block;color:var(--muted);font-size:.8rem}
+#vip-code{max-width:100%;text-align:center;font-size:1.1rem;letter-spacing:2px;font-weight:800;text-transform:uppercase}
+.new-key-box{display:flex;flex-direction:column;gap:10px;padding:18px;background:var(--bg);border:2px dashed var(--gold);border-radius:14px;text-align:center;margin-top:8px}
+.new-key-label{font-size:.9rem;color:var(--muted)}
+.new-key-code{font-family:'Courier New',monospace;font-size:1.3rem;font-weight:900;color:var(--gold-hi);letter-spacing:3px;direction:ltr;user-select:all;word-break:break-all}
+.new-key-box .small-btn{align-self:center;padding:8px 20px}
+.keys-list-header{font-weight:800;color:var(--gold);font-size:1rem;padding-top:10px;border-top:1px solid var(--line);margin-top:10px}
+.keys-list{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto}
+.key-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border:1px solid var(--line);border-radius:10px;transition:border-color .2s}
+.key-item.key-available{border-left:3px solid #4ade80}
+.key-item.key-used{border-left:3px solid #888;opacity:.7}
+.key-info{flex:1;min-width:0}
+.key-code{display:block;font-family:'Courier New',monospace;font-size:.9rem;color:var(--gold-hi);font-weight:800;direction:ltr;margin-bottom:4px;word-break:break-all}
+.key-info small{display:block;font-size:.78rem;color:var(--muted)}
+.key-actions{display:flex;gap:6px;flex-shrink:0}
 
 /* ============================================
    📱 الجوال
@@ -366,6 +421,19 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
   .command-item{flex-wrap:wrap;padding:12px 10px}
   .command-info{width:100%;margin-bottom:6px}
   .add-shortcut,.remove-shortcut,.shortcut-badge{width:100%;text-align:center}
+  .sm-tab{padding:8px 10px;font-size:.75rem;min-width:70px}
+  .sm-item{flex-wrap:wrap}
+  .sm-info{width:100%;margin-bottom:6px}
+  .sm-actions{width:100%}
+  .sm-actions .small-btn{flex:1}
+  .sm-section{padding:14px}
+  .vip-status-card{padding:16px}
+  .vip-status-icon{font-size:2rem}
+  .vip-redeem-card,.vip-features-card,.vip-admin-card{padding:16px}
+  #vip-code{font-size:.95rem;letter-spacing:1px}
+  .new-key-code{font-size:1rem;letter-spacing:1px}
+  .key-item{flex-wrap:wrap}
+  .key-info{width:100%}
 }
 
 /* ============================================
@@ -408,7 +476,6 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
 /* ============================================
    📱💻 Responsive - جميع الأجهزة
    ============================================ */
-
 @media(max-width:479px){
   .wrap{padding-inline:12px}
   .bar{padding-block:12px}
@@ -542,195 +609,4 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
     animation-iteration-count:1 !important;
     transition-duration:0.01ms !important;
   }
-          }
-/* ============================================
-   ⚙️ إدارة السيرفر
-   ============================================ */
-.sm-tabs{
-  display:flex;gap:8px;width:100%;max-width:720px;
-  flex-wrap:wrap;margin-bottom:16px;
-}
-.sm-tab{
-  flex:1;min-width:100px;
-  padding:10px 14px;
-  background:var(--panel);border:1px solid var(--line);
-  border-radius:10px;color:var(--text);
-  font:inherit;font-size:.85rem;font-weight:700;
-  cursor:pointer;transition:all .2s;
-}
-.sm-tab:hover{border-color:var(--gold)}
-.sm-tab.active{
-  background:linear-gradient(180deg,var(--gold-hi),var(--gold));
-  color:#1a1305;border-color:var(--gold);
-}
-
-.sm-content{width:100%;max-width:720px}
-
-.sm-section{
-  background:var(--panel);border:1px solid var(--line);
-  border-radius:16px;padding:20px;
-  display:flex;flex-direction:column;gap:14px;
-}
-.sm-header{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:12px;flex-wrap:wrap;
-  padding-bottom:12px;border-bottom:1px solid var(--line);
-}
-.sm-header h3{
-  margin:0;font-size:1.1rem;
-  color:var(--gold-hi);font-weight:800;
-}
-
-.sm-list{
-  display:flex;flex-direction:column;gap:8px;
-  max-height:500px;overflow-y:auto;
-}
-
-.sm-item{
-  display:flex;align-items:center;gap:12px;
-  padding:12px 14px;
-  background:var(--bg);border:1px solid var(--line);
-  border-radius:10px;
-  transition:border-color .2s,transform .15s;
-}
-.sm-item:hover{
-  border-color:var(--gold);
-  transform:translateY(-1px);
-}
-
-.sm-icon{
-  flex-shrink:0;width:36px;height:36px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.1rem;
-  background:var(--panel);border:1px solid var(--line);
-  border-radius:8px;
-}
-
-.sm-info{flex:1;min-width:0}
-.sm-info b{
-  display:block;color:var(--text);
-  font-size:.95rem;font-weight:700;
-  overflow:hidden;text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.sm-info small{
-  display:block;font-size:.8rem;
-  color:var(--muted);
-}
-
-.sm-actions{display:flex;gap:6px}
-.sm-actions .small-btn{
-  padding:6px 10px;font-size:.85rem;
-}
-
-#modal-color{
-  width:60px;height:40px;
-  border:1px solid var(--line);border-radius:8px;
-  background:var(--bg);cursor:pointer;
-}
-
-@media(max-width:639px){
-  .sm-tab{padding:8px 10px;font-size:.75rem;min-width:70px}
-  .sm-item{flex-wrap:wrap}
-  .sm-info{width:100%;margin-bottom:6px}
-  .sm-actions{width:100%}
-  .sm-actions .small-btn{flex:1}
-  .sm-section{padding:14px}
-}
-/* ============================================
-   💎 VIP
-   ============================================ */
-.vip-container{
-  width:100%;max-width:720px;
-  display:flex;flex-direction:column;gap:20px;
-}
-
-.vip-status-card{
-  display:flex;align-items:center;gap:16px;
-  padding:20px 24px;
-  background:var(--panel);
-  border:2px solid var(--line);
-  border-radius:20px;
-  transition:all .3s;
-}
-.vip-status-card.active{
-  background:linear-gradient(135deg,#1a1305 0%,#2a1f08 100%);
-  border-color:var(--gold);
-  box-shadow:0 0 30px -10px #f2c23c66;
-}
-.vip-status-card.inactive{
-  border-color:#f8717155;
-}
-
-.vip-status-icon{
-  font-size:2.5rem;
-  filter:drop-shadow(0 0 10px #f2c23c88);
-  flex-shrink:0;
-}
-.vip-status-info{flex:1}
-.vip-status-info b{
-  display:block;
-  color:var(--gold-hi);
-  font-size:1.15rem;
-  font-weight:800;
-  margin-bottom:4px;
-}
-.vip-status-info small{
-  display:block;
-  color:var(--muted);
-  font-size:.9rem;
-}
-
-.vip-redeem-card,
-.vip-features-card{
-  width:100%;
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:20px;
-  padding:24px;
-  display:grid;gap:16px;
-}
-
-.vip-features{
-  list-style:none;
-  padding:0;margin:0;
-  display:flex;flex-direction:column;gap:10px;
-}
-.vip-features li{
-  display:flex;align-items:center;gap:14px;
-  padding:12px 14px;
-  background:var(--bg);
-  border:1px solid var(--line);
-  border-radius:12px;
-  border-top:1px solid var(--line) !important;
-}
-.vip-features li span{
-  font-size:1.5rem;flex-shrink:0;
-}
-.vip-features li b{
-  display:block;
-  color:var(--gold-hi);
-  font-size:.95rem;
-  margin-bottom:2px;
-}
-.vip-features li small{
-  display:block;
-  color:var(--muted);
-  font-size:.8rem;
-}
-
-#vip-code{
-  max-width:100%;
-  text-align:center;
-  font-size:1.1rem;
-  letter-spacing:2px;
-  font-weight:800;
-  text-transform:uppercase;
-}
-
-@media(max-width:639px){
-  .vip-status-card{padding:16px}
-  .vip-status-icon{font-size:2rem}
-  .vip-redeem-card,.vip-features-card{padding:16px}
-  #vip-code{font-size:.95rem;letter-spacing:1px}
-}
+    }
