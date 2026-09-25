@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<script>try{if(localStorage.getItem('trof_lang')==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr'}}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>إدارة السيرفر | TROF System</title>
+<meta name="theme-color" content="#0d0c0a">
+<link rel="icon" type="image/webp" href="logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="dust" aria-hidden="true"></div>
+
+<header class="wrap bar">
+  <div class="hd">
+    <a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a>
+    <button class="lang" id="lang" type="button"></button>
+  </div>
+  <div class="hd-right">
+    <div id="server-selector"></div>
+    <div id="acct"></div>
+  </div>
+</header>
+
+<main class="wrap page" id="page"></main>
+<footer class="wrap">TROF System.</footer>
+
+<script src="app.js"></script>
+<script>
+(function(){
+var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
+TROF.dust();
+
+var currentGuildId = null;
+var categories = [];
+var textChannels = [];
+var voiceChannels = [];
+var roles = [];
+
+TROF.load(function(){
+  TROF.mountAccount();
+  TROF.renderServerSelector();
+  var page=document.getElementById('page');
+  var u=TROF.auth.user;
+
+  if(!u){
+    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">سجّل الدخول للوصول.</p>';
+    return;
+  }
+
+  currentGuildId = TROF.getSelectedGuild();
+  if(!currentGuildId){
+    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">⚠️ اختر سيرفراً أولاً.</p>';
+    return;
+  }
+
+  page.innerHTML = buildSMPage();
+  loadAll();
+  bindEvents();
+});
+
+function buildSMPage(){
+  return '' +
+  '<a class="back" href="./">'+CHEV+'الرجوع</a>' +
+  '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">⚙️</span></div><div><h1 class="sec-title">إدارة السيرفر</h1><p>تحكم كامل بالفئات، القنوات، والرتب</p></div></div>' +
+
+  // التبويبات
+  '<div class="sm-tabs">' +
+    '<button class="sm-tab active" data-tab="categories">📁 الفئات</button>' +
+    '<button class="sm-tab" data-tab="text">💬 قنوات نصية</button>' +
+    '<button class="sm-tab" data-tab="voice">🔊 قنوات صوتية</button>' +
+    '<button class="sm-tab" data-tab="roles">🎭 الرتب</button>' +
+    '<button class="sm-tab" data-tab="settings">⚙️ الإعدادات</button>' +
+    '<button class="sm-tab" data-tab="log">📜 السجل</button>' +
+  '</div>' +
+
+  // المحتوى
+  '<div class="sm-content" id="sm-content">' +
+    '<p class="form-hint">جاري التحميل...</p>' +
+  '</div>' +
+
+  // Modal
+  '<div class="modal" id="sm-modal" hidden>' +
+    '<div class="modal-content">' +
+      '<div class="modal-header">' +
+        '<h3 id="sm-modal-title">إضافة</h3>' +
+        '<button class="modal-close" id="sm-modal-close" type="button">✕</button>' +
+      '</div>' +
+      '<div class="modal-body" id="sm-modal-body"></div>' +
+      '<div class="modal-footer">' +
+        '<button class="btn" id="sm-modal-save" type="button">💾 حفظ</button>' +
+        '<button class="btn alt" id="sm-modal-cancel" type="button">إلغاء</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+async function loadAll(){
+  await Promise.all([
+    loadCategories(),
+    loadTextChannels(),
+    loadVoiceChannels(),
+    loadRoles()
+  ]);
+  renderTab('categories');
+}
+
+async function loadCategories(){
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/sm/categories', {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+    if(res.ok){
+      var data = await res.json();
+      categories = data.categories || [];
+    }
+  }catch(e){}
+}
+
+async function loadTextChannels(){
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/sm/text-channels', {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+    if(res.ok){
+      var data = await res.json();
+      textChannels = data.channels || [];
+    }
+  }catch(e){}
+}
+
+async function loadVoiceChannels(){
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/sm/voice-channels', {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+    if(res.ok){
+      var data = await res.json();
+      voiceChannels = data.channels || [];
+    }
+  }catch(e){}
+}
+
+async function loadRoles(){
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/sm/roles', {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+    if(res.ok){
+      var data = await res.json();
+      roles = data.roles || [];
+    }
+  }catch(e){}
+}
+
+function renderTab(tab){
+  var content = document.getElementById('sm-content');
+
+  if(tab === 'categories'){
+    content.innerHTML = renderCategories();
+  }else if(tab === 'text'){
+    content.innerHTML = renderTextChannels();
+  }else if(tab === 'voice'){
+    content.innerHTML = renderVoiceChannels();
+  }else if(tab === 'roles'){
+    content.innerHTML = renderRoles();
+  }else if(tab === 'settings'){
+    content.innerHTML = renderSettings();
+  }else if(tab === 'log'){
+    content.innerHTML = '<p class="form-hint">جاري التحميل...</p>';
+    loadLog();
+    return;
+  }
+
+  bindTabButtons();
+}
+
+function renderCategories(){
+  var html = '<div class="sm-section">';
+  html += '<div class="sm-header"><h3>📁 الفئات (' + categories.length + ')</h3>';
+  html += '<button class="btn small-btn" id="add-category">➕ إضافة فئة</button></div>';
+  html += '<div class="sm-list">';
+
+  if(categories.length === 0){
+    html += '<p class="form-hint">لا توجد فئات بعد</p>';
+  }else{
+    categories.forEach(function(c, i){
+      html += '<div class="sm-item">';
+      html += '<span class="sm-icon">📁</span>';
+      html += '<div class="sm-info"><b>' + c.name + '</b><small>ترتيب: ' + (i + 1) + '</small></div>';
+      html += '<div class="sm-actions">';
+      html += '<button class="small-btn edit-cat" data-id="' + c.id + '" data-name="' + c.name + '">✏️</button>';
+      html += '<button class="small-btn del-cat" data-id="' + c.id + '" data-name="' + c.name + '">🗑️</button>';
+      html += '</div>';
+      html += '</div>';
+    });
+  }
+
+  html += '</div></div>';
+  return html;
+}
+
+function renderTextChannels(){
+  var html = '<div class="sm-section">';
+  html += '<div class="sm-header"><h3>💬 القنوات النصية (' + textChannels.length + ')</h3>';
+  html += '<button class="btn small-btn" id="add-text">➕ إضافة قناة</button></div>';
+  html += '<div class="sm-list">';
+
+  if(textChannels.length === 0){
+    html += '<p class="form-hint">لا توجد قنوات نصية</p>';
+  }else{
+    textChannels.forEach(function(c){
+      var cat = categories.find(function(x){ return x.id === c.parent_id });
+      var catName = cat ? cat.name : 'بدون فئة';
+      html += '<div class="sm-item">';
+      html += '<span class="sm-icon">💬</span>';
+      html += '<div class="sm-info"><b>#' + c.name + '</b><small>📁 ' + catName + '</small></div>';
+      html += '<div class="sm-actions">';
+      html += '<button class="small-btn edit-text" data-id="' + c.id + '" data-name="' + c.name + '" data-parent="' + (c.parent_id || '') + '">✏️</button>';
+      html += '<button class="small-btn del-text" data-id="' + c.id + '" data-name="' + c.name + '">🗑️</button>';
+      html += '</div>';
+      html += '</div>';
+    });
+  }
+
+  html += '</div></div>';
+  return html;
+}
+
+function renderVoiceChannels(){
+  var html = '<div class="sm-section">';
+  html += '<div class="sm-header"><h3>🔊 القنوات الصوتية (' + voiceChannels.length + ')</h3>';
+  html += '<button class="btn small-btn" id="add-voice">➕ إضافة قناة</button></div>';
+  html += '<div class="sm-list">';
+
+  if(voiceChannels.length === 0){
+    html += '<p class="form-hint">لا توجد قنوات صوتية</p>';
+  }else{
+    voiceChannels.forEach(function(c){
+      var cat = categories.find(function(x){ return x.id === c.parent_id });
+      var catName = cat ? cat.name : 'بدون فئة';
+      html += '<div class="sm-item">';
+      html += '<span class="sm-icon">🔊</span>';
+      html += '<div class="sm-info"><b>' + c.name + '</b><small>📁 ' + catName + (c.user_limit ? ' | 👥 ' + c.user_limit : '') + '</small></div>';
+      html += '<div class="sm-actions">';
+      html += '<button class="small-btn edit-voice" data-id="' + c.id + '" data-name="' + c.name + '" data-parent="' + (c.parent_id || '') + '" data-limit="' + (c.user_limit || 0) + '">✏️</button>';
+      html += '<button class="small-btn del-voice" data-id="' + c.id + '" data-name="' + c.name + '">🗑️</button>';
+      html += '</div>';
+      html += '</div>';
+    });
+  }
+
+  html += '</div></div>';
+  return html;
+}
+
+function renderRoles(){
+  var html = '<div class="sm-section">';
+  html += '<div class="sm-header"><h3>🎭 الرتب (' + roles.length + ')</h3>';
+  html += '<button class="btn small-btn" id="add-role">➕ إضافة رتبة</button></div>';
+  html += '<div class="sm-list">';
+
+  if(roles.length === 0){
+    html += '<p class="form-hint">لا توجد رتب</p>';
+  }else{
+    roles.forEach(function(r){
+      var colorHex = r.color ? '#' + r.color.toString(16).padStart(6, '0') : '#888888';
+      html += '<div class="sm-item">';
+      html += '<span class="sm-icon" style="background:' + colorHex + '"></span>';
+      html += '<div class="sm-info"><b>' + r.name + '</b><small>ترتيب: ' + r.position + ' | 🎨 ' + colorHex + '</small></div>';
+      html += '<div class="sm-actions">';
+      html += '<button class="small-btn edit-role" data-id="' + r.id + '" data-name="' + r.name + '" data-color="' + colorHex + '">✏️</button>';
+      html += '<button class="small-btn del-role" data-id="' + r.id + '" data-name="' + r.name + '">🗑️</button>';
+      html += '</div>';
+      html += '</div>';
+    });
+  }
+
+  html += '</div></div>';
+  return html;
+}
+
+function renderSettings(){
+  return '<div class="sm-section">' +
+    '<div class="sm-header"><h3>⚙️ إعدادات السيرفر</h3></div>' +
+    '<div class="form-row form-row-col">' +
+      '<label class="form-label">📝 اسم السيرفر</label>' +
+      '<input type="text" class="form-select" id="sm-guild-name" placeholder="اسم السيرفر الجديد">' +
+      '<p class="form-hint">اتركه فارغاً إذا لا تريد التغيير</p>' +
+    '</div>' +
+    '<div class="form-actions">' +
+      '<button class="btn" id="save-settings" type="button">💾 حفظ الإعدادات</button>' +
+      '<p class="save-msg" id="settings-msg"></p>' +
+    '</div>' +
+  '</div>';
+}
+
+async function loadLog(){
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/sm/log?limit=50', {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+
+    if(res.ok){
+      var data = await res.json();
+      var html = '<div class="sm-section">';
+      html += '<div class="sm-header"><h3>📜 سجل الإجراءات (' + data.log.length + ')</h3>';
+      html += '<button class="btn small-btn" id="clear-log">🗑️ حذف السجل</button></div>';
+      html += '<div class="sm-list">';
+
+      if(data.log.length === 0){
+        html += '<p class="form-hint">لا يوجد سجل</p>';
+      }else{
+        data.log.forEach(function(l){
+          html += '<div class="sm-item">';
+          html += '<span class="sm-icon">📋</span>';
+          html += '<div class="sm-info"><b>' + l.action + '</b><small>' + (l.target || '') + ' | ' + (l.timestamp || '') + '</small></div>';
+          html += '</div>';
+        });
+      }
+
+      html += '</div></div>';
+      document.getElementById('sm-content').innerHTML = html;
+
+      // ربط زر الحذف
+      var clearBtn = document.getElementById('clear-log');
+      if(clearBtn){
+        clearBtn.onclick = async function(){
+          if(!confirm('حذف السجل بالكامل؟')) return;
+          await fetch(TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/sm/log', {
+            method: 'DELETE',
+            headers: {Authorization: 'Bearer ' + TROF.token()}
+          });
+          loadLog();
+        };
+      }
+    }
+  }catch(e){}
+}
+
+function bindTabButtons(){
+  document.querySelectorAll('.sm-tab').forEach(function(tab){
+    tab.onclick = function(){
+      document.querySelectorAll('.sm-tab').forEach(function(t){ t.classList.remove('active') });
+      tab.classList.add('active');
+      renderTab(tab.getAttribute('data-tab'));
+    };
+  });
+
+  // أزرار الإضافة
+  var addCat = document.getElementById('add-category');
+  if(addCat) addCat.onclick = function(){ openCategoryModal(); };
+
+  var addText = document.getElementById('add-text');
+  if(addText) addText.onclick = function(){ openTextModal(); };
+
+  var addVoice = document.getElementById('add-voice');
+  if(addVoice) addVoice.onclick = function(){ openVoiceModal(); };
+
+  var addRole = document.getElementById('add-role');
+  if(addRole) addRole.onclick = function(){ openRoleModal(); };
+
+  // أزرار التعديل والحذف
+  document.querySelectorAll('.edit-cat').forEach(function(btn){
+    btn.onclick = function(){ openCategoryModal(btn.getAttribute('data-id'), btn.getAttribute('data-name')); };
+  });
+  document.querySelectorAll('.del-cat').forEach(function(btn){
+    btn.onclick = function(){ deleteItem('category', btn.getAttribute('data-id'), btn.getAttribute('data-name')); };
+  });
+
+  document.querySelectorAll('.edit-text').forEach(function(btn){
+    btn.onclick = function(){ openTextModal(btn.getAttribute('data-id'), btn.getAttribute('data-name'), btn.getAttribute('data-parent')); };
+  });
+  document.querySelectorAll('.del-text').forEach(function(btn){
+    btn.onclick = function(){ deleteItem('text-channel', btn.getAttribute('data-id'), btn.getAttribute('data-name')); };
+  });
+
+  document.querySelectorAll('.edit-voice').forEach(function(btn){
+    btn.onclick = function(){ openVoiceModal(btn.getAttribute('data-id'), btn.getAttribute('data-name'), btn.getAttribute('data-parent'), btn.getAttribute('data-limit')); };
+  });
+  document.querySelectorAll('.del-voice').forEach(function(btn){
+    btn.onclick = function(){ deleteItem('voice-channel', btn.getAttribute('data-id'), btn.getAttribute('data-name')); };
+  });
+
+  document.querySelectorAll('.edit-role').forEach(function(btn){
+    btn.onclick = function(){ openRoleModal(btn.getAttribute('data-id'), btn.getAttribute('data-name'), btn.getAttribute('data-color')); };
+  });
+  document.querySelectorAll('.del-role').forEach(function(btn){
+    btn.onclick = function(){ deleteItem('role', btn.getAttribute('data-id'), btn.getAttribute('data-name')); };
+  });
+
+  // إعدادات السيرفر
+  var saveSettings = document.getElementById('save-settings');
+  if(saveSettings) saveSettings.onclick = saveGuildSettings;
+}
+
+function openModal(title, bodyHTML, onSave){
+  document.getElementById('sm-modal-title').textContent = title;
+  document.getElementById('sm-modal-body').innerHTML = bodyHTML;
+  document.getElementById('sm-modal').hidden = false;
+  document.getElementById('sm-modal-save').onclick = onSave;
+}
+
+function closeModal(){
+  document.getElementById('sm-modal').hidden = true;
+}
+
+// ============================================
+// الفئات
+// ============================================
+function openCategoryModal(id, name){
+  var isEdit = !!id;
+  var body = '<div class="form-row form-row-col">' +
+    '<label class="form-label">📝 اسم الفئة</label>' +
+    '<input type="text" class="form-select" id="modal-name" value="' + (name || '') + '" placeholder="اسم الفئة">' +
+  '</div>';
+
+  openModal(isEdit ? 'تعديل فئة' : 'إضافة فئة', body, async function(){
+    var newName = document.getElementById('modal-name').value.trim();
+    if(!newName){ alert('اكتب الاسم'); return; }
+
+    var url = TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/sm/' + (isEdit ? 'category/' + id : 'category/create');
+    var method = isEdit ? 'PATCH' : 'POST';
+
+    try{
+      var res = await fetch(url, {
+        method: method,
+        headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+        body: JSON.stringify({name: newName})
+      });
+      if(res.ok){
+        closeModal();
+        await loadCategories();
+        renderTab('categories');
+      }else{
+        var err = await res.json();
+        alert('❌ ' + (err.detail || 'فشل'));
+      }
+    }catch(e){ alert('❌ خطأ'); }
+  });
+}
+
+// ============================================
+// القنوات النصية
+// ============================================
+function openTextModal(id, name, parentId){
+  var isEdit = !!id;
+  var catOptions = '<option value="">-- بدون فئة --</option>';
+  categories.forEach(function(c){
+    catOptions += '<option value="' + c.id + '"' + (c.id === parentId ? ' selected' : '') + '>' + c.name + '</option>';
+  });
+
+  var body = '<div class="form-row form-row-col">' +
+    '<label class="form-label">📝 اسم القناة</label>' +
+    '<input type="text" class="form-select" id="modal-name" value="' + (name || '') + '" placeholder="اسم القناة">' +
+  '</div>' +
+  '<div class="form-row form-row-col">' +
+    '<label class="form-label">📁 الفئة</label>' +
+    '<select class="form-select" id="modal-parent">' + catOptions + '</select>' +
+  '</div>';
+
+  openModal(isEdit ? 'تعديل قناة نصية' : 'إضافة قناة نصية', body, async function(){
+    var newName = document.getElementById('modal-name').value.trim();
+    var newParent = document.getElementById('modal-parent').value || null;
+    if(!newName){ alert('اكتب الاسم'); return; }
+
+    var url = TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/sm/' + (isEdit ? 'text-channel/' + id : 'text-channel/create');
+    var method = isEdit ? 'PATCH' : 'POST';
+
+    try{
+      var res = await fetch(url, {
+        method: method,
+        headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+        body: JSON.stringify({name: newName, parent_id: newParent})
+      });
+      if(res.ok){
+        closeModal();
+        await loadTextChannels();
+        renderTab('text');
+      }else{
+        var err = await res.json();
+        alert('❌ ' + (err.detail || 'فشل'));
+      }
+    }catch(e){ alert('❌ خطأ'); }
+  });
+}
+
+// ============================================
+// القنوات الصوتية
+// ============================================
+function openVoiceModal(id, name, parentId, limit){
+  var isEdit = !!id;
+  var catOptions = '<option value="">-- بدون فئة --</option>';
+  categories.forEach(function(c){
+    catOptions += '<option value="' + c.id + '"' + (c.id === parentId ? ' selected' : '') + '>' + c.name + '</option>';
+  });
+
+  var body = '<div class="form-row form-row-col">' +
+    '<label class="form-label">📝 اسم القناة</label>' +
+    '<input type="text" class="form-select" id="modal-name" value="' + (name || '') + '" placeholder="اسم القناة">' +
+  '</div>' +
+  '<div class="form-row form-row-col">' +
+    '<label class="form-label">📁 الفئة</label>' +
+    '<select class="form-select" id="modal-parent">' + catOptions + '</select>' +
+  '</div>' +
+  '<div class="form-row form-row-col">' +
+    '<label class="form-label">👥 الحد الأقصى للأعضاء (0 = لا حد)</label>' +
+    '<input type="number" class="form-select" id="modal-limit" value="' + (limit || 0) + '" min="0" max="99">' +
+  '</div>';
+
+  openModal(isEdit ? 'تعديل قناة صوتية' : 'إضافة قناة صوتية', body, async function(){
+    var newName = document.getElementById('modal-name').value.trim();
+    var newParent = document.getElementById('modal-parent').value || null;
+    var newLimit = parseInt(document.getElementById('modal-limit').value) || 0;
+    if(!newName){ alert('اكتب الاسم'); return; }
+
+    var url = TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/sm/' + (isEdit ? 'voice-channel/' + id : 'voice-channel/create');
+    var method = isEdit ? 'PATCH' : 'POST';
+
+    try{
+      var res = await fetch(url, {
+        method: method,
+        headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+        body: JSON.stringify({name: newName, parent_id: newParent, user_limit: newLimit})
+      });
+      if(res.ok){
+        closeModal();
+        await loadVoiceChannels();
+        renderTab('voice');
+      }else{
+        var err = await res.json();
+        alert('❌ ' + (err.detail || 'فشل'));
+      }
+    }catch(e){ alert('❌ خطأ'); }
+  });
+}
+
+// ============================================
+// الرتب
+// ============================================
+function openRoleModal(id, name, color){
+  var isEdit = !!id;
+  var body = '<div class="form-row form-row-col">' +
+    '<label class="form-label">📝 اسم الرتبة</label>' +
+    '<input type="text" class="form-select" id="modal-name" value="' + (name || '') + '" placeholder="اسم الرتبة">' +
+  '</div>' +
+  '<div class="form-row form-row-col">' +
+    '<label class="form-label">🎨 اللون</label>' +
+    '<input type="color" id="modal-color" value="' + (color || '#5865F2') + '">' +
+  '</div>';
+
+  openModal(isEdit ? 'تعديل رتبة' : 'إضافة رتبة', body, async function(){
+    var newName = document.getElementById('modal-name').value.trim();
+    var newColor = document.getElementById('modal-color').value;
+    if(!newName){ alert('اكتب الاسم'); return; }
+
+    var url = TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/sm/' + (isEdit ? 'role/' + id : 'role/create');
+    var method = isEdit ? 'PATCH' : 'POST';
+
+    try{
+      var res = await fetch(url, {
+        method: method,
+        headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+        body: JSON.stringify({name: newName, color: newColor})
+      });
+      if(res.ok){
+        closeModal();
+        await loadRoles();
+        renderTab('roles');
+      }else{
+        var err = await res.json();
+        alert('❌ ' + (err.detail || 'فشل'));
+      }
+    }catch(e){ alert('❌ خطأ'); }
+  });
+}
+
+// ============================================
+// الحذف
+// ============================================
+async function deleteItem(type, id, name){
+  if(!confirm('⚠️ حذف "' + name + '"؟\nلا يمكن التراجع!')) return;
+
+  var url = TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/sm/' + type + '/' + id;
+
+  try{
+    var res = await fetch(url, {
+      method: 'DELETE',
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+
+    if(res.ok){
+      if(type === 'category'){ await loadCategories(); renderTab('categories'); }
+      else if(type === 'text-channel'){ await loadTextChannels(); renderTab('text'); }
+      else if(type === 'voice-channel'){ await loadVoiceChannels(); renderTab('voice'); }
+      else if(type === 'role'){ await loadRoles(); renderTab('roles'); }
+    }else{
+      var err = await res.json();
+      alert('❌ ' + (err.detail || 'فشل'));
+    }
+  }catch(e){ alert('❌ خطأ'); }
+}
+
+// ============================================
+// إعدادات السيرفر
+// ============================================
+async function saveGuildSettings(){
+  var name = document.getElementById('sm-guild-name').value.trim();
+  var msg = document.getElementById('settings-msg');
+
+  if(!name){ msg.textContent = '❌ اكتب الاسم'; msg.style.color = '#f87171'; return; }
+
+  msg.textContent = '⏳ جاري الحفظ...';
+  msg.style.color = '#f2c23c';
+
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/sm/settings', {
+      method: 'PATCH',
+      headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+      body: JSON.stringify({name: name})
+    });
+    if(res.ok){
+      msg.textContent = '✅ تم الحفظ';
+      msg.style.color = '#4ade80';
+    }else{
+      msg.textContent = '❌ فشل';
+      msg.style.color = '#f87171';
+    }
+  }catch(e){
+    msg.textContent = '❌ خطأ';
+    msg.style.color = '#f87171';
+  }
+}
+
+// ============================================
+// الأحداث
+// ============================================
+function bindEvents(){
+  var closeBtn = document.getElementById('sm-modal-close');
+  if(closeBtn) closeBtn.onclick = closeModal;
+
+  var cancelBtn = document.getElementById('sm-modal-cancel');
+  if(cancelBtn) cancelBtn.onclick = closeModal;
+
+  var modal = document.getElementById('sm-modal');
+  if(modal){
+    modal.onclick = function(e){
+      if(e.target === modal) closeModal();
+    };
+  }
+
+  bindTabButtons();
+}
+})();
+</script>
+</body>
+</html>
