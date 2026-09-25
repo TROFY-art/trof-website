@@ -539,3 +539,117 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
     transition-duration:0.01ms !important;
   }
        }
+/* ============================================
+   🚀 تحميل القسم بدون iframe
+   ============================================ */
+#section-view {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+}
+
+.section-header .back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--gold-hi);
+  font: inherit;
+  font-size: .9rem;
+  cursor: pointer;
+  transition: border-color .2s;
+  white-space: nowrap;
+}
+
+.section-header .back-btn:hover {
+  border-color: var(--gold);
+}
+
+.section-header .back-btn svg {
+  width: 16px;
+  height: 16px;
+  transition: transform .2s;
+}
+
+.section-header .back-btn:hover svg {
+  transform: translateX(4px);
+}
+
+#section-title {
+  margin: 0;
+  font-size: 1.3rem;
+  color: var(--gold-hi);
+  font-weight: 800;
+  flex: 1;
+}
+
+.section-body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section-loader-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+  color: var(--muted);
+}
+
+.section-loader-inline .loader-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--line);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* إخفاء عناصر الصفحة الفرعية التي لا نحتاجها */
+.section-body header.bar,
+.section-body footer.wrap,
+.section-body #dust {
+  display: none !important;
+}
+
+/* تحسين عرض المحتوى المحقون */
+.section-body .page {
+  padding-block: 0 40px;
+  display: grid;
+  gap: 24px;
+  justify-items: start;
+  width: 100%;
+}
+
+@media (max-width: 639px) {
+  .section-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .section-header .back-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  #section-title {
+    text-align: center;
+    font-size: 1.1rem;
+  }
+}
