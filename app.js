@@ -68,7 +68,7 @@ function load(cb){
   fetch(API+'/users/@me',H)
     .then(function(r){
       if(r.status === 429){
-        return new Promise(function(resolve){setTimeout(resolve, 2000)})
+        return new Promise(function(resolve){setTimeout(resolve, 3000)})
           .then(function(){return fetch(API+'/users/@me',H)});
       }
       return r;
@@ -84,7 +84,10 @@ function load(cb){
       setTimeout(function(){
         fetch(API+'/users/@me/guilds/'+CONFIG.guildId+'/member',H)
           .then(function(r){
-            if(r.status === 429) throw new Error('rate_limit');
+            if(r.status === 429){
+              return new Promise(function(resolve){setTimeout(resolve, 3000)})
+                .then(function(){ return fetch(API+'/users/@me/guilds/'+CONFIG.guildId+'/member',H); });
+            }
             return r;
           })
           .then(ok)
@@ -97,7 +100,7 @@ function load(cb){
           })
           .catch(function(){})
           .finally(function(){ cb(); });
-      }, 500);
+      }, 1500);
     })
     .catch(function(){
       logout(true);
