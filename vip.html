@@ -35,8 +35,10 @@
 var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
 TROF.dust();
 
+var OWNER_ID = '986328374010073118';
 var currentGuildId = null;
 var vipStatus = null;
+var isOwner = false;
 
 TROF.load(function(){
   TROF.mountAccount();
@@ -49,6 +51,8 @@ TROF.load(function(){
     return;
   }
 
+  isOwner = (String(u.id) === OWNER_ID);
+
   currentGuildId = TROF.getSelectedGuild();
   if(!currentGuildId){
     page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">⚠️ اختر سيرفراً أولاً.</p>';
@@ -58,54 +62,94 @@ TROF.load(function(){
   page.innerHTML = buildVIPPage();
   loadVIPStatus();
   bindEvents();
+
+  if(isOwner){
+    loadKeys();
+  }
 });
 
 function buildVIPPage(){
-  return '' +
-  '<a class="back" href="./">'+CHEV+'الرجوع</a>' +
-  '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">💎</span></div><div><h1 class="sec-title">VIP</h1><p>فعّل حساب VIP في سيرفرك</p></div></div>' +
+  var html = '';
+  html += '<a class="back" href="./">'+CHEV+'الرجوع</a>';
+  html += '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">💎</span></div><div><h1 class="sec-title">VIP</h1><p>فعّل حساب VIP في سيرفرك</p></div></div>';
 
-  '<div class="vip-container">' +
-    // حالة VIP
-    '<div class="vip-status-card" id="vip-status-card">' +
-      '<div class="vip-status-icon">💎</div>' +
-      '<div class="vip-status-info">' +
-        '<b>جاري التحقق...</b>' +
-        '<small>من فضلك انتظر</small>' +
-      '</div>' +
-    '</div>' +
+  html += '<div class="vip-container">';
 
-    // حقل الكود
-    '<div class="vip-redeem-card">' +
-      '<div class="form-section-title">🔑 تفعيل كود VIP</div>' +
-      '<div class="form-row form-row-col">' +
-        '<label class="form-label">أدخل الكود</label>' +
-        '<input type="text" class="form-select" id="vip-code" placeholder="TROF-XXXX-XXXX-XXXX" style="text-transform:uppercase;direction:ltr;text-align:center;font-size:1.1rem;letter-spacing:2px;font-weight:800;">' +
-        '<p class="form-hint">احصل على الكود من مالك البوت</p>' +
-      '</div>' +
-      '<div class="form-actions">' +
-        '<button class="btn save-btn" id="redeem-btn" type="button">✨ تفعيل VIP</button>' +
-        '<p class="save-msg" id="redeem-msg"></p>' +
-      '</div>' +
-    '</div>' +
+  // حالة VIP
+  html += '<div class="vip-status-card" id="vip-status-card">';
+  html += '<div class="vip-status-icon">💎</div>';
+  html += '<div class="vip-status-info"><b>جاري التحقق...</b><small>من فضلك انتظر</small></div>';
+  html += '</div>';
 
-    // الميزات
-    '<div class="vip-features-card">' +
-      '<div class="form-section-title">✨ ميزات VIP</div>' +
-      '<ul class="vip-features">' +
-        '<li><span>🎨</span><div><b>تخصيص صورة البوت</b><small>تغيير صورة البوت في سيرفرك</small></div></li>' +
-        '<li><span>📝</span><div><b>تخصيص اسم البوت</b><small>تغيير اسم البوت في سيرفرك</small></div></li>' +
-        '<li><span>🎭</span><div><b>تخصيص الرتب والقنوات</b><small>تحكم كامل</small></div></li>' +
-        '<li><span>⚡</span><div><b>أولوية في الدعم</b><small>مساعدة أسرع</small></div></li>' +
-        '<li><span>🚀</span><div><b>ميزات حصرية</b><small>تحديثات مبكرة</small></div></li>' +
-      '</ul>' +
-    '</div>' +
-  '</div>';
+  // حقل الكود
+  html += '<div class="vip-redeem-card">';
+  html += '<div class="form-section-title">🔑 تفعيل كود VIP</div>';
+  html += '<div class="form-row form-row-col">';
+  html += '<label class="form-label">أدخل الكود</label>';
+  html += '<input type="text" class="form-select" id="vip-code" placeholder="TROF-XXXX-XXXX-XXXX" style="text-transform:uppercase;direction:ltr;text-align:center;font-size:1.1rem;letter-spacing:2px;font-weight:800;">';
+  html += '<p class="form-hint">احصل على الكود من مالك البوت</p>';
+  html += '</div>';
+  html += '<div class="form-actions">';
+  html += '<button class="btn save-btn" id="redeem-btn" type="button">✨ تفعيل VIP</button>';
+  html += '<p class="save-msg" id="redeem-msg"></p>';
+  html += '</div>';
+  html += '</div>';
+
+  // الميزات
+  html += '<div class="vip-features-card">';
+  html += '<div class="form-section-title">✨ ميزات VIP</div>';
+  html += '<ul class="vip-features">';
+  html += '<li><span>🎨</span><div><b>تخصيص صورة البوت</b><small>تغيير صورة البوت في سيرفرك</small></div></li>';
+  html += '<li><span>📝</span><div><b>تخصيص اسم البوت</b><small>تغيير اسم البوت في سيرفرك</small></div></li>';
+  html += '<li><span>🎭</span><div><b>تخصيص الرتب والقنوات</b><small>تحكم كامل</small></div></li>';
+  html += '<li><span>⚡</span><div><b>أولوية في الدعم</b><small>مساعدة أسرع</small></div></li>';
+  html += '<li><span>🚀</span><div><b>ميزات حصرية</b><small>تحديثات مبكرة</small></div></li>';
+  html += '</ul>';
+  html += '</div>';
+
+  // ============================================
+  // قسم المالك (لإنشاء الأكواد)
+  // ============================================
+  if(isOwner){
+    html += '<div class="vip-admin-card">';
+    html += '<div class="form-section-title">👑 لوحة المالك - إنشاء الأكواد</div>';
+
+    html += '<div class="form-row">';
+    html += '<label class="form-label">⏱️ المدة (بالأيام)</label>';
+    html += '<input type="number" class="form-select" id="key-duration" value="30" min="1" max="3650">';
+    html += '</div>';
+
+    html += '<div class="form-row form-row-col">';
+    html += '<label class="form-label">📝 ملاحظات (اختياري)</label>';
+    html += '<input type="text" class="form-select" id="key-notes" placeholder="مثال: كود لصديق">';
+    html += '</div>';
+
+    html += '<div class="form-actions">';
+    html += '<button class="btn save-btn" id="generate-key-btn" type="button">🎫 إنشاء كود VIP</button>';
+    html += '<p class="save-msg" id="generate-msg"></p>';
+    html += '</div>';
+
+    // عرض الكود المُنشأ
+    html += '<div id="new-key-box" hidden class="new-key-box">';
+    html += '<div class="new-key-label">✨ الكود الجديد:</div>';
+    html += '<div class="new-key-code" id="new-key-code"></div>';
+    html += '<button class="small-btn" id="copy-key-btn" type="button">📋 نسخ</button>';
+    html += '</div>';
+
+    // قائمة الأكواد
+    html += '<div class="keys-list-header">📋 الأكواد المنشأة</div>';
+    html += '<div class="keys-list" id="keys-list"><p class="form-hint">جاري التحميل...</p></div>';
+
+    html += '</div>';
+  }
+
+  html += '</div>';
+  return html;
 }
 
 async function loadVIPStatus(){
   var card = document.getElementById('vip-status-card');
-  
+
   try{
     var res = await fetch(TROF.CONFIG.apiUrl + '/vip/status?guild_id=' + currentGuildId, {
       headers: {Authorization: 'Bearer ' + TROF.token()}
@@ -117,7 +161,7 @@ async function loadVIPStatus(){
 
       if(data.is_vip){
         card.className = 'vip-status-card active';
-        card.innerHTML = 
+        card.innerHTML =
           '<div class="vip-status-icon">💎</div>' +
           '<div class="vip-status-info">' +
             '<b>✅ أنت VIP نشط!</b>' +
@@ -125,7 +169,7 @@ async function loadVIPStatus(){
           '</div>';
       }else{
         card.className = 'vip-status-card inactive';
-        card.innerHTML = 
+        card.innerHTML =
           '<div class="vip-status-icon">❌</div>' +
           '<div class="vip-status-info">' +
             '<b>لست VIP</b>' +
@@ -134,7 +178,7 @@ async function loadVIPStatus(){
       }
     }
   }catch(e){
-    card.innerHTML = 
+    card.innerHTML =
       '<div class="vip-status-icon">⚠️</div>' +
       '<div class="vip-status-info">' +
         '<b>خطأ في التحميل</b>' +
@@ -187,6 +231,120 @@ async function redeemCode(){
   btn.disabled = false;
 }
 
+async function generateKey(){
+  var duration = parseInt(document.getElementById('key-duration').value) || 30;
+  var notes = document.getElementById('key-notes').value || '';
+  var msg = document.getElementById('generate-msg');
+  var btn = document.getElementById('generate-key-btn');
+
+  if(duration < 1 || duration > 3650){
+    msg.textContent = '❌ المدة بين 1 و 3650 يوم';
+    msg.style.color = '#f87171';
+    return;
+  }
+
+  btn.disabled = true;
+  msg.textContent = '⏳ جاري الإنشاء...';
+  msg.style.color = '#f2c23c';
+
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/vip/generate-key', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + TROF.token(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({duration_days: duration, notes: notes})
+    });
+
+    var data = await res.json();
+
+    if(res.ok){
+      msg.textContent = '✅ تم إنشاء الكود!';
+      msg.style.color = '#4ade80';
+
+      // عرض الكود
+      var box = document.getElementById('new-key-box');
+      document.getElementById('new-key-code').textContent = data.code;
+      box.hidden = false;
+
+      document.getElementById('key-notes').value = '';
+      await loadKeys();
+    }else{
+      msg.textContent = '❌ ' + (data.detail || 'فشل');
+      msg.style.color = '#f87171';
+    }
+  }catch(e){
+    msg.textContent = '❌ خطأ في الاتصال';
+    msg.style.color = '#f87171';
+  }
+
+  btn.disabled = false;
+}
+
+async function loadKeys(){
+  var list = document.getElementById('keys-list');
+  if(!list) return;
+
+  try{
+    var res = await fetch(TROF.CONFIG.apiUrl + '/vip/keys', {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    });
+
+    if(res.ok){
+      var data = await res.json();
+
+      if(data.keys.length === 0){
+        list.innerHTML = '<p class="form-hint">لا توجد أكواد بعد</p>';
+        return;
+      }
+
+      list.innerHTML = data.keys.map(function(k){
+        var status = k.used_by ? '✅ مستخدم' : '🟢 متاح';
+        var cls = k.used_by ? 'key-used' : 'key-available';
+
+        return '<div class="key-item ' + cls + '">' +
+          '<div class="key-info">' +
+            '<code class="key-code">' + k.code + '</code>' +
+            '<small>' + status + ' | ' + k.duration_days + ' يوم' + (k.notes ? ' | ' + k.notes : '') + '</small>' +
+          '</div>' +
+          '<div class="key-actions">' +
+            '<button class="small-btn copy-key" data-code="' + k.code + '">📋</button>' +
+            '<button class="small-btn del-key" data-code="' + k.code + '">🗑️</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      // ربط الأزرار
+      list.querySelectorAll('.copy-key').forEach(function(btn){
+        btn.onclick = function(){
+          navigator.clipboard.writeText(btn.getAttribute('data-code'));
+          btn.textContent = '✅';
+          setTimeout(function(){ btn.textContent = '📋'; }, 1500);
+        };
+      });
+
+      list.querySelectorAll('.del-key').forEach(function(btn){
+        btn.onclick = async function(){
+          if(!confirm('حذف الكود؟')) return;
+
+          var res = await fetch(
+            TROF.CONFIG.apiUrl + '/vip/keys/' + encodeURIComponent(btn.getAttribute('data-code')),
+            {
+              method: 'DELETE',
+              headers: {Authorization: 'Bearer ' + TROF.token()}
+            }
+          );
+
+          if(res.ok) await loadKeys();
+        };
+      });
+    }
+  }catch(e){
+    list.innerHTML = '<p class="form-hint">خطأ في التحميل</p>';
+  }
+}
+
 function bindEvents(){
   var btn = document.getElementById('redeem-btn');
   if(btn) btn.onclick = redeemCode;
@@ -196,6 +354,19 @@ function bindEvents(){
     input.addEventListener('keypress', function(e){
       if(e.key === 'Enter') redeemCode();
     });
+  }
+
+  var genBtn = document.getElementById('generate-key-btn');
+  if(genBtn) genBtn.onclick = generateKey;
+
+  var copyBtn = document.getElementById('copy-key-btn');
+  if(copyBtn){
+    copyBtn.onclick = function(){
+      var code = document.getElementById('new-key-code').textContent;
+      navigator.clipboard.writeText(code);
+      copyBtn.textContent = '✅ تم النسخ';
+      setTimeout(function(){ copyBtn.textContent = '📋 نسخ'; }, 1500);
+    };
   }
 }
 })();
