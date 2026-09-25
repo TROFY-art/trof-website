@@ -32,12 +32,10 @@
 <script src="app.js"></script>
 <script>
 (function(){
-var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
 TROF.dust();
 
 var currentGuildId = null;
 var guildRoles = [];
-var channels = [];
 
 TROF.load(function(){
   TROF.mountAccount();
@@ -56,9 +54,38 @@ TROF.load(function(){
     return;
   }
 
-  page.innerHTML = buildProtectionPage();
-  loadAll();
-  bindEvents();
+  // 🔐 تحقق من الصلاحيات الإدارية
+  fetch(TROF.CONFIG.apiUrl + '/guild/' + currentGuildId + '/check-admin/' + u.id, {
+    headers: {Authorization: 'Bearer ' + TROF.token()}
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(!data.has_access){
+      page.innerHTML =
+        '<div class="sec-head">' +
+          '<div class="sec-ic"><span class="ring"></span><span class="face">🔒</span></div>' +
+          '<div><h1 class="sec-title">الحماية</h1><p>ميزة إدارية</p></div>' +
+        '</div>' +
+        '<div class="welcome-form" style="text-align:center">' +
+          '<div class="form-section-title" style="color:#f87171;border-color:#f87171">🔒 صلاحيات غير كافية</div>' +
+          '<p class="form-hint" style="font-size:1.05rem;line-height:2.2;padding:20px 0">' +
+            'هذه الميزة مخصصة فقط للإدارة في السيرفر:<br><br>' +
+            '👑 <b>المالك</b><br>' +
+            '🛡️ <b>الرتب الإدارية</b><br>' +
+            '⚙️ <b>صلاحيات Administrator / Manage Server</b><br><br>' +
+            '<span style="color:#a89f88">' + (data.reason || '') + '</span>' +
+          '</p>' +
+        '</div>';
+      return;
+    }
+
+    page.innerHTML = buildProtectionPage();
+    loadAll();
+    bindEvents();
+  })
+  .catch(function(){
+    page.innerHTML='<p class="soon">❌ خطأ في التحقق من الصلاحيات.</p>';
+  });
 });
 
 function buildProtectionPage(){
@@ -66,7 +93,6 @@ function buildProtectionPage(){
   '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">🛡️</span></div><div><h1 class="sec-title">الحماية</h1><p>حماية سيرفرك من التخريب والسبام</p></div></div>' +
   '<div class="welcome-form">' +
 
-    // ===== الإعدادات العامة =====
     '<div class="form-section-title">⚙️ الإعدادات العامة</div>' +
 
     '<div class="form-row">' +
@@ -99,7 +125,6 @@ function buildProtectionPage(){
       '<label class="switch"><input type="checkbox" id="p-antiraid" checked><span class="slider"></span></label>' +
     '</div>' +
 
-    // ===== قنوات السجل =====
     '<div class="form-section-title">📢 قنوات السجل</div>' +
 
     '<div class="form-row form-row-col">' +
@@ -112,7 +137,6 @@ function buildProtectionPage(){
       '<select class="form-select" id="p-warn-channel"><option value="">-- بدون --</option></select>' +
     '</div>' +
 
-    // ===== الإجراءات =====
     '<div class="form-section-title">⚡ الإجراءات التلقائية</div>' +
 
     '<div class="form-row form-row-col">' +
@@ -139,7 +163,6 @@ function buildProtectionPage(){
       '</div>' +
     '</div>' +
 
-    // ===== الرتب المحمية =====
     '<div class="form-section-title">🎭 الرتب المحمية</div>' +
 
     '<div class="form-row form-row-col">' +
@@ -155,13 +178,11 @@ function buildProtectionPage(){
       '</div>' +
     '</div>' +
 
-    // ===== الإجراءات =====
     '<div class="form-actions">' +
       '<button class="btn save-btn" id="p-save" type="button">💾 حفظ الإعدادات</button>' +
       '<p class="save-msg" id="p-msg"></p>' +
     '</div>' +
 
-    // ===== السجل =====
     '<div class="form-section-title">📜 سجل الأحداث</div>' +
 
     '<div class="form-row form-row-col">' +
@@ -178,12 +199,10 @@ async function loadAll(){
   var api = TROF.CONFIG.apiUrl;
   var token = TROF.token();
 
-  // جلب القنوات
   try{
     var res = await fetch(api + '/guild/' + currentGuildId + '/channels', {headers: {Authorization: 'Bearer ' + token}});
     if(res.ok){
       var data = await res.json();
-      channels = data.channels || [];
       ['p-log-channel', 'p-warn-channel'].forEach(function(id){
         var sel = document.getElementById(id);
         data.channels.forEach(function(c){
@@ -193,7 +212,6 @@ async function loadAll(){
     }
   }catch(e){}
 
-  // جلب الرتب
   try{
     var res = await fetch(api + '/guild/' + currentGuildId + '/roles', {headers: {Authorization: 'Bearer ' + token}});
     if(res.ok){
@@ -206,7 +224,6 @@ async function loadAll(){
     }
   }catch(e){}
 
-  // جلب الإعدادات
   try{
     var res = await fetch(api + '/guild/' + currentGuildId + '/protection/settings', {headers: {Authorization: 'Bearer ' + token}});
     if(res.ok){
@@ -298,7 +315,6 @@ async function loadLogs(){
 }
 
 function bindEvents(){
-  // منزلقات
   ['p-max-kick', 'p-max-ban', 'p-timeout-duration'].forEach(function(id){
     var el = document.getElementById(id);
     if(el){
@@ -308,7 +324,6 @@ function bindEvents(){
     }
   });
 
-  // إضافة رتبة محمية
   document.getElementById('p-add-role-btn').onclick = async function(){
     var roleId = document.getElementById('p-add-role').value;
     if(!roleId){ alert('اختر رتبة'); return; }
@@ -329,7 +344,6 @@ function bindEvents(){
     }catch(e){ alert('❌ خطأ'); }
   };
 
-  // حفظ الإعدادات
   document.getElementById('p-save').onclick = async function(){
     var btn = this; btn.disabled = true;
     var msg = document.getElementById('p-msg');
@@ -370,7 +384,6 @@ function bindEvents(){
     setTimeout(function(){ msg.textContent = ''; }, 3000);
   };
 
-  // تحديث السجل
   document.getElementById('p-refresh-logs').onclick = function(){ loadLogs(); };
 }
 })();
