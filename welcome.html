@@ -378,13 +378,25 @@ function updatePreview(){
   var blur = parseInt(document.getElementById('d-bg-blur').value);
   var brightness = parseInt(document.getElementById('d-bg-brightness').value);
   
-  // حجم البطاقة (نسبة العرض إلى 300px للعرض في الموقع)
-  var aspect = w / h;
-  var displayWidth = Math.min(w, 600);
-  var displayHeight = displayWidth / aspect;
+  // ✅ الحل: احسب العرض المتاح فعلياً في الشاشة
+  var container = preview.parentElement;
+  var containerWidth = container.clientWidth - 20; // ناقص padding
+  var maxWidth = Math.min(w, containerWidth, 600); // لا يتجاوز 600px على الديسكتوب
+  var displayWidth = maxWidth;
+  var displayHeight = (maxWidth * h) / w;
+  
+  // حد أقصى للارتفاع لمنع الخروج عن الشاشة
+  var maxHeight = window.innerHeight * 0.5;
+  if(displayHeight > maxHeight){
+    displayHeight = maxHeight;
+    displayWidth = (displayHeight * w) / h;
+  }
   
   preview.style.width = displayWidth + 'px';
   preview.style.height = displayHeight + 'px';
+  
+  // مقياس لتحويل الأحجام الداخلية
+  var scale = displayWidth / w;
   
   // تأثيرات الخلفية
   bg.style.filter = 'blur(' + (blur/10) + 'px) brightness(' + (brightness/100) + ')';
@@ -392,9 +404,8 @@ function updatePreview(){
   bg.style.backgroundPosition = 'center';
   
   // ترتيب المحتوى
-  var scale = displayWidth / w;
-  content.style.padding = (h * 0.05 * scale) + 'px';
-  content.style.gap = (h * 0.03 * scale) + 'px';
+  content.style.padding = Math.max(6, h * 0.05 * scale) + 'px';
+  content.style.gap = Math.max(4, h * 0.03 * scale) + 'px';
   
   if(pos === 'top'){
     content.style.justifyContent = 'flex-start';
@@ -406,22 +417,24 @@ function updatePreview(){
   
   // صورة العضو
   avatar.style.display = showAv ? 'flex' : 'none';
-  avatar.style.width = (avSize * scale) + 'px';
-  avatar.style.height = (avSize * scale) + 'px';
-  avatar.style.fontSize = (avSize * 0.4 * scale) + 'px';
+  var avDisplaySize = Math.max(30, avSize * scale);
+  avatar.style.width = avDisplaySize + 'px';
+  avatar.style.height = avDisplaySize + 'px';
+  avatar.style.fontSize = Math.max(12, avSize * 0.4 * scale) + 'px';
   
   if(shape === 'circle'){
     avatar.style.borderRadius = '50%';
   }else if(shape === 'square'){
     avatar.style.borderRadius = '0';
   }else{
-    avatar.style.borderRadius = (avSize * 0.15 * scale) + 'px';
+    avatar.style.borderRadius = Math.max(4, avSize * 0.15 * scale) + 'px';
   }
   
   // النص
   text.style.color = color;
-  text.style.fontSize = (size * scale) + 'px';
+  text.style.fontSize = Math.max(11, size * scale) + 'px';
   text.style.textShadow = '2px 2px 4px rgba(0,0,0,0.8)';
+  text.style.maxWidth = '90%';
   
   // محتوى النص
   var msg = document.getElementById('w-message').value || 'مرحباً {user} في {server}!';
@@ -432,6 +445,12 @@ function updatePreview(){
     .replace('{count}', '68');
   text.textContent = displayMsg;
 }
+
+// ✅ إعادة حساب المعاينة عند تغيير حجم الشاشة
+window.addEventListener('resize', function(){
+  clearTimeout(window._previewResizeTimer);
+  window._previewResizeTimer = setTimeout(updatePreview, 200);
+});
 
 function applyPreset(preset){
   var presets = {
