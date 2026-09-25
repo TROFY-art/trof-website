@@ -163,8 +163,9 @@ async function loadSection(url, title){
       body.innerHTML = doc.body.innerHTML;
     }
 
-    // تشغيل أكواد الصفحة يدوياً بعد الحقن
-    await runPageScript(url, body);
+    // انتظر حتى يتم بناء DOM ثم شغّل السكربت
+    await waitForElement(body);
+    runPageScript(url, body);
 
   } catch(e) {
     console.error('Load section error:', e);
@@ -176,37 +177,60 @@ async function loadSection(url, title){
 }
 
 /* ============================================
+   ⏳ انتظر حتى يظهر العنصر في DOM
+   ============================================ */
+function waitForElement(container, maxWait){
+  maxWait = maxWait || 1500;
+  return new Promise(function(resolve){
+    var start = Date.now();
+    function check(){
+      if (container.children.length > 0) {
+        resolve();
+        return;
+      }
+      if (Date.now() - start > maxWait) {
+        resolve();
+        return;
+      }
+      setTimeout(check, 50);
+    }
+    check();
+  });
+}
+
+/* ============================================
    ⚙️ تشغيل أكواد الصفحة بعد الحقن
    ============================================ */
 async function runPageScript(url, container){
-  // جلب السكربت الموجود داخل الصفحة
   try {
     var res = await fetch(url);
     var html = await res.text();
     var parser = new DOMParser();
     var doc = parser.parseFromString(html, 'text/html');
 
-    // البحث عن السكربتات داخل الصفحة (بعد app.js)
     var scripts = doc.querySelectorAll('script');
-    var lastScript = null;
+    var pageScript = null;
 
     scripts.forEach(function(s){
       // تجاهل سكربت app.js
       if (s.src && s.src.indexOf('app.js') > -1) return;
       // تجاهل سكربت اللغة
       if (s.textContent.indexOf('trof_lang') > -1) return;
-      if (s.textContent.trim().length > 50) {
-        lastScript = s.textContent;
+      // تجاهل السكربتات القصيرة
+      if (s.textContent.trim().length > 80) {
+        pageScript = s.textContent;
       }
     });
 
-    if (lastScript) {
+    if (pageScript) {
+      // انتظر قليلاً لضمان وجود العناصر
+      await new Promise(function(r){ setTimeout(r, 100); });
+      
       // تنفيذ السكربت داخل الصفحة الحالية
       var scriptEl = document.createElement('script');
-      scriptEl.textContent = lastScript;
+      scriptEl.textContent = pageScript;
       document.body.appendChild(scriptEl);
-      // إزالة السكربت بعد التنفيذ لتجنب التكرار
-      setTimeout(function(){ scriptEl.remove(); }, 100);
+      setTimeout(function(){ scriptEl.remove(); }, 200);
     }
   } catch(e) {
     console.warn('runPageScript error:', e);
