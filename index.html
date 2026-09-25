@@ -63,11 +63,9 @@
     </button>
     <h2 id="section-title"></h2>
   </div>
-  <div class="section-loader" id="section-loader">
-    <div class="loader-spinner"></div>
-    <p>جاري التحميل...</p>
+  <div class="section-frame-wrapper">
+    <iframe id="section-frame" src="about:blank" frameborder="0"></iframe>
   </div>
-  <iframe id="section-frame" src="about:blank" frameborder="0" hidden></iframe>
 </section>
 </main>
 
@@ -130,7 +128,6 @@ var currentLoadId = 0;
 function loadSection(url, title){
   var mainView = document.getElementById('main-view');
   var sectionView = document.getElementById('section-view');
-  var loader = document.getElementById('section-loader');
   var frame = document.getElementById('section-frame');
   var titleEl = document.getElementById('section-title');
 
@@ -142,56 +139,47 @@ function loadSection(url, title){
   sectionView.hidden = false;
   titleEl.textContent = title;
 
-  // إظهار الـ loader
-  loader.hidden = false;
-  loader.innerHTML = '<div class="loader-spinner"></div><p>جاري التحميل...</p>';
-  frame.hidden = true;
+  // إخفاء iframe مؤقتاً (بدون loader)
+  frame.style.opacity = '0';
+  frame.style.transition = 'opacity .3s ease';
 
-  // إخفاء الـ iframe مؤقتاً
+  // إعادة تعيين
   frame.src = 'about:blank';
 
-  // دالة إخفاء الـ loader
-  function hideLoader(){
-    // التأكد أن هذه العملية لا تزال الحالية
+  // إظهار iframe عند اكتمال التحميل
+  function showFrame(){
     if(myLoadId !== currentLoadId) return;
-    loader.hidden = true;
-    frame.hidden = false;
+    frame.style.opacity = '1';
   }
 
-  // 1. محاولة onload
+  // 1. onload
   frame.onload = function(){
     if(myLoadId !== currentLoadId) return;
-    setTimeout(hideLoader, 100);
+    setTimeout(showFrame, 150);
   };
 
-  // 2. احتياطي: فحص دوري كل 200ms
-  var checkCount = 0;
+  // 2. فحص دوري
   var checkInterval = setInterval(function(){
     if(myLoadId !== currentLoadId){
       clearInterval(checkInterval);
       return;
     }
-    checkCount++;
-    
     try{
-      // محاولة الوصول لمحتوى iframe
       var doc = frame.contentDocument || frame.contentWindow.document;
       if(doc && doc.readyState === 'complete' && doc.body && doc.body.innerHTML.length > 100){
         clearInterval(checkInterval);
-        hideLoader();
+        showFrame();
       }
-    }catch(e){
-      // CORS - لا يمكن الوصول
-    }
-
-    // بعد 20 فحص (4 ثواني) أخفِ الـ loader قسرياً
-    if(checkCount >= 20){
-      clearInterval(checkInterval);
-      hideLoader();
-    }
+    }catch(e){}
   }, 200);
 
-  // 3. تحميل الصفحة
+  // 3. احتياطي: إظهار بعد 2 ثانية
+  setTimeout(function(){
+    clearInterval(checkInterval);
+    showFrame();
+  }, 2000);
+
+  // تحميل الصفحة
   setTimeout(function(){
     if(myLoadId !== currentLoadId) return;
     frame.src = url;
@@ -216,6 +204,7 @@ function backToMain(){
   sectionView.hidden = true;
   mainView.hidden = false;
   frame.src = 'about:blank';
+  frame.style.opacity = '0';
 
   try{
     history.pushState({}, document.title, './');
