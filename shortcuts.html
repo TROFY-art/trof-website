@@ -32,11 +32,10 @@
 <script src="app.js"></script>
 <script>
 (function(){
-var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
 TROF.dust();
 
 // ============================================
-// 📋 قائمة كل الأوامر
+// 📋 قائمة كل الأوامر (بدون الألعاب)
 // ============================================
 var COMMANDS = {
   "عامة": {
@@ -129,7 +128,8 @@ var COMMANDS = {
       {name: "/setup_welcome", desc: "إعداد الترحيب"},
       {name: "/welcome_stats", desc: "إحصائيات"},
       {name: "/welcome_toggle", desc: "تفعيل/تعطيل"},
-      {name: "/test_welcome", desc: "اختبار"}
+      {name: "/test_welcome", desc: "اختبار"},
+      {name: "/welcome_reset", desc: "حذف الإعدادات"}
     ]
   },
   "الحماية": {
@@ -145,7 +145,37 @@ var COMMANDS = {
       {name: "/نسخ_احتياطي", desc: "نسخة احتياطية"}
     ]
   },
-var currentGuildIdildId = null;
+  "VIP": {
+    icon: "💎",
+    commands: [
+      {name: "/generate_key", desc: "إنشاء كود VIP (للمالك)"},
+      {name: "/vip_keys", desc: "عرض الأكواد (للمالك)"},
+      {name: "/delete_vip_key", desc: "حذف كود (للمالك)"},
+      {name: "/my_vip", desc: "حالة VIP الخاصة بك"}
+    ]
+  },
+  "المالك": {
+    icon: "👑",
+    commands: [
+      {name: "/اعطاء_رصيد", desc: "إعطاء رصيد لعضو"},
+      {name: "/سحب_رصيد", desc: "سحب رصيد"},
+      {name: "/تغيير_الضريبة", desc: "تغيير نسبة الضريبة"},
+      {name: "/حالة_البوت", desc: "حالة البوت"},
+      {name: "/reload", desc: "إعادة تحميل الـ Cogs"}
+    ]
+  },
+  "الاختصارات": {
+    icon: "⚡",
+    commands: [
+      {name: "/اختصار", desc: "إنشاء اختصار"},
+      {name: "/اختصارات", desc: "عرض الاختصارات"},
+      {name: "/حذف_اختصار", desc: "حذف اختصار"},
+      {name: "/حذف_كل_الاختصارات", desc: "حذف كل الاختصارات"}
+    ]
+  }
+};
+
+var currentGuildId = null;
 var existingShortcuts = {};
 
 TROF.load(function(){
@@ -155,13 +185,13 @@ TROF.load(function(){
   var u=TROF.auth.user;
 
   if(!u){
-    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">سجّل الدخول للوصول للإعدادات.</p>';
+    page.innerHTML='<p class="soon">سجّل الدخول للوصول للإعدادات.</p>';
     return;
   }
 
   currentGuildId = TROF.getSelectedGuild();
   if(!currentGuildId){
-    page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">⚠️ اختر سيرفراً أولاً من القائمة العلوية.</p>';
+    page.innerHTML='<p class="soon">⚠️ اختر سيرفراً أولاً من القائمة العلوية.</p>';
     return;
   }
 
@@ -172,7 +202,6 @@ TROF.load(function(){
 
 function buildShortcutsPage(){
   return '' +
-  '<a class="back" href="./">'+CHEV+'الرجوع</a>' +
   '<div class="sec-head"><div class="sec-ic"><span class="ring"></span><span class="face">⚡</span></div><div><h1 class="sec-title">الاختصارات</h1><p>أنشئ اختصارات لكل أمر في البوت</p></div></div>' +
 
   '<div class="shortcuts-search">' +
