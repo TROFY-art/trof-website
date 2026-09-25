@@ -63,9 +63,11 @@
     </button>
     <h2 id="section-title"></h2>
   </div>
-  <div class="section-frame-wrapper">
-    <iframe id="section-frame" src="about:blank" frameborder="0"></iframe>
+  <div class="section-loader" id="section-loader">
+    <div class="loader-spinner"></div>
+    <p>جاري التحميل...</p>
   </div>
+  <iframe id="section-frame" src="" frameborder="0" hidden></iframe>
 </section>
 </main>
 
@@ -81,7 +83,7 @@ TROF.load(function(){
   var list=document.getElementById('list'),hint=document.getElementById('hint'),menu=document.getElementById('menu');
   list.innerHTML=TROF.SECTIONS.filter(TROF.can).map(function(s,i){
     var url = s.url ? s.url : 'section.html?p='+s.id;
-    return '<li><a class="row" style="--i:'+i+'" href="javascript:void(0)" data-section-url="'+url+'" data-section-title="'+TROF.name(s)+'"><span class="ic">'+s.icon+'</span><span><b>'+TROF.name(s)+'</b><small>'+TROF.desc(s)+'</small></span></a></li>';
+    return '<li><a class="row" style="--i:'+i+'" href="'+url+'" data-section-url="'+url+'" data-section-title="'+TROF.name(s)+'"><span class="ic">'+s.icon+'</span><span><b>'+TROF.name(s)+'</b><small>'+TROF.desc(s)+'</small></span></a></li>';
   }).join('');
   TROF.mountAccount();
   TROF.renderServerSelector();
@@ -91,6 +93,7 @@ TROF.load(function(){
     io.observe(menu);
   }else{menu.classList.add('in')}
 
+  // ربط أزرار الأقسام
   bindSectionButtons();
 });
 
@@ -123,75 +126,36 @@ function bindSectionButtons(){
   });
 }
 
-var currentLoadId = 0;
-
 function loadSection(url, title){
   var mainView = document.getElementById('main-view');
   var sectionView = document.getElementById('section-view');
+  var loader = document.getElementById('section-loader');
   var frame = document.getElementById('section-frame');
   var titleEl = document.getElementById('section-title');
-
-  currentLoadId++;
-  var myLoadId = currentLoadId;
 
   // إخفاء الرئيسية، إظهار القسم
   mainView.hidden = true;
   sectionView.hidden = false;
   titleEl.textContent = title;
 
-  // إخفاء iframe مؤقتاً (بدون loader)
-  frame.style.opacity = '0';
-  frame.style.transition = 'opacity .3s ease';
-
-  // إعادة تعيين
-  frame.src = 'about:blank';
-
-  // إظهار iframe عند اكتمال التحميل
-  function showFrame(){
-    if(myLoadId !== currentLoadId) return;
-    frame.style.opacity = '1';
-  }
-
-  // 1. onload
-  frame.onload = function(){
-    if(myLoadId !== currentLoadId) return;
-    setTimeout(showFrame, 150);
-  };
-
-  // 2. فحص دوري
-  var checkInterval = setInterval(function(){
-    if(myLoadId !== currentLoadId){
-      clearInterval(checkInterval);
-      return;
-    }
-    try{
-      var doc = frame.contentDocument || frame.contentWindow.document;
-      if(doc && doc.readyState === 'complete' && doc.body && doc.body.innerHTML.length > 100){
-        clearInterval(checkInterval);
-        showFrame();
-      }
-    }catch(e){}
-  }, 200);
-
-  // 3. احتياطي: إظهار بعد 2 ثانية
-  setTimeout(function(){
-    clearInterval(checkInterval);
-    showFrame();
-  }, 2000);
+  // إظهار الـ loader
+  loader.hidden = false;
+  frame.hidden = true;
 
   // تحميل الصفحة
-  setTimeout(function(){
-    if(myLoadId !== currentLoadId) return;
-    frame.src = url;
-  }, 50);
+  frame.src = url;
+
+  // عند اكتمال التحميل
+  frame.onload = function(){
+    loader.hidden = true;
+    frame.hidden = false;
+  };
 
   // التمرير لأعلى
   window.scrollTo({top: 0, behavior: 'smooth'});
 
-  // تغيير الرابط
-  try{
-    history.pushState({section: url, title: title}, title, '#' + encodeURIComponent(url));
-  }catch(e){}
+  // تغيير الرابط (بدون إعادة تحميل)
+  history.pushState({section: url}, title, '#' + url);
 }
 
 function backToMain(){
@@ -199,39 +163,29 @@ function backToMain(){
   var sectionView = document.getElementById('section-view');
   var frame = document.getElementById('section-frame');
 
-  currentLoadId++;
-
+  // إخفاء القسم، إظهار الرئيسية
   sectionView.hidden = true;
   mainView.hidden = false;
-  frame.src = 'about:blank';
-  frame.style.opacity = '0';
+  frame.src = '';
 
-  try{
-    history.pushState({}, document.title, './');
-  }catch(e){}
+  // تغيير الرابط
+  history.pushState({}, document.title, './');
 
+  // التمرير لأعلى
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
+// زر الرجوع
 document.getElementById('back-to-main').onclick = backToMain;
 
+// زر الرجوع في المتصفح
 window.onpopstate = function(e){
   if(e.state && e.state.section){
-    loadSection(e.state.section, e.state.title || '');
+    loadSection(e.state.section, document.getElementById('section-title').textContent);
   }else{
     backToMain();
   }
 };
-
-if(location.hash && location.hash.length > 1){
-  var url = decodeURIComponent(location.hash.slice(1));
-  setTimeout(function(){
-    var title = 'قسم';
-    var link = document.querySelector('[data-section-url="' + url + '"]');
-    if(link) title = link.getAttribute('data-section-title');
-    loadSection(url, title);
-  }, 500);
-}
 })();
 </script>
 </body>
