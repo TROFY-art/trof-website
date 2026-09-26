@@ -314,6 +314,33 @@ function formatNumber(num){
   return num.toString();
 }
 
+// ============================================
+// 📜 إضافة روابط الشروط والخصوصية في الفوتر
+// ============================================
+function injectFooterLinks(){
+  var footer = document.querySelector('footer.wrap');
+  if(!footer) return;
+
+  // إذا أضفناها مسبقاً، لا تكررها
+  if(footer.querySelector('.footer-links')) return;
+
+  var linksHTML =
+    '<div class="footer-links">' +
+      '<a href="./">🏠 ' + (lang === 'ar' ? 'الرئيسية' : 'Home') + '</a>' +
+      '<a href="terms.html">📜 ' + (lang === 'ar' ? 'شروط الخدمة' : 'Terms of Service') + '</a>' +
+      '<a href="privacy.html">🔒 ' + (lang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy') + '</a>' +
+    '</div>';
+
+  footer.insertAdjacentHTML('afterbegin', linksHTML);
+}
+
+// شغّلها بعد تحميل الصفحة
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', injectFooterLinks);
+}else{
+  injectFooterLinks();
+}
+
 window.TROF={
   t:t, name:name, desc:desc, cmdDesc:cmdDesc,
   CONFIG:CONFIG, SECTIONS:SECTIONS, auth:auth,
