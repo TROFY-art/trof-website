@@ -616,3 +616,213 @@ footer.wrap {
   border-color: var(--gold);
   background: var(--panel);
 }
+/* ============================================
+   🎨 الأيقونات SVG
+   ============================================ */
+.ic {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  transition: all .3s cubic-bezier(.4, 0, .2, 1);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.ic svg {
+  width: 26px;
+  height: 26px;
+  stroke: var(--gold);
+  transition: all .3s;
+  z-index: 1;
+  position: relative;
+}
+
+/* توهج خلفي */
+.ic::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, var(--gold), transparent 70%);
+  opacity: 0;
+  transition: opacity .3s;
+}
+
+.ic:hover::before {
+  opacity: .12;
+}
+
+/* حلقة النبض */
+.ic::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid var(--gold);
+  opacity: 0;
+  animation: iconPulse 3s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 200ms);
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  50% {
+    opacity: .3;
+    transform: scale(1.05);
+  }
+}
+
+/* توهج دائم للأيقونات المهمة */
+.ic-vip, .ic-vote {
+  animation: iconGlow 3s ease-in-out infinite;
+}
+
+@keyframes iconGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 3px var(--gold));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px var(--gold-hi));
+  }
+}
+
+/* نبض Vote */
+.ic-vote svg {
+  animation: votePulse 2s ease-in-out infinite;
+}
+
+@keyframes votePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* ألوان مخصصة لكل أيقونة */
+.ic-embed svg { stroke: #5865F2; }
+.ic-shop svg { stroke: #F2C23C; }
+.ic-vip svg { stroke: #F2C23C; }
+.ic-ticket svg { stroke: #2ECC71; }
+.ic-welcome svg { stroke: #E67E22; }
+.ic-levels svg { stroke: #9B59B6; }
+.ic-shield svg { stroke: #3498DB; }
+.ic-settings svg { stroke: #95A5A6; }
+.ic-shortcut svg { stroke: #E74C3C; }
+.ic-vote svg { stroke: #1ABC9C; }
+
+/* حركة عند الـ hover */
+.row:hover .ic {
+  background: linear-gradient(135deg, var(--sel), var(--bg));
+  border-color: var(--gold);
+  box-shadow:
+    0 0 0 1px var(--gold),
+    0 0 24px -5px var(--gold-hi),
+    inset 0 0 20px -8px var(--gold-hi);
+  transform: scale(1.05);
+}
+
+.row:hover .ic svg {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 6px currentColor);
+}
+
+/* حركة دوران للـ settings */
+.row:hover .ic-settings svg {
+  animation: spinSettings 2s linear infinite;
+}
+
+@keyframes spinSettings {
+  to { transform: rotate(360deg); }
+}
+
+/* حركة فلاش للـ shortcut */
+.row:hover .ic-shortcut svg {
+  animation: flashShortcut .6s ease-in-out infinite;
+}
+
+@keyframes flashShortcut {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 4px #E74C3C);
+  }
+  50% {
+    opacity: .5;
+    filter: drop-shadow(0 0 14px #E74C3C);
+  }
+}
+
+/* حركة نبض للـ welcome */
+.row:hover .ic-welcome svg {
+  animation: waveWelcome 1s ease-in-out infinite;
+}
+
+@keyframes waveWelcome {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-12deg); }
+  75% { transform: rotate(12deg); }
+}
+
+/* animation عند التحميل */
+@keyframes iconEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(.8) rotate(-10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+.js .in .ic {
+  animation: iconEnter .5s cubic-bezier(.34, 1.56, .64, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 80ms);
+}
+
+.js .in .ic svg {
+  animation: iconEnter .6s cubic-bezier(.34, 1.56, .64, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 80ms + 100ms);
+}
+
+/* ألوان عند hover */
+.row:hover .ic-embed svg { stroke: #7289DA; }
+.row:hover .ic-shop svg { stroke: var(--gold-hi); }
+.row:hover .ic-vip svg { stroke: var(--gold-hi); }
+.row:hover .ic-ticket svg { stroke: #4ade80; }
+.row:hover .ic-welcome svg { stroke: #F39C12; }
+.row:hover .ic-levels svg { stroke: #BB8FCE; }
+.row:hover .ic-shield svg { stroke: #5DADE2; }
+.row:hover .ic-settings svg { stroke: #BDC3C7; }
+.row:hover .ic-shortcut svg { stroke: #F1948A; }
+.row:hover .ic-vote svg { stroke: #48C9B0; }
+
+/* تحسين الجوال */
+@media (max-width: 639px) {
+  .ic {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
+  .ic svg {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .ic::after,
+  .ic-vip,
+  .ic-vote,
+  .ic-vote svg,
+  .row:hover .ic-settings svg,
+  .row:hover .ic-shortcut svg,
+  .row:hover .ic-welcome svg {
+    animation: none !important;
+  }
+}
