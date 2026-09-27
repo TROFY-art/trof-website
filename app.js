@@ -201,6 +201,9 @@ async function checkUserAccess(userId,guildId){
   return false;
 }
 
+/* ============================================
+   🎯 fetchUserGuilds — مُصلَح
+   ============================================ */
 async function fetchUserGuilds(){
   var t=token();
   if(!t)return [];
@@ -217,31 +220,24 @@ async function fetchUserGuilds(){
     if(!res.ok)return [];
     var guilds=await res.json();
     var botGuilds=await fetchBotGuilds();
+
+    // فلترة أولية
     var candidateGuilds=guilds.filter(function(g){
       return botGuilds.length===0||botGuilds.indexOf(String(g.id))>-1;
     });
-    var adminGuilds=[];
-    for(var i=0;i<candidateGuilds.length;i++){
-      var g=candidateGuilds[i];
-      if(g.owner===true){
-        adminGuilds.push(g);
-        continue;
-      }
+
+    // فلترة فورية بدون API
+    var adminGuilds=candidateGuilds.filter(function(g){
+      if(g.owner===true)return true;
       var perms=parseInt(g.permissions)||0;
-      var hasAdmin=(perms&0x8)===0x8;
-      var hasManageGuild=(perms&0x20)===0x20;
-      var hasManageRoles=(perms&0x10000000)===0x10000000;
-      var hasKick=(perms&0x2)===0x2;
-      var hasBan=(perms&0x4)===0x4;
-      if(hasAdmin||hasManageGuild||hasManageRoles||hasKick||hasBan){
-        adminGuilds.push(g);
-        continue;
-      }
-      var hasAccess=await checkUserAccess(auth.user.id,g.id);
-      if(hasAccess){
-        adminGuilds.push(g);
-      }
-    }
+      return (perms&0x8)===0x8 ||
+             (perms&0x20)===0x20 ||
+             (perms&0x10000000)===0x10000000 ||
+             (perms&0x2)===0x2 ||
+             (perms&0x4)===0x4;
+    });
+
+    // لا نفحص الباقي بـ API إلا إذا كان العدد صغير جداً
     return adminGuilds;
   }catch(e){
     return [];
