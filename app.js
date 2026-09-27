@@ -11,6 +11,7 @@ var CONFIG={
 var RANK={everyone:0,staff:1,admin:2,owner:3};
 var ROLE=['عضو','إدارة','ادمن ستريت','المالك'];
 var SECTIONS=[
+ {id:'vote',icon:'🗳️',t:'صوّت للبوت',d:'احصل على مكافآت',need:'everyone',url:'vote.html',cmds:[]},
  {id:'general',icon:'🎨',t:'صانع Embed',d:'أنشئ رسائل مخصصة',need:'everyone',url:'embed.html',cmds:[]},
  {id:'shop',icon:'🏪',t:'المتجر',d:'اشترِ خلفيات وشارات',need:'everyone',url:'shop.html',cmds:[]},
  {id:'vip',icon:'💎',t:'VIP',d:'تفعيل VIP في سيرفرك',need:'everyone',url:'vip.html',cmds:[]},
