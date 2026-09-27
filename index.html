@@ -44,9 +44,26 @@
 
     <div class="demo">
       <p data-i18n="tap">اضغط على أي قسم لفتح صفحته.</p>
+
+      <!-- زر الاختيار التفاعلي -->
+      <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="menu">
+        <span class="menu-toggle-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7l9-4 9 4-9 4-9-4z"/>
+            <path d="M3 12l9 4 9-4"/>
+            <path d="M3 17l9 4 9-4"/>
+          </svg>
+        </span>
+        <span class="menu-toggle-text" data-i18n="choose">📁 اختر قسماً...</span>
+        <span class="menu-toggle-arrow">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6l4 4 4-4"/>
+          </svg>
+        </span>
+      </button>
+
+      <!-- القائمة المنسدلة -->
       <div class="menu" id="menu" aria-label="أقسام الأوامر">
-        <div class="grab"></div>
-        <h2 data-i18n="choose">📁 اختر قسماً...</h2>
         <ul id="list"></ul>
         <p class="hint" id="hint"></p>
       </div>
@@ -63,7 +80,12 @@ var root=document.documentElement,calm=matchMedia('(prefers-reduced-motion: redu
 root.classList.add('js');
 
 TROF.load(function(){
-  var list=document.getElementById('list'),hint=document.getElementById('hint'),menu=document.getElementById('menu');
+  var list=document.getElementById('list'),
+      hint=document.getElementById('hint'),
+      menu=document.getElementById('menu'),
+      toggle=document.getElementById('menu-toggle');
+
+  // بناء القائمة
   list.innerHTML=TROF.SECTIONS.filter(TROF.can).map(function(s,i){
     var url=s.url?s.url:'section.html?p='+s.id;
     return '<li><a class="row" style="--i:'+i+'" href="'+url+'">'+
@@ -71,28 +93,54 @@ TROF.load(function(){
       '<span><b>'+TROF.name(s)+'</b><small>'+TROF.desc(s)+'</small></span>'+
     '</a></li>';
   }).join('');
+
   TROF.mountAccount();
   TROF.renderServerSelector();
   if(!TROF.auth.user)hint.textContent=TROF.t('hint');
-  if('IntersectionObserver' in window){
-    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){menu.classList.add('in');io.disconnect()}})},{threshold:.1});
-    io.observe(menu);
-  }else{menu.classList.add('in')}
+
+  // تفاعل الزر
+  toggle.onclick=function(e){
+    e.stopPropagation();
+    var isOpen=menu.classList.contains('open');
+    if(isOpen){
+      menu.classList.remove('open');
+      toggle.setAttribute('aria-expanded','false');
+    } else {
+      menu.classList.add('open');
+      toggle.setAttribute('aria-expanded','true');
+      setTimeout(function(){
+        menu.scrollIntoView({ behavior:'smooth', block:'nearest' });
+      }, 250);
+    }
+  };
+
+  // إغلاق عند الضغط خارج القائمة
+  document.addEventListener('click', function(e){
+    if(!menu.contains(e.target) && !toggle.contains(e.target)){
+      if(menu.classList.contains('open')){
+        menu.classList.remove('open');
+        toggle.setAttribute('aria-expanded','false');
+      }
+    }
+  });
+
+  // إغلاق بـ Esc
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape' && menu.classList.contains('open')){
+      menu.classList.remove('open');
+      toggle.setAttribute('aria-expanded','false');
+      toggle.focus();
+    }
+  });
 });
 
 var logo=document.getElementById('logo'),tilt=document.getElementById('tilt');
-if(!calm){
+if(!calm && logo && tilt){
   logo.addEventListener('pointermove',function(e){
     var b=logo.getBoundingClientRect(),x=(e.clientX-b.left)/b.width-.5,y=(e.clientY-b.top)/b.height-.5;
     tilt.style.transform='perspective(600px) rotateY('+(x*18)+'deg) rotateX('+(-y*18)+'deg) scale(1.03)';
   });
   logo.addEventListener('pointerleave',function(){tilt.style.transform=''});
-  var dust=document.getElementById('dust');
-  for(var k=0;k<16;k++){
-    var d=document.createElement('i'),s=2+Math.random()*3;
-    d.style.cssText='left:'+(Math.random()*100)+'%;width:'+s+'px;height:'+s+'px;animation-duration:'+(9+Math.random()*10)+'s;animation-delay:-'+(Math.random()*15)+'s';
-    dust.appendChild(d);
-  }
 }
 })();
 </script>
