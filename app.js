@@ -336,18 +336,36 @@ function formatNumber(num){
 }
 
 /* ============================================
-   📜 روابط الفوتر
+   📜 روابط الفوتر (تدعم العربية والإنجليزية)
    ============================================ */
 function injectFooterLinks(){
   var footer=document.querySelector('footer.wrap');
   if(!footer)return;
   if(footer.querySelector('.footer-links'))return;
+
+  // نصوص الفوتر حسب اللغة
+  var texts = {
+    ar: {
+      home: '🏠 الرئيسية',
+      vote: '🗳️ صوّت للبوت',
+      terms: '📜 شروط الخدمة',
+      privacy: '🔒 سياسة الخصوصية'
+    },
+    en: {
+      home: '🏠 Home',
+      vote: '🗳️ Vote for Bot',
+      terms: '📜 Terms of Service',
+      privacy: '🔒 Privacy Policy'
+    }
+  };
+  var tr = texts[lang] || texts.ar;
+
   var linksHTML=
     '<div class="footer-links">'+
-      '<a href="./">🏠 '+(lang==='ar'?'الرئيسية':'Home')+'</a>'+
-      '<a href="vote.html">🗳️ '+(lang==='ar'?'صوّت للبوت':'Vote')+'</a>'+
-      '<a href="terms.html">📜 '+(lang==='ar'?'شروط الخدمة':'Terms of Service')+'</a>'+
-      '<a href="privacy.html">🔒 '+(lang==='ar'?'سياسة الخصوصية':'Privacy Policy')+'</a>'+
+      '<a href="./">'+tr.home+'</a>'+
+      '<a href="vote.html">'+tr.vote+'</a>'+
+      '<a href="terms.html">'+tr.terms+'</a>'+
+      '<a href="privacy.html">'+tr.privacy+'</a>'+
     '</div>';
   footer.insertAdjacentHTML('afterbegin',linksHTML);
 }
