@@ -13,192 +13,36 @@
 <link rel="stylesheet" href="style.css">
 <style>
   .vote-container { max-width: 800px; margin: 0 auto; padding: 20px 0 60px; }
-  
-  .vote-hero {
-    text-align: center;
-    padding: 40px 20px;
-    background: linear-gradient(135deg, #1a1305 0%, #2a1f08 100%);
-    border: 2px solid #F2C23C;
-    border-radius: 24px;
-    margin-bottom: 30px;
-    box-shadow: 0 20px 60px -20px #F2C23C44;
-  }
-  
-  .vote-hero h1 {
-    font-size: clamp(1.8rem, 6vw, 2.5rem);
-    margin: 0 0 10px;
-    background: linear-gradient(180deg, #ffe9a3, #f2c23c 50%, #b8871b);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    font-weight: 800;
-  }
-  
+  .vote-hero { text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #1a1305 0%, #2a1f08 100%); border: 2px solid #F2C23C; border-radius: 24px; margin-bottom: 30px; box-shadow: 0 20px 60px -20px #F2C23C44; }
+  .vote-hero h1 { font-size: clamp(1.8rem, 6vw, 2.5rem); margin: 0 0 10px; background: linear-gradient(180deg, #ffe9a3, #f2c23c 50%, #b8871b); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 800; }
   .vote-hero p { color: #a89f88; margin: 0 0 20px; font-size: 1.05rem; }
-  
-  .vote-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 30px;
-  }
-  
-  .vote-stat {
-    background: #171410;
-    border: 1px solid #2f2818;
-    border-radius: 16px;
-    padding: 20px 12px;
-    text-align: center;
-    transition: border-color .2s;
-  }
-  
+  .vote-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 30px; }
+  .vote-stat { background: #171410; border: 1px solid #2f2818; border-radius: 16px; padding: 20px 12px; text-align: center; transition: border-color .2s; }
   .vote-stat:hover { border-color: #F2C23C; }
-  
-  .vote-stat b {
-    display: block;
-    font-size: 1.8rem;
-    color: #ffe9a3;
-    margin-bottom: 4px;
-    font-weight: 800;
-  }
-  
+  .vote-stat b { display: block; font-size: 1.8rem; color: #ffe9a3; margin-bottom: 4px; font-weight: 800; }
   .vote-stat span { color: #a89f88; font-size: .85rem; }
-  
   .vote-sites { display: grid; gap: 14px; margin-bottom: 30px; }
-  
-  .vote-site {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 18px 20px;
-    background: #171410;
-    border: 1px solid #2f2818;
-    border-radius: 16px;
-    transition: all .2s;
-    text-decoration: none;
-    color: inherit;
-  }
-  
-  .vote-site:hover {
-    border-color: #F2C23C;
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px -10px #F2C23C55;
-  }
-  
-  .vote-site-icon {
-    width: 55px;
-    height: 55px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.7rem;
-    background: #0d0c0a;
-    border-radius: 14px;
-    flex-shrink: 0;
-    border: 1px solid #2f2818;
-  }
-  
+  .vote-site { display: flex; align-items: center; gap: 16px; padding: 18px 20px; background: #171410; border: 1px solid #2f2818; border-radius: 16px; transition: all .2s; text-decoration: none; color: inherit; }
+  .vote-site:hover { border-color: #F2C23C; transform: translateY(-3px); box-shadow: 0 10px 30px -10px #F2C23C55; }
+  .vote-site-icon { width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; background: #0d0c0a; border-radius: 14px; flex-shrink: 0; border: 1px solid #2f2818; }
   .vote-site-info { flex: 1; min-width: 0; }
   .vote-site-info b { display: block; color: #ffe9a3; font-size: 1.05rem; margin-bottom: 4px; font-weight: 800; }
   .vote-site-info small { color: #a89f88; font-size: .82rem; }
-  
-  .vote-site-reward {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 8px 14px;
-    background: linear-gradient(180deg, #ffe9a3, #f2c23c 55%, #b8871b);
-    color: #1a1305;
-    border-radius: 12px;
-    font-weight: 800;
-    flex-shrink: 0;
-  }
-  
+  .vote-site-reward { display: flex; flex-direction: column; align-items: center; padding: 8px 14px; background: linear-gradient(180deg, #ffe9a3, #f2c23c 55%, #b8871b); color: #1a1305; border-radius: 12px; font-weight: 800; flex-shrink: 0; }
   .vote-site-reward b { font-size: .95rem; line-height: 1; }
   .vote-site-reward small { font-size: .7rem; opacity: .85; margin-top: 3px; }
-  
-  .cooldown-badge {
-    display: inline-block;
-    padding: 6px 14px;
-    background: #f8717120;
-    color: #f87171;
-    border: 1px solid #f8717140;
-    border-radius: 999px;
-    font-size: .85rem;
-    font-weight: 700;
-  }
-  
-  .ready-badge {
-    display: inline-block;
-    padding: 6px 14px;
-    background: #4ade8020;
-    color: #4ade80;
-    border: 1px solid #4ade8040;
-    border-radius: 999px;
-    font-size: .85rem;
-    font-weight: 700;
-  }
-  
-  .loading-badge {
-    display: inline-block;
-    padding: 6px 14px;
-    background: #f2c23c20;
-    color: #f2c23c;
-    border: 1px solid #f2c23c40;
-    border-radius: 999px;
-    font-size: .85rem;
-    font-weight: 700;
-  }
-  
-  .leaderboard {
-    background: #171410;
-    border: 1px solid #2f2818;
-    border-radius: 16px;
-    padding: 20px;
-  }
-  
-  .leaderboard h3 { color: #ffe9a3; margin: 0 0 16px; font-size: 1.1rem; }
-  
-  .lb-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    border-radius: 10px;
-    background: #0d0c0a;
-    margin-bottom: 8px;
-    border: 1px solid #2f2818;
-    transition: border-color .2s;
-  }
-  
+  .cooldown-badge { display: inline-block; padding: 6px 14px; background: #f8717120; color: #f87171; border: 1px solid #f8717140; border-radius: 999px; font-size: .85rem; font-weight: 700; }
+  .ready-badge { display: inline-block; padding: 6px 14px; background: #4ade8020; color: #4ade80; border: 1px solid #4ade8040; border-radius: 999px; font-size: .85rem; font-weight: 700; }
+  .loading-badge { display: inline-block; padding: 6px 14px; background: #f2c23c20; color: #f2c23c; border: 1px solid #f2c23c40; border-radius: 999px; font-size: .85rem; font-weight: 700; }
+  .leaderboard { background: #171410; border: 1px solid #2f2818; border-radius: 16px; padding: 20px; }
+  .lb-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; background: #0d0c0a; margin-bottom: 8px; border: 1px solid #2f2818; transition: border-color .2s; }
   .lb-row:hover { border-color: #F2C23C; }
-  
   .lb-rank { font-size: 1.2rem; font-weight: 900; min-width: 40px; text-align: center; }
   .lb-name { flex: 1; color: #f6efdc; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .lb-count { color: #F2C23C; font-weight: 800; white-space: nowrap; }
-  
-  .section-title {
-    color: #ffe9a3;
-    margin: 30px 0 16px;
-    font-size: 1.15rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .empty-state {
-    text-align: center;
-    padding: 30px 20px;
-    color: #a89f88;
-  }
-  
-  .empty-state span {
-    display: block;
-    font-size: 2rem;
-    margin-bottom: 8px;
-  }
-  
+  .section-title { color: #ffe9a3; margin: 30px 0 16px; font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .empty-state { text-align: center; padding: 30px 20px; color: #a89f88; }
+  .empty-state span { display: block; font-size: 2rem; margin-bottom: 8px; }
   @media (max-width: 639px) {
     .vote-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .vote-stat { padding: 14px 8px; }
@@ -206,14 +50,10 @@
     .vote-stat span { font-size: .72rem; }
     .vote-site { padding: 14px; gap: 12px; }
     .vote-site-icon { width: 45px; height: 45px; font-size: 1.4rem; }
-    .vote-site-info b { font-size: .95rem; }
-    .vote-site-info small { font-size: .75rem; }
-    .vote-site-reward { padding: 6px 10px; }
-    .vote-site-reward b { font-size: .85rem; }
   }
 </style>
 </head>
-<body data-title="vote">
+<body>
 <div id="dust" aria-hidden="true"></div>
 
 <header class="wrap bar">
@@ -230,57 +70,35 @@
 <main class="wrap">
   <a class="back" href="./" style="margin-bottom:20px">
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
-    <span>الرجوع للرئيسية</span>
+    <span id="v-back">الرجوع للرئيسية</span>
   </a>
 
   <div class="vote-container">
-    
-    <!-- Hero -->
     <div class="vote-hero">
-      <h1>🗳️ صوّت للبوت</h1>
-      <p>كل تصويت = <strong style="color:#F2C23C">5,000 💰</strong> + دعم البوت!</p>
-      <div id="vote-status"><span class="loading-badge">⏳ جاري التحقق...</span></div>
+      <h1 id="v-title">🗳️ صوّت للبوت</h1>
+      <p><span id="v-sub"></span> <strong style="color:#F2C23C" id="v-reward">5,000 💰</strong> <span id="v-subend"></span></p>
+      <div id="vote-status"><span class="loading-badge" id="v-checking">⏳ جاري التحقق...</span></div>
     </div>
 
-    <!-- إحصائيات -->
     <div class="vote-stats">
-      <div class="vote-stat">
-        <b id="stat-total">0</b>
-        <span>إجمالي التصويتات</span>
-      </div>
-      <div class="vote-stat">
-        <b id="stat-month">0</b>
-        <span>هذا الشهر</span>
-      </div>
-      <div class="vote-stat">
-        <b id="stat-rank">—</b>
-        <span>ترتيبك</span>
-      </div>
+      <div class="vote-stat"><b id="stat-total">0</b><span id="v-st1">إجمالي التصويتات</span></div>
+      <div class="vote-stat"><b id="stat-month">0</b><span id="v-st2">هذا الشهر</span></div>
+      <div class="vote-stat"><b id="stat-rank">—</b><span id="v-st3">ترتيبك</span></div>
     </div>
 
-    <!-- مواقع التصويت -->
-    <h3 class="section-title">🎯 مواقع التصويت</h3>
+    <h3 class="section-title" id="v-sitestitle">🎯 مواقع التصويت</h3>
     <div class="vote-sites" id="vote-sites">
-      <p class="empty-state"><span>⏳</span>جاري التحميل...</p>
+      <p class="empty-state"><span>⏳</span><span id="v-loading">جاري التحميل...</span></p>
     </div>
 
-    <!-- Top Voters -->
-    <h3 class="section-title">🏆 أفضل 10 مصوتين</h3>
+    <h3 class="section-title" id="v-toptitle">🏆 أفضل 10 مصوتين</h3>
     <div class="leaderboard" id="leaderboard">
-      <p class="empty-state"><span>⏳</span>جاري التحميل...</p>
+      <p class="empty-state"><span>⏳</span><span id="v-loading2">جاري التحميل...</span></p>
     </div>
-
   </div>
 </main>
 
-<footer class="wrap">
-  <div class="footer-links">
-    <a href="./">🏠 الرئيسية</a>
-    <a href="terms.html">📜 شروط الخدمة</a>
-    <a href="privacy.html">🔒 سياسة الخصوصية</a>
-  </div>
-  <p style="margin-top:12px">TROF System.</p>
-</footer>
+<footer class="wrap">TROF System.</footer>
 
 <script src="app.js"></script>
 <script>
@@ -290,19 +108,35 @@ TROF.dust();
 TROF.load(function(){
   TROF.mountAccount();
   TROF.renderServerSelector();
-  
+
+  var T = TROF.t;
   var u = TROF.auth.user;
   var api = TROF.CONFIG.apiUrl;
-  
-  // ============================================
-  // 1. تحميل مواقع التصويت
-  // ============================================
+
+  // ترجمة العناصر
+  document.title = T('votePageTitle');
+  document.getElementById('v-back').textContent = T('termsBack');
+  document.getElementById('v-title').textContent = T('voteTitle');
+  document.getElementById('v-sub').textContent = T('voteSubtitle');
+  document.getElementById('v-reward').textContent = T('voteSubtitleReward');
+  document.getElementById('v-subend').textContent = T('voteSubtitleEnd');
+  document.getElementById('v-st1').textContent = T('voteStatTotal');
+  document.getElementById('v-st2').textContent = T('voteStatMonth');
+  document.getElementById('v-st3').textContent = T('voteStatRank');
+  document.getElementById('v-sitestitle').textContent = T('voteSitesTitle');
+  document.getElementById('v-toptitle').textContent = T('voteTopTitle');
+  document.getElementById('v-loading').textContent = T('voteLoading');
+  document.getElementById('v-loading2').textContent = T('voteLoading');
+  document.getElementById('v-checking').textContent = T('voteChecking');
+
+  // 1. مواقع التصويت
   fetch(api + '/vote/sites')
     .then(function(r){ return r.json(); })
     .then(function(data){
       var html = '';
       if(!data.sites || data.sites.length === 0){
-        document.getElementById('vote-sites').innerHTML = '<p class="empty-state"><span>❌</span>لا توجد مواقع حالياً</p>';
+        document.getElementById('vote-sites').innerHTML =
+          '<p class="empty-state"><span>❌</span>'+T('voteNoSites')+'</p>';
         return;
       }
       data.sites.forEach(function(site){
@@ -310,73 +144,70 @@ TROF.load(function(){
         html += '<div class="vote-site-icon">' + site.icon + '</div>';
         html += '<div class="vote-site-info">';
         html += '<b>' + site.name + '</b>';
-        html += '<small>اضغط للتصويت للبوت</small>';
+        html += '<small>'+T('voteSitesClick')+'</small>';
         html += '</div>';
         html += '<div class="vote-site-reward">';
         html += '<b>+' + TROF.formatNumber(site.reward) + '</b>';
         html += '<small>💰</small>';
-        html += '</div>';
-        html += '</a>';
+        html += '</div></a>';
       });
       document.getElementById('vote-sites').innerHTML = html;
     })
     .catch(function(){
-      document.getElementById('vote-sites').innerHTML = '<p class="empty-state"><span>⚠️</span>خطأ في التحميل</p>';
+      document.getElementById('vote-sites').innerHTML =
+        '<p class="empty-state"><span>⚠️</span>'+T('voteError')+'</p>';
     });
-  
-  // ============================================
-  // 2. تحميل Top Voters (للجميع)
-  // ============================================
+
+  // 2. Top Voters
   fetch(api + '/vote/leaderboard')
     .then(function(r){ return r.json(); })
     .then(function(data){
       var lb = document.getElementById('leaderboard');
       if(!data.leaderboard || data.leaderboard.length === 0){
-        lb.innerHTML = '<p class="empty-state"><span>🗳️</span>لا توجد تصويتات بعد<br>كن الأول!</p>';
+        lb.innerHTML = '<p class="empty-state"><span>🗳️</span>'+
+          T('voteTopEmpty')+'<br>'+T('voteTopBeFirst')+'</p>';
         return;
       }
-      
-      var medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+      var medals = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟'];
       var html = '';
       data.leaderboard.forEach(function(v){
         var medal = medals[v.rank - 1] || ('#' + v.rank);
         html += '<div class="lb-row">';
         html += '<span class="lb-rank">' + medal + '</span>';
         html += '<span class="lb-name">&lt;@' + v.user_id + '&gt;</span>';
-        html += '<span class="lb-count">' + v.count + ' تصويت</span>';
+        html += '<span class="lb-count">' + v.count + ' ' + T('voteVotes') + '</span>';
         html += '</div>';
       });
       lb.innerHTML = html;
     })
     .catch(function(){
-      document.getElementById('leaderboard').innerHTML = '<p class="empty-state"><span>⚠️</span>خطأ في التحميل</p>';
+      document.getElementById('leaderboard').innerHTML =
+        '<p class="empty-state"><span>⚠️</span>'+T('voteError')+'</p>';
     });
-  
-  // ============================================
-  // 3. حالة المستخدم (يحتاج تسجيل دخول)
-  // ============================================
+
+  // 3. حالة المستخدم
   if(!u){
-    document.getElementById('vote-status').innerHTML = '<span class="cooldown-badge">🔒 سجّل دخول للتصويت</span>';
+    document.getElementById('vote-status').innerHTML =
+      '<span class="cooldown-badge">'+T('voteLoginNeeded')+'</span>';
     return;
   }
-  
+
   fetch(api + '/vote/check/' + u.id)
     .then(function(r){ return r.json(); })
     .then(function(data){
       var status = document.getElementById('vote-status');
       if(data.can_vote){
-        status.innerHTML = '<span class="ready-badge">✅ يمكنك التصويت الآن!</span>';
+        status.innerHTML = '<span class="ready-badge">'+T('voteCanVote')+'</span>';
       } else {
-        status.innerHTML = '<span class="cooldown-badge">⏰ يمكنك التصويت بعد ' + data.hours_left + ' ساعة</span>';
+        status.innerHTML = '<span class="cooldown-badge">'+T('voteCooldown')+' '+data.hours_left+' '+T('voteCooldownHours')+'</span>';
       }
     })
     .catch(function(){
-      document.getElementById('vote-status').innerHTML = '<span class="cooldown-badge">⚠️ خطأ في التحقق</span>';
+      document.getElementById('vote-status').innerHTML =
+        '<span class="cooldown-badge">'+T('voteError')+'</span>';
     });
-  
-  // ============================================
-  // 4. إحصائيات المستخدم
-  // ============================================
+
+  // 4. إحصائيات
   fetch(api + '/vote/stats/' + u.id)
     .then(function(r){ return r.json(); })
     .then(function(data){
@@ -388,4 +219,4 @@ TROF.load(function(){
 })();
 </script>
 </body>
-  </html>
+</html>
