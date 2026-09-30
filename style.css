@@ -330,3 +330,228 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
   .vip-button::before,
   .vip-button-icon{animation:none!important}
 }
+/* ============================================
+   🔒 قسم مقفول (Premium Locked)
+   ============================================ */
+.premium-locked-section {
+  width: 100%;
+  max-width: 720px;
+  margin-top: 16px;
+}
+
+.lock-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #1a0a28 0%, #2a1240 50%, #1a0a28 100%);
+  border: 2px solid #9B59B6;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.lock-banner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 30%, rgba(224, 187, 228, 0.15) 50%, transparent 70%);
+  animation: premiumShine 4s linear infinite;
+  pointer-events: none;
+}
+
+.lock-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #E0BBE4, #9B59B6);
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  box-shadow: 0 0 20px -5px #9B59B6;
+}
+
+.lock-banner > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lock-banner b {
+  font-size: 1.1rem;
+  color: #E0BBE4;
+  font-weight: 900;
+  text-shadow: 0 0 12px #9B59B6;
+}
+
+.lock-banner small {
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.lock-banner small strong {
+  color: #E0BBE4;
+  font-weight: 800;
+}
+
+.lock-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px;
+  background: linear-gradient(180deg, #E0BBE4, #9B59B6 55%, #6D28D9);
+  color: #1a0a28;
+  font-weight: 900;
+  font-size: .95rem;
+  border-radius: 12px;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px -6px #9B59B6;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+
+.lock-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -8px #9B59B6;
+}
+
+/* ============================================
+   🎨 المعاينة الحية
+   ============================================ */
+.live-preview {
+  --text-color: #FFFFFF;
+  --box-bg: rgba(0, 0, 0, 0.55);
+  --box-border: rgba(255, 255, 255, 0.2);
+  --accent: #FFD700;
+  --border-color: #00d4d4;
+
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 1;
+  padding: 20px;
+  background: linear-gradient(135deg, #0a1628 0%, #1a3a4a 100%);
+  border: 3px solid var(--border-color);
+  border-radius: 20px;
+  box-shadow:
+    0 0 0 3px var(--accent),
+    0 10px 40px -10px var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-color);
+  transition: all .3s;
+  box-sizing: border-box;
+}
+
+.preview-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--border-color));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #0d0c0a;
+  border: 3px solid var(--accent);
+  box-shadow: 0 0 20px -5px var(--border-color);
+  flex-shrink: 0;
+}
+
+.preview-name {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--text-color);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+  margin-top: 4px;
+}
+
+.preview-handle {
+  font-size: .8rem;
+  color: rgba(255,255,255,0.6);
+  margin-top: -4px;
+}
+
+.preview-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.preview-box {
+  padding: 8px 10px;
+  background: var(--box-bg);
+  border: 1.5px solid var(--box-border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.preview-box-label {
+  font-size: .65rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 1px;
+}
+
+.preview-box-value {
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--text-color);
+}
+
+.preview-progress {
+  width: 100%;
+  height: 16px;
+  background: rgba(0,0,0,0.75);
+  border: 1.5px solid var(--box-border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.preview-progress-fill {
+  width: 52%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--border-color));
+  border-radius: 6px;
+  transition: width .3s;
+}
+
+@media (max-width: 639px) {
+  .live-preview {
+    padding: 14px;
+    gap: 6px;
+  }
+  .preview-avatar {
+    width: 55px;
+    height: 55px;
+    font-size: 1.4rem;
+  }
+  .preview-name {
+    font-size: 1rem;
+  }
+  .preview-box-value {
+    font-size: .85rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lock-banner::before {
+    animation: none;
+  }
+   }
