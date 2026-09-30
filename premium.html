@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<script>try{if(localStorage.getItem('trof_lang')==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr'}}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Premium | TROF System</title>
+<meta name="theme-color" content="#0d0c0a">
+<link rel="icon" type="image/webp" href="logo.webp">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .premium-hero { text-align:center; padding:40px 20px; background:linear-gradient(135deg,#1a0a28 0%,#2a1240 100%); border:2px solid #9B59B6; border-radius:24px; margin-bottom:30px; box-shadow:0 20px 60px -20px #9B59B644; }
+  .premium-hero h1 { font-size:clamp(1.8rem,6vw,2.5rem); margin:0 0 10px; background:linear-gradient(180deg,#E0BBE4,#9B59B6 50%,#6D28D9); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:800; }
+  .premium-hero p { color:#a89f88; margin:0 0 20px; font-size:1.05rem; }
+  .premium-badge { display:inline-block; padding:8px 20px; background:linear-gradient(180deg,#E0BBE4,#9B59B6); color:#1a0a28; border-radius:999px; font-weight:900; font-size:.95rem; box-shadow:0 4px 20px -4px #9B59B6; }
+  .premium-container { max-width:800px; margin:0 auto; }
+  .premium-features { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; margin-bottom:30px; }
+  .premium-feature { background:#171410; border:1px solid #2f2818; border-radius:16px; padding:20px; transition:all .2s; position:relative; }
+  .premium-feature:hover { border-color:#9B59B6; transform:translateY(-3px); box-shadow:0 10px 30px -10px #9B59B655; }
+  .premium-feature .icon { font-size:2rem; display:block; margin-bottom:10px; }
+  .premium-feature b { display:block; color:#E0BBE4; font-size:1.05rem; margin-bottom:6px; font-weight:800; }
+  .premium-feature small { color:#a89f88; font-size:.85rem; line-height:1.6; }
+  .premium-feature .premium-tag { position:absolute; top:10px; inset-inline-end:10px; background:linear-gradient(180deg,#E0BBE4,#9B59B6); color:#1a0a28; font-size:.65rem; font-weight:900; padding:3px 8px; border-radius:999px; }
+  .premium-section { background:#171410; border:2px solid #2f2818; border-radius:20px; padding:24px; margin-bottom:20px; }
+  .premium-section.active { border-color:#9B59B6; background:linear-gradient(135deg,#1a0a28 0%,#171410 100%); }
+  .premium-section h3 { color:#E0BBE4; font-size:1.1rem; margin:0 0 16px; font-weight:800; }
+  #premium-code { width:100%; padding:16px; background:#0d0c0a; border:2px solid #2f2818; border-radius:12px; color:#E0BBE4; font-size:1.1rem; text-align:center; letter-spacing:2px; font-weight:800; text-transform:uppercase; font-family:monospace; }
+  #premium-code:focus { outline:none; border-color:#9B59B6; }
+  .premium-btn { display:block; width:100%; padding:16px; background:linear-gradient(180deg,#E0BBE4,#9B59B6 55%,#6D28D9); color:#1a0a28; font-weight:900; font-size:1rem; border:0; border-radius:12px; cursor:pointer; margin-top:12px; transition:transform .15s,box-shadow .2s; }
+  .premium-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 12px 32px -8px #9B59B6; }
+  .premium-btn:disabled { opacity:.5; cursor:not-allowed; }
+  .premium-status { text-align:center; padding:24px; border-radius:16px; margin-bottom:20px; }
+  .premium-status.active { background:linear-gradient(135deg,#1a0a28 0%,#2a1240 100%); border:2px solid #9B59B6; }
+  .premium-status.inactive { background:#171410; border:2px solid #2f2818; }
+  .premium-status .icon { font-size:3rem; display:block; margin-bottom:10px; }
+  .premium-status b { display:block; font-size:1.3rem; margin-bottom:6px; color:#E0BBE4; }
+  .premium-status small { color:#a89f88; font-size:.95rem; }
+</style>
+</head>
+<body>
+<div id="dust" aria-hidden="true"></div>
+
+<header class="wrap bar">
+  <div class="hd">
+    <a class="brand" href="./" aria-label="TROF System"><img src="logo.webp" alt="" width="36" height="36"></a>
+    <button class="lang" id="lang" type="button"></button>
+  </div>
+  <div class="hd-right">
+    <div id="server-selector"></div>
+    <div id="acct"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <a class="back" href="./" style="margin-bottom:20px">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>
+    <span id="p-back">الرجوع للرئيسية</span>
+  </a>
+
+  <div class="premium-container">
+    <div class="premium-hero">
+      <h1>💎 Premium</h1>
+      <p>افتح كل الميزات المتقدمة في TROF System</p>
+      <span class="premium-badge">✨ نسخة احترافية</span>
+    </div>
+
+    <div class="premium-status" id="premium-status">
+      <span class="icon">⏳</span>
+      <b>جاري التحقق...</b>
+      <small>من فضلك انتظر</small>
+    </div>
+
+    <div class="premium-section active" id="redeem-section">
+      <h3>🔑 تفعيل كود Premium</h3>
+      <input type="text" id="premium-code" placeholder="PREM-XXXX-XXXX-XXXX" autocomplete="off">
+      <button class="premium-btn" id="redeem-btn" type="button">✨ تفعيل Premium</button>
+      <p id="redeem-msg" style="text-align:center;margin-top:10px;font-weight:700;"></p>
+    </div>
+
+    <h3 style="color:#E0BBE4;margin:30px 0 16px;font-size:1.15rem;">✨ ميزات Premium</h3>
+
+    <div class="premium-features">
+      <div class="premium-feature">
+        <span class="premium-tag">PREMIUM</span>
+        <span class="icon">🎨</span>
+        <b>تخصيص البروفايل الكامل</b>
+        <small>تحكم كامل بالألوان والخلفيات والشارات في بطاقة البروفايل</small>
+      </div>
+      <div class="premium-feature">
+        <span class="premium-tag">PREMIUM</span>
+        <span class="icon">🎵</span>
+        <b>فلاتر صوت متقدمة</b>
+        <small>Bass Boost, 8D, Nightcore, Reverb, Echo والمزيد</small>
+      </div>
+      <div class="premium-feature">
+        <span class="premium-tag">PREMIUM</span>
+        <span class="icon">🎫</span>
+        <b>تكت Embed مخصص</b>
+        <small>أرسل Embed مخصص داخل تكتاتك</small>
+      </div>
+      <div class="premium-feature">
+        <span class="premium-tag">PREMIUM</span>
+        <span class="icon">⚡</span>
+        <b>أوامر مخصصة</b>
+        <small>اختصارات خاصة بأوامر البوت</small>
+      </div>
+      <div class="premium-feature">
+        <span class="premium-tag">PREMIUM</span>
+        <span class="icon">🚀</span>
+        <b>تجاوز Rate Limit</b>
+        <small>بدون حدود على الأوامر</small>
+      </div>
+      <div class="premium-feature">
+        <span class="premium-tag">PREMIUM</span>
+        <span class="icon">💎</span>
+        <b>شارة Premium</b>
+        <small>شارة مميزة في البروفايل</small>
+      </div>
+      <div class="premium-feature">
+        <span class="premium-tag">PREMIUM</span>
+        <span class="icon">🖼️</span>
+        <b>خلفيات حصرية</b>
+        <small>خلفيات Premium في المتجر</small>
+      </div>
+      <div class="premium-feature">
+        <span class="premium-tag">PREMIUM</span>
+        <span class="icon">👑</span>
+        <b>أولوية في الدعم</b>
+        <small>دعم أسرع ومخصص</small>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="wrap">TROF System.</footer>
+
+<script src="app.js"></script>
+<script>
+(function(){
+TROF.dust();
+
+TROF.load(function(){
+  TROF.mountAccount();
+  TROF.renderServerSelector();
+
+  var user = TROF.auth.user;
+  var gid = TROF.getSelectedGuild();
+  var api = TROF.CONFIG.apiUrl;
+
+  document.getElementById('p-back').textContent = 'الرجوع للرئيسية';
+
+  if (!user) {
+    document.getElementById('premium-status').className = 'premium-status inactive';
+    document.getElementById('premium-status').innerHTML = '<span class="icon">🔒</span><b>سجّل دخول أولاً</b><small>لتفعيل Premium</small>';
+    document.getElementById('redeem-btn').disabled = true;
+    return;
+  }
+
+  if (!gid) {
+    document.getElementById('premium-status').className = 'premium-status inactive';
+    document.getElementById('premium-status').innerHTML = '<span class="icon">⚠️</span><b>اختر سيرفراً</b><small>من القائمة العلوية</small>';
+    document.getElementById('redeem-btn').disabled = true;
+    return;
+  }
+
+  function loadStatus() {
+    fetch(api + '/premium/status?user_id=' + user.id + '&guild_id=' + gid, {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    })
+    .then(r => r.json())
+    .then(d => {
+      var el = document.getElementById('premium-status');
+      if (d.is_premium) {
+        el.className = 'premium-status active';
+        el.innerHTML = '<span class="icon">💎</span><b>Premium نشط!</b><small>' + (d.tier === 'owner' ? 'أنت المالك 👑' : 'ينتهي: ' + (d.expires_at || '—')) + '</small>';
+        document.getElementById('redeem-section').style.display = 'none';
+      } else {
+        el.className = 'premium-status inactive';
+        el.innerHTML = '<span class="icon">❌</span><b>لست Premium</b><small>أدخل كوداً لتفعيل Premium</small>';
+      }
+    })
+    .catch(() => {
+      document.getElementById('premium-status').className = 'premium-status inactive';
+      document.getElementById('premium-status').innerHTML = '<span class="icon">⚠️</span><b>خطأ في التحميل</b><small>حاول مرة أخرى</small>';
+    });
+  }
+
+  loadStatus();
+
+  document.getElementById('redeem-btn').onclick = async function() {
+    var code = document.getElementById('premium-code').value.trim().toUpperCase();
+    var msg = document.getElementById('redeem-msg');
+    var btn = this;
+
+    if (!code) {
+      msg.textContent = '❌ أدخل الكود';
+      msg.style.color = '#f87171';
+      return;
+    }
+
+    btn.disabled = true;
+    msg.textContent = '⏳ جاري التفعيل...';
+    msg.style.color = '#E0BBE4';
+
+    try {
+      var res = await fetch(api + '/premium/redeem', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + TROF.token(),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({code: code, guild_id: gid, user_id: user.id})
+      });
+      var data = await res.json();
+
+      if (res.ok) {
+        msg.textContent = '✅ تم تفعيل Premium!';
+        msg.style.color = '#4ade80';
+        document.getElementById('premium-code').value = '';
+        setTimeout(loadStatus, 1000);
+      } else {
+        msg.textContent = '❌ ' + (data.detail || 'فشل');
+        msg.style.color = '#f87171';
+      }
+    } catch (e) {
+      msg.textContent = '❌ خطأ في الاتصال';
+      msg.style.color = '#f87171';
+    }
+
+    btn.disabled = false;
+  };
+
+  document.getElementById('premium-code').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') document.getElementById('redeem-btn').click();
+  });
+});
+})();
+</script>
+</body>
+  </html>
