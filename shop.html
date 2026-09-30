@@ -102,7 +102,7 @@ async function loadAll(){
 
   // جلب مشتريات المستخدم
   try{
-    var res = await fetch(TROF.CONFIG.apiUrl + '/shop/my-items', {
+    var res = await fetch(TROF.CONFIG.apiUrl + '/shop/my-items?user_id=' + u.id, {
       headers: {Authorization: 'Bearer ' + TROF.token()}
     });
     if(res.ok){
@@ -143,25 +143,31 @@ async function loadShopItems(){
           'legendary': 'أسطوري'
         }[item.rarity] || 'عادي';
 
-        // صورة خاصة للأحجام
-        var imgStyle;
+        // معالجة الصورة
+        var imgStyle = '';
+        var imgClass = 'shop-item-img';
+        var placeholderEmoji = '🖼️';
+
         if(currentTab === 'profile_size'){
-          // استخراج اللون من image_url (size:WxH:COLOR)
+          // للأحجام: استخدم اللون
           var sizeColor = '#888888';
           if(item.image_url && item.image_url.indexOf(':') > -1){
             var parts = item.image_url.split(':');
             if(parts.length >= 3) sizeColor = parts[2];
           }
-          imgStyle = 'background: linear-gradient(135deg, ' + sizeColor + ' 0%, #1a1a1a 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-size:2.5rem;';
+          imgStyle = 'background: linear-gradient(135deg, ' + sizeColor + ' 0%, #1a1a1a 100%);';
+          placeholderEmoji = '📐';
+        }else if(item.image_url && item.image_url.trim() && !item.image_url.includes('imgur')){
+          // صورة شغالة
+          imgStyle = 'background-image: url(\'' + item.image_url + '\');';
         }else{
-          imgStyle = 'background-image: url(\'' + (item.image_url || '') + '\');';
+          // صورة مكسورة أو غير موجودة
+          imgClass += ' fallback';
+          placeholderEmoji = '🎨';
         }
 
         html += '<div class="shop-item ' + rarityClass + '">';
-        html += '<div class="shop-item-img" style="' + imgStyle + '">';
-        if(currentTab === 'profile_size'){
-          html += item.image_url ? '' : '📐';
-        }
+        html += '<div class="' + imgClass + '" style="' + imgStyle + '">' + placeholderEmoji;
         if(owned && equipped) html += '<span class="item-badge">✓ مجهز</span>';
         html += '</div>';
         html += '<div class="shop-item-body">';
@@ -174,12 +180,12 @@ async function loadShopItems(){
 
         if(owned){
           if(equipped){
-            html += '<button class="btn small-btn item-btn equipped" disabled>✓ مجهز</button>';
+            html += '<button class="item-btn equipped" disabled>✓ مجهز</button>';
           }else{
-            html += '<button class="btn small-btn item-btn equip-btn" data-id="' + item.id + '">✨ تجهيز</button>';
+            html += '<button class="item-btn equip-btn" data-id="' + item.id + '">✨ تجهيز</button>';
           }
         }else{
-          html += '<button class="btn small-btn item-btn buy-btn" data-id="' + item.id + '" data-price="' + item.price + '">🛒 شراء</button>';
+          html += '<button class="item-btn buy-btn" data-id="' + item.id + '" data-price="' + item.price + '">🛒 شراء</button>';
         }
 
         html += '</div>';
@@ -220,7 +226,8 @@ async function buyItem(btn){
   try{
     var res = await fetch(TROF.CONFIG.apiUrl + '/shop/buy/' + itemId, {
       method: 'POST',
-      headers: {Authorization: 'Bearer ' + TROF.token()}
+      headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+      body: JSON.stringify({user_id: TROF.auth.user.id})
     });
     var data = await res.json();
 
@@ -250,7 +257,8 @@ async function equipItem(btn){
   try{
     var res = await fetch(TROF.CONFIG.apiUrl + '/shop/equip/' + itemId, {
       method: 'POST',
-      headers: {Authorization: 'Bearer ' + TROF.token()}
+      headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+      body: JSON.stringify({user_id: TROF.auth.user.id})
     });
     var data = await res.json();
 
