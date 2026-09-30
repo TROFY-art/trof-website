@@ -1,4 +1,4 @@
-:root{--bg:#0d0c0a;--panel:#171410;--line:#2f2818;--text:#f6efdc;--muted:#a89f88;--gold:#f2c23c;--gold-hi:#ffe9a3;--gold-lo:#b8871b;--sel:#2b2210}
+:root{--bg:#0d0c0a;--panel:#171410;--line:#2f2818;--text:#f6efdc;--muted:#a89f88;--gold:#f2c23c;--gold-hi:#ffe9a3;--gold-lo:#b8871b;--sel:#2b2210;--premium:#9B59B6;--premium-hi:#E0BBE4;--premium-lo:#6D28D9}
 *{box-sizing:border-box}
 html{color-scheme:dark;overflow-x:hidden;overscroll-behavior-x:none}
 body{margin:0;min-height:100vh;background:radial-gradient(70% 50% at 50% 0%,#2a200a 0,transparent 70%) no-repeat,var(--bg);color:var(--text);font:400 1rem/1.8 "Tajawal",Tahoma,"Segoe UI",sans-serif;overflow-x:hidden;max-width:100%}
@@ -59,7 +59,6 @@ h1{margin:0;font-size:clamp(2.8rem,12vw,5rem);line-height:1.1;font-weight:800;le
 .menu li:first-child{border-top:1px solid var(--line)}
 .menu li:last-child{margin-bottom:0}
 
-/* 🔥 الإصلاح المهم - الصفوف تظهر دائماً */
 .row{display:flex;text-decoration:none;align-items:center;gap:14px;width:100%;padding:12px 10px;border:0;border-radius:12px;background:none;color:inherit;font:inherit;text-align:start;cursor:pointer;transition:background .15s;opacity:1 !important;animation:drop .4s both;animation-delay:calc(var(--i,0) * 60ms)}
 .row:hover{background:#221b0d}
 
@@ -87,6 +86,26 @@ h1{margin:0;font-size:clamp(2.8rem,12vw,5rem);line-height:1.1;font-weight:800;le
 @media(min-width:640px){.menu ul{display:grid;grid-template-columns:1fr 1fr;gap:10px}.menu li{margin-bottom:0}}
 @media(min-width:1024px){.menu ul{grid-template-columns:repeat(3,1fr)}}
 @media(hover:hover){.menu li:hover{transform:translateY(-3px);border-color:var(--gold);box-shadow:0 10px 26px -12px #f2c23c88}}
+
+/* ============================================
+   💎 زر Premium
+   ============================================ */
+.premium-button{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;max-width:720px;padding:20px 24px;background:linear-gradient(135deg,#1a0a28 0%,#2a1240 50%,#1a0a28 100%);border:2px solid var(--premium);border-radius:20px;color:var(--premium-hi);font:inherit;font-size:1.1rem;font-weight:800;cursor:pointer;text-decoration:none;position:relative;overflow:hidden;transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:0 0 0 1px var(--premium),0 10px 40px -10px var(--premium);margin-top:16px}
+.premium-button::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent 30%,rgba(224,187,228,.3) 50%,transparent 70%);animation:premiumShine 3s linear infinite;pointer-events:none}
+@keyframes premiumShine{0%{transform:translateX(-100%) translateY(-100%) rotate(45deg)}100%{transform:translateX(100%) translateY(100%) rotate(45deg)}}
+.premium-button:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 0 0 2px var(--premium-hi),0 15px 50px -10px var(--premium),inset 0 0 30px -10px var(--premium-hi);border-color:var(--premium-hi)}
+.premium-button:active{transform:translateY(-1px) scale(1)}
+.premium-button-icon{display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,var(--premium-hi),var(--premium));border:1px solid var(--premium-hi);box-shadow:0 0 20px -5px var(--premium);font-size:1.6rem;flex-shrink:0;animation:premiumIconGlow 2s ease-in-out infinite}
+@keyframes premiumIconGlow{0%,100%{box-shadow:0 0 20px -5px var(--premium)}50%{box-shadow:0 0 30px -3px var(--premium-hi)}}
+.premium-button-content{flex:1;text-align:start;display:flex;flex-direction:column;gap:4px}
+.premium-button-title{display:flex;align-items:center;gap:8px;font-size:1.15rem;font-weight:900;color:var(--premium-hi);text-shadow:0 0 12px var(--premium)}
+.premium-button-subtitle{font-size:.85rem;color:var(--muted);font-weight:400}
+.premium-button-badge{display:inline-block;padding:4px 12px;background:linear-gradient(180deg,var(--premium-hi),var(--premium));color:#1a0a28;font-size:.7rem;font-weight:900;border-radius:999px;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 15px -3px var(--premium)}
+.premium-button-arrow{display:flex;align-items:center;justify-content:center;width:32px;height:32px;transition:transform .3s;flex-shrink:0}
+.premium-button-arrow svg{width:20px;height:20px;stroke:var(--premium-hi);transition:all .3s}
+.premium-button:hover .premium-button-arrow{transform:translateX(-6px)}
+[dir="ltr"] .premium-button:hover .premium-button-arrow{transform:translateX(6px)}
+.premium-button:hover .premium-button-arrow svg{stroke:#fff;filter:drop-shadow(0 0 8px var(--premium-hi))}
 
 footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:center}
 .footer-links{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:14px;border-bottom:1px solid var(--line)}
@@ -244,6 +263,10 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
   .modal-content{padding:16px;max-height:85vh}
   .menu-toggle-text{font-size:.95rem}
   .menu li{border-radius:12px}
+  .premium-button{padding:16px 18px;font-size:1rem}
+  .premium-button-icon{width:44px;height:44px;font-size:1.3rem}
+  .premium-button-title{font-size:1rem}
+  .premium-button-subtitle{font-size:.75rem}
 }
 
 @media(min-width:640px){
@@ -267,186 +290,10 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
   *,*::before,*::after{animation:none!important;transition:none!important}
   .row{opacity:1!important}
   #dust{display:none}
+  .premium-button::before,
+  .premium-button-icon{animation:none!important}
 }
 
 @media(hover:none){
   .btn:hover,.row:hover .ic{transform:none}
-   }
-/* ============================================
-   💎 زر Premium المنفصل (خارج الأقسام)
-   ============================================ */
-.premium-button-wrapper {
-  width: 100%;
-  max-width: 720px;
-  margin: 20px auto 0;
-  padding: 0 12px;
-}
-
-.premium-button {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  width: 100%;
-  padding: 20px 24px;
-  background: linear-gradient(135deg, #1a0a28 0%, #2a1240 50%, #1a0a28 100%);
-  border: 2px solid #9B59B6;
-  border-radius: 20px;
-  color: #E0BBE4;
-  font: inherit;
-  font-size: 1.1rem;
-  font-weight: 800;
-  cursor: pointer;
-  text-decoration: none;
-  position: relative;
-  overflow: hidden;
-  transition: all .3s cubic-bezier(.4, 0, .2, 1);
-  box-shadow: 0 0 0 1px #9B59B6, 0 10px 40px -10px #9B59B6;
-  margin-top: 16px;
-}
-
-.premium-button::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, transparent 30%, rgba(224, 187, 228, 0.3) 50%, transparent 70%);
-  animation: premiumShine 3s linear infinite;
-  pointer-events: none;
-}
-
-@keyframes premiumShine {
-  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-}
-
-.premium-button:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow:
-    0 0 0 2px #E0BBE4,
-    0 15px 50px -10px #9B59B6,
-    inset 0 0 30px -10px #E0BBE4;
-  border-color: #E0BBE4;
-}
-
-.premium-button:active {
-  transform: translateY(-1px) scale(1);
-}
-
-.premium-button-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #E0BBE4, #9B59B6);
-  border: 1px solid #E0BBE4;
-  box-shadow: 0 0 20px -5px #9B59B6;
-  font-size: 1.6rem;
-  flex-shrink: 0;
-  animation: premiumIconGlow 2s ease-in-out infinite;
-}
-
-@keyframes premiumIconGlow {
-  0%, 100% { box-shadow: 0 0 20px -5px #9B59B6; }
-  50% { box-shadow: 0 0 30px -3px #E0BBE4; }
-}
-
-.premium-button-content {
-  flex: 1;
-  text-align: start;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.premium-button-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 1.15rem;
-  font-weight: 900;
-  color: #E0BBE4;
-  text-shadow: 0 0 12px #9B59B6;
-}
-
-.premium-button-subtitle {
-  font-size: .85rem;
-  color: #a89f88;
-  font-weight: 400;
-}
-
-.premium-button-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  background: linear-gradient(180deg, #E0BBE4, #9B59B6);
-  color: #1a0a28;
-  font-size: .7rem;
-  font-weight: 900;
-  border-radius: 999px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  box-shadow: 0 0 15px -3px #9B59B6;
-}
-
-.premium-button-arrow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  transition: transform .3s;
-  flex-shrink: 0;
-}
-
-.premium-button-arrow svg {
-  width: 20px;
-  height: 20px;
-  stroke: #E0BBE4;
-  transition: all .3s;
-}
-
-.premium-button:hover .premium-button-arrow {
-  transform: translateX(-6px);
-}
-
-[dir="ltr"] .premium-button:hover .premium-button-arrow {
-  transform: translateX(6px);
-}
-
-.premium-button:hover .premium-button-arrow svg {
-  stroke: #fff;
-  filter: drop-shadow(0 0 8px #E0BBE4);
-}
-
-/* جوال */
-@media (max-width: 639px) {
-  .premium-button {
-    padding: 16px 18px;
-    font-size: 1rem;
   }
-  .premium-button-icon {
-    width: 44px;
-    height: 44px;
-    font-size: 1.3rem;
-  }
-  .premium-button-title {
-    font-size: 1rem;
-  }
-  .premium-button-subtitle {
-    font-size: .75rem;
-  }
-}
-
-/* prefers-reduced-motion */
-@media (prefers-reduced-motion: reduce) {
-  .premium-button::before {
-    animation: none;
-  }
-  .premium-button-icon {
-    animation: none;
-  }
-}
