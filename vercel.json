@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://api.trof.dpdns.org/:path*"
+      "destination": "http://134.255.255.66:19161/:path*"
     }
   ]
 }
