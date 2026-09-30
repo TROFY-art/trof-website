@@ -14,7 +14,6 @@ var ROLE=['عضو','إدارة','ادمن ستريت','المالك'];
 var SECTIONS=[
  {id:'general',icon:'embed',t:'صانع Embed',d:'أنشئ رسائل مخصصة',need:'everyone',url:'embed.html',cmds:[]},
  {id:'shop',icon:'shop',t:'المتجر',d:'اشترِ خلفيات وشارات',need:'everyone',url:'shop.html',cmds:[]},
- {id:'vip',icon:'vip',t:'VIP',d:'تفعيل VIP في سيرفرك',need:'everyone',url:'vip.html',cmds:[]},
  {id:'tickets',icon:'ticket',t:'تكت',d:'نظام التكتات',need:'everyone',url:'tickets.html',cmds:[]},
  {id:'welcome',icon:'welcome',t:'الترحيب',d:'رسائل الترحيب بالأعضاء الجدد',need:'everyone',url:'welcome.html',cmds:[]},
  {id:'levels',icon:'levels',t:'المستويات',d:'XP كتابي وصوتي',need:'everyone',url:'levels.html',cmds:[]},
@@ -324,7 +323,7 @@ voteBack:'Back to Home'
 }
 };
 
-var EN={general:['Embed Builder','Create custom messages'],shop:['Shop','Buy backgrounds and badges'],vip:['VIP','Activate VIP in your server'],tickets:['Tickets','Ticket system'],welcome:['Welcome','Welcome messages for new members'],levels:['Levels','Text and voice XP'],protection:['Protection','Server protection'],moderation:['Server Manager','Full control over channels and roles'],shortcuts:['Shortcuts','Command shortcuts'],vote:['Vote','Get rewards']};
+var EN={general:['Embed Builder','Create custom messages'],shop:['Shop','Buy backgrounds and badges'],tickets:['Tickets','Ticket system'],welcome:['Welcome','Welcome messages for new members'],levels:['Levels','Text and voice XP'],protection:['Protection','Server protection'],moderation:['Server Manager','Full control over channels and roles'],shortcuts:['Shortcuts','Command shortcuts'],vote:['Vote','Get rewards']};
 var ROLE_EN=['Member','Staff','Admin Street','Owner'];
 
 function t(k){return (STR[lang]&&STR[lang][k])||STR.ar[k]||k}
