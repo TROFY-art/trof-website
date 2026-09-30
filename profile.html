@@ -7,25 +7,20 @@
 <title>ملفي | TROF System</title>
 <meta name="theme-color" content="#0d0c0a">
 <link rel="icon" type="image/webp" href="logo.webp">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-  /* ============================================
-     🎨 إصلاح تصميم المعاينة (صغيرة ومنظمة)
-     ============================================ */
+  /* ===== المعاينة الحية ===== */
   .live-preview {
     --text-color: #FFFFFF;
     --box-bg: rgba(0, 0, 0, 0.55);
     --box-border: rgba(255, 255, 255, 0.2);
     --accent: #FFD700;
     --border-color: #00d4d4;
-
     position: relative;
     width: 100%;
-    max-width: 400px;
-    padding: 16px;
+    max-width: 380px;
+    padding: 14px;
     margin: 0 auto;
     background: linear-gradient(135deg, #0a1628 0%, #1a3a4a 100%);
     border: 3px solid var(--border-color);
@@ -34,92 +29,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     color: var(--text-color);
     transition: all .3s;
     box-sizing: border-box;
   }
+  .preview-avatar { width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--border-color)); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; color: #0d0c0a; border: 3px solid var(--accent); box-shadow: 0 0 15px -5px var(--border-color); flex-shrink: 0; }
+  .preview-name { font-size: 1rem; font-weight: 900; color: var(--text-color); text-shadow: 1px 1px 3px rgba(0,0,0,0.9); margin-top: 2px; }
+  .preview-handle { font-size: .7rem; color: rgba(255,255,255,0.6); margin-top: -4px; }
+  .preview-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%; margin-top: 6px; }
+  .preview-box { padding: 7px 9px; background: var(--box-bg); border: 1.5px solid var(--box-border); border-radius: 8px; display: flex; flex-direction: column; gap: 2px; }
+  .preview-box-label { font-size: .55rem; font-weight: 700; color: rgba(255,255,255,0.65); letter-spacing: 1px; }
+  .preview-box-value { font-size: .9rem; font-weight: 900; color: var(--text-color); }
+  .preview-progress { width: 100%; height: 12px; background: rgba(0,0,0,0.75); border: 1.5px solid var(--box-border); border-radius: 6px; overflow: hidden; margin-top: 5px; }
+  .preview-progress-fill { width: 52%; height: 100%; background: linear-gradient(90deg, var(--accent), var(--border-color)); border-radius: 4px; transition: width .3s; }
 
-  .preview-avatar {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--border-color));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    font-weight: 900;
-    color: #0d0c0a;
-    border: 3px solid var(--accent);
-    box-shadow: 0 0 15px -5px var(--border-color);
-    flex-shrink: 0;
-  }
-
-  .preview-name {
-    font-size: 1.1rem;
-    font-weight: 900;
-    color: var(--text-color);
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
-    margin-top: 2px;
-  }
-
-  .preview-handle {
-    font-size: .75rem;
-    color: rgba(255,255,255,0.6);
-    margin-top: -4px;
-  }
-
-  .preview-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-    width: 100%;
-    margin-top: 6px;
-  }
-
-  .preview-box {
-    padding: 8px 10px;
-    background: var(--box-bg);
-    border: 1.5px solid var(--box-border);
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .preview-box-label {
-    font-size: .6rem;
-    font-weight: 700;
-    color: rgba(255,255,255,0.65);
-    letter-spacing: 1px;
-  }
-
-  .preview-box-value {
-    font-size: .95rem;
-    font-weight: 900;
-    color: var(--text-color);
-  }
-
-  .preview-progress {
-    width: 100%;
-    height: 14px;
-    background: rgba(0,0,0,0.75);
-    border: 1.5px solid var(--box-border);
-    border-radius: 7px;
-    overflow: hidden;
-    margin-top: 6px;
-  }
-
-  .preview-progress-fill {
-    width: 52%;
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--border-color));
-    border-radius: 5px;
-    transition: width .3s;
-  }
-
-  /* زر فتح قسم التخصيص */
+  /* ===== زر فتح/طي قسم التخصيص ===== */
   .open-colors-btn {
     display: flex;
     align-items: center;
@@ -134,40 +59,111 @@
     color: var(--gold-hi);
     font-weight: 800;
     font-size: 1.05rem;
+    font-family: inherit;
     cursor: pointer;
     margin-top: 16px;
     transition: all .2s;
+    box-shadow: 0 6px 20px -10px var(--gold);
+  }
+  .open-colors-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -10px var(--gold); }
+  .open-colors-btn .arrow { transition: transform .3s; font-size: .9rem; }
+  .open-colors-btn.open .arrow { transform: rotate(180deg); }
+
+  /* ===== قسم التخصيص ===== */
+  .colors-section {
+    width: 100%;
+    max-width: 720px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 20px;
+    display: grid;
+    gap: 18px;
+    margin-top: 12px;
+    animation: drop .4s both;
   }
 
-  .open-colors-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px -10px var(--gold);
+  /* ===== قوالب جاهزة (مصغرة) ===== */
+  .templates-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    width: 100%;
   }
 
-  .open-colors-btn .arrow {
-    transition: transform .3s;
+  .template-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 4px;
+    background: var(--bg);
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    color: var(--text);
+    font: inherit;
+    font-size: .7rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
-  .open-colors-btn.open .arrow {
-    transform: rotate(180deg);
+  .template-btn:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .template-btn.active { border-color: var(--gold); background: #221b0d; box-shadow: 0 0 0 2px #f2c23c33; }
+
+  .template-preview {
+    width: 100%;
+    height: 20px;
+    border-radius: 6px;
+    display: block;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   }
 
+  /* ===== Color Pickers (منظم) ===== */
+  .color-pickers {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    width: 100%;
+  }
+
+  .color-picker-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+
+  .color-picker-item label {
+    font-size: .75rem;
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  .color-picker-item input[type="color"] {
+    width: 100%;
+    height: 32px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--bg);
+    cursor: pointer;
+    padding: 2px;
+  }
+
+  @media (max-width: 480px) {
+    .templates-grid { grid-template-columns: repeat(3, 1fr); }
+  }
   @media (max-width: 639px) {
-    .live-preview {
-      max-width: 100%;
-      padding: 12px;
-    }
-    .preview-avatar {
-      width: 50px;
-      height: 50px;
-      font-size: 1.2rem;
-    }
-    .preview-name {
-      font-size: .95rem;
-    }
-    .preview-box-value {
-      font-size: .8rem;
-    }
+    .live-preview { max-width: 100%; padding: 12px; }
+    .preview-avatar { width: 50px; height: 50px; font-size: 1.2rem; }
+    .preview-name { font-size: .9rem; }
+    .preview-box-value { font-size: .8rem; }
+    .color-pickers { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -201,8 +197,6 @@ TROF.load(function(){
     return;
   }
 
-  var gid = TROF.getSelectedGuild();
-
   // ===== بيانات الملف =====
   h+='<div class="pf'+r()+'"><div class="sec-ic pf-av"><span class="ring"></span><img class="face" alt="" src="'+TROF.avatar(128)+'"></div><div><h1 class="sec-title" id="nm"></h1><p id="un"></p></div></div>';
 
@@ -224,29 +218,35 @@ TROF.load(function(){
      '<button class="daily-btn" id="daily-btn" type="button" disabled>🎁 استلام المكافأة</button>' +
      '</div>';
 
-  // ===== زر فتح قسم التخصيص (مطوي افتراضياً) =====
+  // ===== زر طي القسم =====
   h+='<button class="open-colors-btn" id="open-colors-btn" type="button">' +
      '<span>🎨 تخصيص ألوان البروفايل</span>' +
      '<span class="arrow">▼</span>' +
      '</button>';
 
-  // ===== قسم التخصيص (مخفي افتراضياً) =====
-  h+='<div class="colors-section" id="colors-section" style="display:none;width:100%;max-width:720px;margin-top:12px">' +
+  // ===== القسم (مخفي افتراضياً) =====
+  h+='<div class="colors-section" id="colors-section" style="display:none">' +
      '<div class="form-section-title">🎨 تخصيص ألوان البروفايل</div>' +
+
      '<div class="form-row form-row-col">' +
        '<label class="form-label">📋 قوالب جاهزة</label>' +
        '<div class="templates-grid" id="templates-grid"></div>' +
      '</div>' +
-     '<div class="color-pickers">' +
-       '<div class="color-picker-item"><label>لون النص</label><input type="color" id="c-text" value="#FFFFFF"></div>' +
-       '<div class="color-picker-item"><label>خلفية المربعات</label><input type="color" id="c-box-bg" value="#000000"></div>' +
-       '<div class="color-picker-item"><label>حدود المربعات</label><input type="color" id="c-box-border" value="#FFFFFF"></div>' +
-       '<div class="color-picker-item"><label>اللون المميز (XP)</label><input type="color" id="c-accent" value="#FFD700"></div>' +
-       '<div class="color-picker-item"><label>لون الإطار</label><input type="color" id="c-border" value="#00d4d4"></div>' +
+
+     '<div class="form-row form-row-col">' +
+       '<label class="form-label">🎨 الألوان</label>' +
+       '<div class="color-pickers">' +
+         '<div class="color-picker-item"><label>لون النص</label><input type="color" id="c-text" value="#FFFFFF"></div>' +
+         '<div class="color-picker-item"><label>خلفية المربعات</label><input type="color" id="c-box-bg" value="#000000"></div>' +
+         '<div class="color-picker-item"><label>حدود المربعات</label><input type="color" id="c-box-border" value="#FFFFFF"></div>' +
+         '<div class="color-picker-item"><label>اللون المميز (XP)</label><input type="color" id="c-accent" value="#FFD700"></div>' +
+         '<div class="color-picker-item"><label>لون الإطار</label><input type="color" id="c-border" value="#00d4d4"></div>' +
+       '</div>' +
      '</div>' +
+
      '<div class="form-row form-row-col">' +
        '<label class="form-label">👁️ المعاينة الحية</label>' +
-       '<div class="preview-container">' +
+       '<div class="preview-container" style="width:100%;display:flex;justify-content:center;padding:10px 0;background:var(--bg);border-radius:14px;border:1px solid var(--line)">' +
          '<div class="live-preview" id="live-preview">' +
            '<div class="preview-avatar">' + (u.username ? u.username[0].toUpperCase() : 'U') + '</div>' +
            '<div class="preview-name">' + (u.global_name || u.username) + '</div>' +
@@ -261,6 +261,7 @@ TROF.load(function(){
          '</div>' +
        '</div>' +
      '</div>' +
+
      '<div class="form-actions">' +
        '<button class="btn save-btn" id="save-colors" type="button">💾 حفظ الألوان</button>' +
        '<p class="save-msg" id="colors-msg"></p>' +
@@ -354,21 +355,20 @@ TROF.load(function(){
   updateDailyStatus();
   setInterval(updateDailyStatus, 60000);
 
-  // ============================================
-  // 🎨 زر فتح قسم التخصيص
-  // ============================================
+  // ===== زر فتح/طي القسم =====
   var colorsBtn = document.getElementById('open-colors-btn');
   var colorsSection = document.getElementById('colors-section');
   var colorsOpened = false;
+  var colorsInitialized = false;
 
   colorsBtn.onclick = function() {
     colorsOpened = !colorsOpened;
     colorsBtn.classList.toggle('open', colorsOpened);
 
     if (colorsOpened) {
-      colorsSection.style.display = 'block';
-      if (!colorsSection.dataset.loaded) {
-        colorsSection.dataset.loaded = '1';
+      colorsSection.style.display = 'grid';
+      if (!colorsInitialized) {
+        colorsInitialized = true;
         initColorsSection();
       }
     } else {
@@ -376,9 +376,7 @@ TROF.load(function(){
     }
   };
 
-  // ============================================
-  // 🎨 قسم التخصيص
-  // ============================================
+  // ===== قسم التخصيص =====
   function initColorsSection() {
     var TEMPLATES = [
       {name: "افتراضي", text: "#FFFFFF", boxBg: "#000000", boxBorder: "#FFFFFF", accent: "#FFD700", border: "#00d4d4"},
@@ -393,7 +391,7 @@ TROF.load(function(){
       {name: "أسود", text: "#FFFFFF", boxBg: "#000000", boxBorder: "#333333", accent: "#888888", border: "#333333"},
     ];
 
-    var templatesGrid = document.getElementById('templates-grid');
+    var grid = document.getElementById('templates-grid');
     TEMPLATES.forEach(function(t){
       var btn = document.createElement('button');
       btn.className = 'template-btn';
@@ -409,7 +407,7 @@ TROF.load(function(){
         document.getElementById('c-border').value = t.border;
         updatePreview();
       };
-      templatesGrid.appendChild(btn);
+      grid.appendChild(btn);
     });
 
     fetch(api + '/user/' + u.id + '/profile/colors', {headers: {Authorization: 'Bearer ' + TROF.token()}})
