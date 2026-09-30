@@ -30,6 +30,7 @@
 <script>
 var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
 TROF.dust();
+
 TROF.load(function(){
   TROF.mountAccount();
   TROF.renderServerSelector();
@@ -40,6 +41,8 @@ TROF.load(function(){
     page.innerHTML=h+'<p class="soon'+r()+'">'+TROF.t('profileLogin')+'</p>';
     return;
   }
+
+  var gid = TROF.getSelectedGuild();
 
   // بيانات الملف
   h+='<div class="pf'+r()+'"><div class="sec-ic pf-av"><span class="ring"></span><img class="face" alt="" src="'+TROF.avatar(128)+'"></div><div><h1 class="sec-title" id="nm"></h1><p id="un"></p></div></div>';
@@ -57,52 +60,55 @@ TROF.load(function(){
      '<button class="daily-btn" id="daily-btn" type="button" disabled>🎁 استلام المكافأة</button>' +
    '</div>';
 
-  // قسم تخصيص الألوان
-  h+='<div class="colors-section'+r()+'">' +
+  // ============================================
+  // 🎨 قسم تخصيص الألوان (مقفول - Premium فقط)
+  // ============================================
+  h+='<div class="premium-locked-section'+r()+'" id="colors-locked">' +
+     '<div class="lock-banner">' +
+       '<span class="lock-icon">🔒</span>' +
+       '<div>' +
+         '<b>تخصيص ألوان البروفايل</b>' +
+         '<small>هذه الميزة متاحة لمشتركي <strong>Premium</strong> فقط</small>' +
+       '</div>' +
+       '<a class="lock-btn" href="premium.html">💎 ترقية الآن</a>' +
+     '</div>' +
+   '</div>';
+
+  // قالب المعاينة (يظهر لما يفتح)
+  h+='<div class="colors-section hidden'+r()+'" id="colors-section" style="display:none">' +
      '<div class="form-section-title">🎨 تخصيص ألوان البروفايل</div>' +
 
-     // القوالب الجاهزة
      '<div class="form-row form-row-col">' +
        '<label class="form-label">📋 قوالب جاهزة</label>' +
        '<div class="templates-grid" id="templates-grid"></div>' +
      '</div>' +
 
-     // Color Pickers
      '<div class="color-pickers">' +
-       '<div class="color-picker-item">' +
-         '<label>لون النص</label>' +
-         '<input type="color" id="c-text" value="#FFFFFF">' +
-       '</div>' +
-       '<div class="color-picker-item">' +
-         '<label>خلفية المربعات</label>' +
-         '<input type="color" id="c-box-bg" value="#000000">' +
-       '</div>' +
-       '<div class="color-picker-item">' +
-         '<label>حدود المربعات</label>' +
-         '<input type="color" id="c-box-border" value="#FFFFFF">' +
-       '</div>' +
-       '<div class="color-picker-item">' +
-         '<label>اللون المميز (XP)</label>' +
-         '<input type="color" id="c-accent" value="#FFD700">' +
-       '</div>' +
-       '<div class="color-picker-item">' +
-         '<label>لون الإطار</label>' +
-         '<input type="color" id="c-border" value="#00d4d4">' +
-       '</div>' +
+       '<div class="color-picker-item"><label>لون النص</label><input type="color" id="c-text" value="#FFFFFF"></div>' +
+       '<div class="color-picker-item"><label>خلفية المربعات</label><input type="color" id="c-box-bg" value="#000000"></div>' +
+       '<div class="color-picker-item"><label>حدود المربعات</label><input type="color" id="c-box-border" value="#FFFFFF"></div>' +
+       '<div class="color-picker-item"><label>اللون المميز (XP)</label><input type="color" id="c-accent" value="#FFD700"></div>' +
+       '<div class="color-picker-item"><label>لون الإطار</label><input type="color" id="c-border" value="#00d4d4"></div>' +
      '</div>' +
 
-     // المعاينة
      '<div class="form-row form-row-col">' +
        '<label class="form-label">👁️ المعاينة الحية</label>' +
        '<div class="preview-container">' +
-         '<img id="preview-img" src="" alt="معاينة البروفايل" style="max-width:100%;border-radius:12px;display:none;">' +
-         '<div id="preview-loading" style="text-align:center;color:var(--muted);padding:40px;">' +
-           '<p>🔄 جاري تحميل المعاينة...</p>' +
+         '<div class="live-preview" id="live-preview">' +
+           '<div class="preview-avatar">' + (u.username ? u.username[0].toUpperCase() : 'U') + '</div>' +
+           '<div class="preview-name">' + (u.global_name || u.username) + '</div>' +
+           '<div class="preview-handle">@' + u.username + '</div>' +
+           '<div class="preview-stats">' +
+             '<div class="preview-box"><div class="preview-box-label">LVL</div><div class="preview-box-value" id="pv-level">—</div></div>' +
+             '<div class="preview-box"><div class="preview-box-label">XP</div><div class="preview-box-value" id="pv-xp">—</div></div>' +
+             '<div class="preview-box"><div class="preview-box-label">CREDITS</div><div class="preview-box-value" id="pv-balance">—</div></div>' +
+             '<div class="preview-box"><div class="preview-box-label">RANK</div><div class="preview-box-value" id="pv-rank">—</div></div>' +
+           '</div>' +
+           '<div class="preview-progress"><div class="preview-progress-fill" id="pv-progress"></div></div>' +
          '</div>' +
        '</div>' +
      '</div>' +
 
-     // زر الحفظ
      '<div class="form-actions">' +
        '<button class="btn save-btn" id="save-colors" type="button">💾 حفظ الألوان</button>' +
        '<p class="save-msg" id="colors-msg"></p>' +
@@ -124,15 +130,30 @@ TROF.load(function(){
   }
 
   var api=TROF.CONFIG.apiUrl;
-  if(!api){note.textContent=TROF.t('noApi');return}
 
-  // جلب البيانات الأساسية
+  // ============================================
+  // جلب البيانات
+  // ============================================
   fetch(api.replace(/\/$/,'')+'/users/'+u.id,{headers:{Authorization:'Bearer '+TROF.token()}})
     .then(function(x){if(!x.ok)throw 0;return x.json()})
     .then(function(d){
       document.getElementById('s-bal').textContent = TROF.formatNumber(d.balance);
       count(document.getElementById('s-lvl'), d.level);
       count(document.getElementById('s-rank'), d.rank);
+      // معاينة
+      var pv = document.getElementById('pv-level');
+      if(pv) pv.textContent = d.level || 0;
+      var px = document.getElementById('pv-xp');
+      if(px) px.textContent = TROF.formatNumber(d.total_xp || 0);
+      var pb = document.getElementById('pv-balance');
+      if(pb) pb.textContent = TROF.formatNumber(d.balance);
+      var pr = document.getElementById('pv-rank');
+      if(pr) pr.textContent = '#' + (d.rank || '—');
+      var pp = document.getElementById('pv-progress');
+      if(pp){
+        var pct = Math.min(((d.xp || 0) / ((d.level + 1) * 100)) * 100, 100);
+        pp.style.width = pct + '%';
+      }
     })
     .catch(function(){note.textContent=TROF.t('apiErr')});
 
@@ -143,117 +164,155 @@ TROF.load(function(){
   var dailyStatus = document.getElementById('daily-status');
 
   function updateDailyStatus(){
-    fetch(api + '/user/' + u.id + '/daily/status', {
-      headers: {Authorization: 'Bearer ' + TROF.token()}
-    })
-    .then(function(r){return r.json()})
-    .then(function(d){
-      if(d.can_claim){
-        dailyBtn.disabled = false;
-        dailyStatus.textContent = 'يمكنك الاستلام الآن!';
-        dailyStatus.style.color = '#4ade80';
-      }else{
-        dailyBtn.disabled = true;
-        var hours = Math.floor(d.time_left / 3600);
-        var minutes = Math.floor((d.time_left % 3600) / 60);
-        dailyStatus.textContent = 'انتظر ' + hours + 'س ' + minutes + 'د';
-        dailyStatus.style.color = '#f2c23c';
-      }
-    })
-    .catch(function(){
-      dailyStatus.textContent = 'خطأ في التحميل';
-    });
+    fetch(api + '/user/' + u.id + '/daily/status', {headers: {Authorization: 'Bearer ' + TROF.token()}})
+      .then(function(r){return r.json()})
+      .then(function(d){
+        if(d.can_claim){
+          dailyBtn.disabled = false;
+          dailyStatus.textContent = 'يمكنك الاستلام الآن!';
+          dailyStatus.style.color = '#4ade80';
+        }else{
+          dailyBtn.disabled = true;
+          var hours = Math.floor(d.time_left / 3600);
+          var minutes = Math.floor((d.time_left % 3600) / 60);
+          dailyStatus.textContent = 'انتظر ' + hours + 'س ' + minutes + 'د';
+          dailyStatus.style.color = '#f2c23c';
+        }
+      })
+      .catch(function(){ dailyStatus.textContent = 'خطأ في التحميل'; });
   }
 
   dailyBtn.onclick = function(){
     dailyBtn.disabled = true;
     dailyStatus.textContent = '⏳ جاري الاستلام...';
-
-    fetch(api + '/user/' + u.id + '/daily/claim', {
-      method: 'POST',
-      headers: {Authorization: 'Bearer ' + TROF.token()}
-    })
-    .then(function(r){return r.json()})
-    .then(function(d){
-      if(d.success){
-        dailyStatus.textContent = '✅ حصلت على ' + d.reward + ' 💰!';
-        dailyStatus.style.color = '#4ade80';
-        var balEl = document.getElementById('s-bal');
-        if(balEl) balEl.textContent = TROF.formatNumber(d.new_balance);
-        setTimeout(updateDailyStatus, 2000);
-      }else{
-        dailyStatus.textContent = '❌ ' + (d.detail || 'فشل');
-        dailyStatus.style.color = '#f87171';
-        dailyBtn.disabled = false;
-      }
-    })
-    .catch(function(e){
-      dailyStatus.textContent = '❌ خطأ في الاتصال';
-      dailyStatus.style.color = '#f87171';
-      dailyBtn.disabled = false;
-    });
+    fetch(api + '/user/' + u.id + '/daily/claim', {method: 'POST', headers: {Authorization: 'Bearer ' + TROF.token()}})
+      .then(function(r){return r.json()})
+      .then(function(d){
+        if(d.success){
+          dailyStatus.textContent = '✅ حصلت على ' + d.reward + ' 💰!';
+          dailyStatus.style.color = '#4ade80';
+          var balEl = document.getElementById('s-bal');
+          if(balEl) balEl.textContent = TROF.formatNumber(d.new_balance);
+          setTimeout(updateDailyStatus, 2000);
+        }else{
+          dailyStatus.textContent = '❌ ' + (d.detail || 'فشل');
+          dailyStatus.style.color = '#f87171';
+          dailyBtn.disabled = false;
+        }
+      })
+      .catch(function(){ dailyStatus.textContent = '❌ خطأ'; dailyBtn.disabled = false; });
   };
 
   updateDailyStatus();
   setInterval(updateDailyStatus, 60000);
 
   // ============================================
-  // 🎨 القوالب الجاهزة (10 قوالب)
+  // 🔒 فحص Premium لفتح قسم الألوان
   // ============================================
-  var TEMPLATES = [
-    {name: "افتراضي", text: "#FFFFFF", boxBg: "#000000", boxBorder: "#FFFFFF", accent: "#FFD700", border: "#00d4d4"},
-    {name: "ذهبي", text: "#FFD700", boxBg: "#1a1305", boxBorder: "#FFD700", accent: "#FFD700", border: "#FFD700"},
-    {name: "فضي", text: "#FFFFFF", boxBg: "#1a1a1a", boxBorder: "#C0C0C0", accent: "#C0C0C0", border: "#C0C0C0"},
-    {name: "أزرق", text: "#FFFFFF", boxBg: "#0a1628", boxBorder: "#00BFFF", accent: "#00BFFF", border: "#00BFFF"},
-    {name: "بنفسجي", text: "#FFFFFF", boxBg: "#1a0a28", boxBorder: "#9B59B6", accent: "#9B59B6", border: "#9B59B6"},
-    {name: "أحمر", text: "#FFFFFF", boxBg: "#1a0505", boxBorder: "#E74C3C", accent: "#E74C3C", border: "#E74C3C"},
-    {name: "أخضر", text: "#FFFFFF", boxBg: "#051a05", boxBorder: "#2ECC71", accent: "#2ECC71", border: "#2ECC71"},
-    {name: "برتقالي", text: "#FFFFFF", boxBg: "#1a0f05", boxBorder: "#E67E22", accent: "#E67E22", border: "#E67E22"},
-    {name: "وردي", text: "#FFFFFF", boxBg: "#1a0510", boxBorder: "#FF69B4", accent: "#FF69B4", border: "#FF69B4"},
-    {name: "أسود", text: "#FFFFFF", boxBg: "#000000", boxBorder: "#333333", accent: "#888888", border: "#333333"},
-  ];
+  if (gid) {
+    fetch(api + '/premium/status?user_id=' + u.id + '&guild_id=' + gid, {
+      headers: {Authorization: 'Bearer ' + TROF.token()}
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.is_premium) {
+        // افتح القسم
+        document.getElementById('colors-locked').style.display = 'none';
+        document.getElementById('colors-section').style.display = 'grid';
+        initColorsSection();
+      }
+    })
+    .catch(function(){});
+  }
 
-  var templatesGrid = document.getElementById('templates-grid');
-  TEMPLATES.forEach(function(t, i){
-    var btn = document.createElement('button');
-    btn.className = 'template-btn';
-    btn.type = 'button';
-    btn.innerHTML = '<span class="template-preview" style="background:linear-gradient(135deg, ' + t.border + ' 0%, ' + t.accent + ' 100%)"></span><span>' + t.name + '</span>';
-    btn.onclick = function(){
-      document.querySelectorAll('.template-btn').forEach(function(b){b.classList.remove('active')});
-      btn.classList.add('active');
+  // ============================================
+  // 🎨 قسم تخصيص الألوان
+  // ============================================
+  function initColorsSection() {
+    var TEMPLATES = [
+      {name: "افتراضي", text: "#FFFFFF", boxBg: "#000000", boxBorder: "#FFFFFF", accent: "#FFD700", border: "#00d4d4"},
+      {name: "ذهبي", text: "#FFD700", boxBg: "#1a1305", boxBorder: "#FFD700", accent: "#FFD700", border: "#FFD700"},
+      {name: "فضي", text: "#FFFFFF", boxBg: "#1a1a1a", boxBorder: "#C0C0C0", accent: "#C0C0C0", border: "#C0C0C0"},
+      {name: "أزرق", text: "#FFFFFF", boxBg: "#0a1628", boxBorder: "#00BFFF", accent: "#00BFFF", border: "#00BFFF"},
+      {name: "بنفسجي", text: "#FFFFFF", boxBg: "#1a0a28", boxBorder: "#9B59B6", accent: "#9B59B6", border: "#9B59B6"},
+      {name: "أحمر", text: "#FFFFFF", boxBg: "#1a0505", boxBorder: "#E74C3C", accent: "#E74C3C", border: "#E74C3C"},
+      {name: "أخضر", text: "#FFFFFF", boxBg: "#051a05", boxBorder: "#2ECC71", accent: "#2ECC71", border: "#2ECC71"},
+      {name: "برتقالي", text: "#FFFFFF", boxBg: "#1a0f05", boxBorder: "#E67E22", accent: "#E67E22", border: "#E67E22"},
+      {name: "وردي", text: "#FFFFFF", boxBg: "#1a0510", boxBorder: "#FF69B4", accent: "#FF69B4", border: "#FF69B4"},
+      {name: "أسود", text: "#FFFFFF", boxBg: "#000000", boxBorder: "#333333", accent: "#888888", border: "#333333"},
+    ];
 
-      document.getElementById('c-text').value = t.text;
-      document.getElementById('c-box-bg').value = t.boxBg;
-      document.getElementById('c-box-border').value = t.boxBorder;
-      document.getElementById('c-accent').value = t.accent;
-      document.getElementById('c-border').value = t.border;
+    var templatesGrid = document.getElementById('templates-grid');
+    TEMPLATES.forEach(function(t){
+      var btn = document.createElement('button');
+      btn.className = 'template-btn';
+      btn.type = 'button';
+      btn.innerHTML = '<span class="template-preview" style="background:linear-gradient(135deg, ' + t.border + ' 0%, ' + t.accent + ' 100%)"></span><span>' + t.name + '</span>';
+      btn.onclick = function(){
+        document.querySelectorAll('.template-btn').forEach(function(b){b.classList.remove('active')});
+        btn.classList.add('active');
+        document.getElementById('c-text').value = t.text;
+        document.getElementById('c-box-bg').value = t.boxBg;
+        document.getElementById('c-box-border').value = t.boxBorder;
+        document.getElementById('c-accent').value = t.accent;
+        document.getElementById('c-border').value = t.border;
+        updatePreview();
+      };
+      templatesGrid.appendChild(btn);
+    });
 
-      updatePreview();
+    // جلب الألوان المحفوظة
+    fetch(api + '/user/' + u.id + '/profile/colors', {headers: {Authorization: 'Bearer ' + TROF.token()}})
+      .then(function(r){return r.json()})
+      .then(function(d){
+        if(d.colors){
+          document.getElementById('c-text').value = d.colors.text_color || '#FFFFFF';
+          document.getElementById('c-box-bg').value = convertRgbaToHex(d.colors.box_bg) || '#000000';
+          document.getElementById('c-box-border').value = convertRgbaToHex(d.colors.box_border) || '#FFFFFF';
+          document.getElementById('c-accent').value = d.colors.accent_color || '#FFD700';
+          document.getElementById('c-border').value = d.colors.border_color || '#00d4d4';
+        }
+        updatePreview();
+      })
+      .catch(function(){ updatePreview(); });
+
+    // ربط المستمعات
+    ['c-text', 'c-box-bg', 'c-box-border', 'c-accent', 'c-border'].forEach(function(id){
+      document.getElementById(id).addEventListener('input', updatePreview);
+    });
+
+    // زر الحفظ
+    document.getElementById('save-colors').onclick = function(){
+      var btn = this;
+      btn.disabled = true;
+      var msg = document.getElementById('colors-msg');
+      msg.textContent = '⏳ جاري الحفظ...';
+      fetch(api + '/user/' + u.id + '/profile/colors', {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          text_color: document.getElementById('c-text').value,
+          box_bg: hexToRgba(document.getElementById('c-box-bg').value, 0.5),
+          box_border: hexToRgba(document.getElementById('c-box-border').value, 0.15),
+          accent_color: document.getElementById('c-accent').value,
+          border_color: document.getElementById('c-border').value
+        })
+      })
+      .then(function(r){return r.json()})
+      .then(function(d){
+        if(d.success){
+          msg.textContent = '✅ تم الحفظ!';
+          msg.style.color = '#4ade80';
+        }else{
+          msg.textContent = '❌ فشل';
+          msg.style.color = '#f87171';
+        }
+      })
+      .catch(function(){ msg.textContent = '❌ خطأ'; msg.style.color = '#f87171'; })
+      .finally(function(){ btn.disabled = false; setTimeout(function(){ msg.textContent = ''; }, 3000); });
     };
-    templatesGrid.appendChild(btn);
-  });
+  }
 
-  // ============================================
-  // تحميل الألوان المحفوظة
-  // ============================================
-  fetch(api + '/user/' + u.id + '/profile/colors', {
-    headers: {Authorization: 'Bearer ' + TROF.token()}
-  })
-  .then(function(r){return r.json()})
-  .then(function(d){
-    if(d.colors){
-      document.getElementById('c-text').value = d.colors.text_color || '#FFFFFF';
-      document.getElementById('c-box-bg').value = convertRgbaToHex(d.colors.box_bg) || '#000000';
-      document.getElementById('c-box-border').value = convertRgbaToHex(d.colors.box_border) || '#FFFFFF';
-      document.getElementById('c-accent').value = d.colors.accent_color || '#FFD700';
-      document.getElementById('c-border').value = d.colors.border_color || '#00d4d4';
-    }
-    updatePreview();
-  })
-  .catch(function(){ updatePreview(); });
-
-  // تحويل rgba إلى hex
   function convertRgbaToHex(rgba){
     if(!rgba || rgba.indexOf('rgba') === -1) return rgba;
     var m = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
@@ -274,106 +333,28 @@ TROF.load(function(){
   }
 
   // ============================================
-  // تحديث المعاينة
+  // 🎨 المعاينة الحية (بدون API)
   // ============================================
   var previewTimeout;
   function updatePreview(){
     clearTimeout(previewTimeout);
     previewTimeout = setTimeout(function(){
-      var previewImg = document.getElementById('preview-img');
-      var loading = document.getElementById('preview-loading');
-
-      loading.style.display = 'block';
-      previewImg.style.display = 'none';
-
       var textColor = document.getElementById('c-text').value;
       var boxBg = document.getElementById('c-box-bg').value;
       var boxBorder = document.getElementById('c-box-border').value;
       var accent = document.getElementById('c-accent').value;
       var border = document.getElementById('c-border').value;
 
-      // نحفظ الألوان مؤقتاً (بدون تأكيد)
-      fetch(api + '/user/' + u.id + '/profile/colors', {
-        method: 'POST',
-        headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          text_color: textColor,
-          box_bg: hexToRgba(boxBg, 0.5),
-          box_border: hexToRgba(boxBorder, 0.15),
-          accent_color: accent,
-          border_color: border
-        })
-      })
-      .then(function(){
-        return fetch(api + '/user/' + u.id + '/profile/preview', {
-          headers: {Authorization: 'Bearer ' + TROF.token()}
-        });
-      })
-      .then(function(r){
-        if(r.ok) return r.blob();
-        throw new Error('preview failed');
-      })
-      .then(function(blob){
-        var url = URL.createObjectURL(blob);
-        previewImg.src = url;
-        previewImg.onload = function(){
-          loading.style.display = 'none';
-          previewImg.style.display = 'block';
-          URL.revokeObjectURL(url);
-        };
-      })
-      .catch(function(e){
-        console.error('preview error', e);
-        loading.innerHTML = '<p>❌ فشل تحميل المعاينة</p>';
-      });
-    }, 800);
+      var preview = document.getElementById('live-preview');
+      if (!preview) return;
+
+      preview.style.setProperty('--text-color', textColor);
+      preview.style.setProperty('--box-bg', hexToRgba(boxBg, 0.55));
+      preview.style.setProperty('--box-border', hexToRgba(boxBorder, 0.2));
+      preview.style.setProperty('--accent', accent);
+      preview.style.setProperty('--border-color', border);
+    }, 200);
   }
-
-  // مستمعات Color Pickers
-  ['c-text', 'c-box-bg', 'c-box-border', 'c-accent', 'c-border'].forEach(function(id){
-    var el = document.getElementById(id);
-    el.addEventListener('input', updatePreview);
-  });
-
-  // ============================================
-  // زر الحفظ
-  // ============================================
-  document.getElementById('save-colors').onclick = function(){
-    var btn = this;
-    btn.disabled = true;
-    var msg = document.getElementById('colors-msg');
-    msg.textContent = '⏳ جاري الحفظ...';
-
-    fetch(api + '/user/' + u.id + '/profile/colors', {
-      method: 'POST',
-      headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        text_color: document.getElementById('c-text').value,
-        box_bg: hexToRgba(document.getElementById('c-box-bg').value, 0.5),
-        box_border: hexToRgba(document.getElementById('c-box-border').value, 0.15),
-        accent_color: document.getElementById('c-accent').value,
-        border_color: document.getElementById('c-border').value
-      })
-    })
-    .then(function(r){return r.json()})
-    .then(function(d){
-      if(d.success){
-        msg.textContent = '✅ تم الحفظ!';
-        msg.style.color = '#4ade80';
-      }else{
-        msg.textContent = '❌ فشل';
-        msg.style.color = '#f87171';
-      }
-    })
-    .catch(function(){
-      msg.textContent = '❌ خطأ';
-      msg.style.color = '#f87171';
-    })
-    .finally(function(){
-      btn.disabled = false;
-      setTimeout(function(){ msg.textContent = ''; }, 3000);
-    });
-  };
 });
 </script>
 </body>
