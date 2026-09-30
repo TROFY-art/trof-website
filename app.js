@@ -31,7 +31,6 @@ document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl
 
 var STR={
 ar:{
-/* أساسيات الموقع */
 lead:'بوت دسكورد واحد يدير سيرفرك كله: مستويات، موسيقى، جيفاواي، تكتات وأدوات إدارة.',
 addBot:'أضف البوت إلى سيرفرك',
 note:'مشروع غير تجاري.',
@@ -59,7 +58,6 @@ loading:'جاري التحميل...',
 checking:'جاري التحقق...',
 vote:'صوّت للبوت',
 
-/* Terms */
 termsPageTitle:'شروط الخدمة | TROF System',
 termsTitle:'📜 شروط الخدمة',
 termsLastUpdate:'آخر تحديث',
@@ -102,9 +100,9 @@ termsWarning:'⚠️ تنبيه مهم:',
 termsWarningBody:'إذا كنت لا توافق على أي بند من هذه الشروط، يجب عليك إزالة البوت من سيرفرك والتوقف عن استخدام الموقع فوراً.',
 termsCopyright:'© 2026 TROF System - جميع الحقوق محفوظة',
 
-/* Privacy */
 privacyPageTitle:'سياسة الخصوصية | TROF System',
 privacyTitle:'🔒 سياسة الخصوصية',
+privacyLastUpdate:'آخر تحديث',
 privacyBack:'الرجوع للرئيسية',
 privacyIntro:'خصوصيتك تهمنا. توضح هذه السياسة كيف يجمع TROF System ("البوت" أو "الخدمة") بياناتك ويستخدمها ويحميها. باستخدامك للخدمة، فإنك توافق على هذه السياسة.',
 privacyH1:'1. البيانات التي نجمعها',
@@ -154,7 +152,6 @@ privacyH11Body:'لأي استفسار بخصوص الخصوصية أو طلب ح
 privacyPromise:'✅ وعدنا لك:',
 privacyPromiseBody:'بياناتك ملكك. لا نبيعها، لا نشاركها، ونحترم خصوصيتك.',
 
-/* Vote */
 votePageTitle:'صوّت للبوت | TROF System',
 voteTitle:'🗳️ صوّت للبوت',
 voteSubtitle:'كل تصويت =',
@@ -176,10 +173,10 @@ voteLoading:'جاري التحميل...',
 voteError:'⚠️ خطأ في التحميل',
 voteVotes:'تصويت',
 voteChecking:'⏳ جاري التحقق...',
-voteNoSites:'لا توجد مواقع حالياً'
+voteNoSites:'لا توجد مواقع حالياً',
+voteBack:'الرجوع للرئيسية'
 },
 en:{
-/* Site basics */
 lead:'One Discord bot to run your whole server: levels, music, giveaways, tickets and moderation tools.',
 addBot:'Add the bot to your server',
 note:'A non-commercial project.',
@@ -207,7 +204,6 @@ loading:'Loading...',
 checking:'Checking...',
 vote:'Vote for Bot',
 
-/* Terms */
 termsPageTitle:'Terms of Service | TROF System',
 termsTitle:'📜 Terms of Service',
 termsLastUpdate:'Last updated',
@@ -250,9 +246,9 @@ termsWarning:'⚠️ Important Notice:',
 termsWarningBody:'If you do not agree with any clause of these terms, you must remove the bot from your server and stop using the website immediately.',
 termsCopyright:'© 2026 TROF System - All rights reserved',
 
-/* Privacy */
 privacyPageTitle:'Privacy Policy | TROF System',
 privacyTitle:'🔒 Privacy Policy',
+privacyLastUpdate:'Last updated',
 privacyBack:'Back to Home',
 privacyIntro:'Your privacy matters to us. This policy explains how TROF System ("the Bot" or "the Service") collects, uses, and protects your data. By using the service, you agree to this policy.',
 privacyH1:'1. Data We Collect',
@@ -302,7 +298,6 @@ privacyH11Body:'For any inquiry regarding privacy or data deletion request:',
 privacyPromise:'✅ Our promise:',
 privacyPromiseBody:"Your data is yours. We don't sell it, don't share it, and respect your privacy.",
 
-/* Vote */
 votePageTitle:'Vote for Bot | TROF System',
 voteTitle:'🗳️ Vote for the Bot',
 voteSubtitle:'Each vote =',
@@ -324,7 +319,8 @@ voteLoading:'Loading...',
 voteError:'⚠️ Loading error',
 voteVotes:'votes',
 voteChecking:'⏳ Checking...',
-voteNoSites:'No sites available'
+voteNoSites:'No sites available',
+voteBack:'Back to Home'
 }
 };
 
@@ -336,9 +332,6 @@ function name(s){return lang==='en'&&EN[s.id]?EN[s.id][0]:s.t}
 function desc(s){return lang==='en'&&EN[s.id]?EN[s.id][1]:s.d}
 function cmdDesc(c){return lang==='en'&&c[2]?c[2]:c[1]}
 
-/* ============================================
-   🎨 الأيقونات SVG
-   ============================================ */
 function getIconSVG(name){
   var icons={
     embed:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h7M7 17h4"/></svg>',
@@ -382,46 +375,58 @@ function ok(r){if(!r.ok)throw 0;return r.json()}
 function logout(silent){try{sessionStorage.removeItem('trof_token')}catch(e){}if(!silent)location.href=base()}
 
 function load(cb){
-  var t=token();
-  if(!t){cb();return}
-  var H={headers:{Authorization:'Bearer '+t}};
-  fetch(API+'/users/@me',H)
+  var called = false;
+  function safeCb() {
+    if (called) return;
+    called = true;
+    cb();
+  }
+  
+  setTimeout(safeCb, 5000);
+  
+  var t = token();
+  if (!t) { safeCb(); return; }
+  
+  var H = { headers: { Authorization: 'Bearer ' + t } };
+  fetch(API + '/users/@me', H)
     .then(function(r){
-      if(r.status===429){
-        return new Promise(function(resolve){setTimeout(resolve,2000)})
-          .then(function(){return fetch(API+'/users/@me',H)});
+      if (r.status === 429) {
+        return new Promise(function(resolve){ setTimeout(resolve, 2000); })
+          .then(function(){ return fetch(API + '/users/@me', H); });
       }
       return r;
     })
     .then(ok)
     .then(function(u){
-      auth.user=u;
-      auth.rank=(CONFIG.ownerId&&u.id===CONFIG.ownerId)?3:0;
-      if(!CONFIG.guildId){
-        cb();
+      auth.user = u;
+      auth.rank = (CONFIG.ownerId && u.id === CONFIG.ownerId) ? 3 : 0;
+      
+      if (!CONFIG.guildId) {
+        safeCb();
         return;
       }
+      
       setTimeout(function(){
-        fetch(API+'/users/@me/guilds/'+CONFIG.guildId+'/member',H)
+        fetch(API + '/users/@me/guilds/' + CONFIG.guildId + '/member', H)
           .then(function(r){
-            if(r.status===429)throw new Error('rate_limit');
+            if (r.status === 429) throw new Error('rate_limit');
             return r;
           })
           .then(ok)
           .then(function(m){
-            var roles=m.roles||[];
-            if(auth.rank<3){
-              auth.rank=has(CONFIG.adminStreetRoleIds,roles)?2:
-                        has(CONFIG.staffRoleIds,roles)?1:0;
+            var roles = m.roles || [];
+            if (auth.rank < 3) {
+              auth.rank = has(CONFIG.adminStreetRoleIds, roles) ? 2 :
+                          has(CONFIG.staffRoleIds, roles) ? 1 : 0;
             }
           })
           .catch(function(){})
-          .finally(function(){cb();});
-      },500);
+          .finally(safeCb);
+      }, 500);
     })
     .catch(function(){
       logout(true);
-      cb();
+      safeCb();
     });
 }
 
@@ -497,9 +502,6 @@ async function checkUserAccess(userId,guildId){
   return false;
 }
 
-/* ============================================
-   🎯 fetchUserGuilds — مُصلَح
-   ============================================ */
 async function fetchUserGuilds(){
   var t=token();
   if(!t)return [];
@@ -628,9 +630,6 @@ function formatNumber(num){
   return sign+Math.floor(abs).toString();
 }
 
-/* ============================================
-   📜 روابط الفوتر (تدعم العربية والإنجليزية)
-   ============================================ */
 function injectFooterLinks(){
   var footer=document.querySelector('footer.wrap');
   if(!footer)return;
