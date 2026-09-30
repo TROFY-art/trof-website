@@ -11,6 +11,165 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+  /* ============================================
+     🎨 إصلاح تصميم المعاينة (صغيرة ومنظمة)
+     ============================================ */
+  .live-preview {
+    --text-color: #FFFFFF;
+    --box-bg: rgba(0, 0, 0, 0.55);
+    --box-border: rgba(255, 255, 255, 0.2);
+    --accent: #FFD700;
+    --border-color: #00d4d4;
+
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    padding: 16px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #0a1628 0%, #1a3a4a 100%);
+    border: 3px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 0 0 2px var(--accent), 0 8px 30px -8px var(--border-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-color);
+    transition: all .3s;
+    box-sizing: border-box;
+  }
+
+  .preview-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--border-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #0d0c0a;
+    border: 3px solid var(--accent);
+    box-shadow: 0 0 15px -5px var(--border-color);
+    flex-shrink: 0;
+  }
+
+  .preview-name {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--text-color);
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
+    margin-top: 2px;
+  }
+
+  .preview-handle {
+    font-size: .75rem;
+    color: rgba(255,255,255,0.6);
+    margin-top: -4px;
+  }
+
+  .preview-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    width: 100%;
+    margin-top: 6px;
+  }
+
+  .preview-box {
+    padding: 8px 10px;
+    background: var(--box-bg);
+    border: 1.5px solid var(--box-border);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .preview-box-label {
+    font-size: .6rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.65);
+    letter-spacing: 1px;
+  }
+
+  .preview-box-value {
+    font-size: .95rem;
+    font-weight: 900;
+    color: var(--text-color);
+  }
+
+  .preview-progress {
+    width: 100%;
+    height: 14px;
+    background: rgba(0,0,0,0.75);
+    border: 1.5px solid var(--box-border);
+    border-radius: 7px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+
+  .preview-progress-fill {
+    width: 52%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--border-color));
+    border-radius: 5px;
+    transition: width .3s;
+  }
+
+  /* زر فتح قسم التخصيص */
+  .open-colors-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    max-width: 720px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #1a1305, #2a1f08);
+    border: 2px solid var(--gold);
+    border-radius: 16px;
+    color: var(--gold-hi);
+    font-weight: 800;
+    font-size: 1.05rem;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: all .2s;
+  }
+
+  .open-colors-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px -10px var(--gold);
+  }
+
+  .open-colors-btn .arrow {
+    transition: transform .3s;
+  }
+
+  .open-colors-btn.open .arrow {
+    transform: rotate(180deg);
+  }
+
+  @media (max-width: 639px) {
+    .live-preview {
+      max-width: 100%;
+      padding: 12px;
+    }
+    .preview-avatar {
+      width: 50px;
+      height: 50px;
+      font-size: 1.2rem;
+    }
+    .preview-name {
+      font-size: .95rem;
+    }
+    .preview-box-value {
+      font-size: .8rem;
+    }
+  }
+</style>
 </head>
 <body data-title="profile">
 <div id="dust" aria-hidden="true"></div>
@@ -44,11 +203,16 @@ TROF.load(function(){
 
   var gid = TROF.getSelectedGuild();
 
-  // بيانات الملف
+  // ===== بيانات الملف =====
   h+='<div class="pf'+r()+'"><div class="sec-ic pf-av"><span class="ring"></span><img class="face" alt="" src="'+TROF.avatar(128)+'"></div><div><h1 class="sec-title" id="nm"></h1><p id="un"></p></div></div>';
-  h+='<div class="stats'+r()+'"><div class="stat"><i>💰</i><b id="s-bal">—</b><span>'+TROF.t('balance')+'</span></div><div class="stat"><i>📊</i><b id="s-lvl">—</b><span>'+TROF.t('level')+'</span></div><div class="stat"><i>🏆</i><b id="s-rank">—</b><span>'+TROF.t('rank')+'</span></div></div>';
 
-  // بطاقة المكافأة اليومية
+  h+='<div class="stats'+r()+'">' +
+     '<div class="stat"><i>💰</i><b id="s-bal">—</b><span>'+TROF.t('balance')+'</span></div>' +
+     '<div class="stat"><i>📊</i><b id="s-lvl">—</b><span>'+TROF.t('level')+'</span></div>' +
+     '<div class="stat"><i>🏆</i><b id="s-rank">—</b><span>'+TROF.t('rank')+'</span></div>' +
+     '</div>';
+
+  // ===== المكافأة اليومية =====
   h+='<div class="daily-card'+r()+'">' +
      '<div class="daily-header">' +
        '<span class="daily-icon">🎁</span>' +
@@ -58,31 +222,21 @@ TROF.load(function(){
        '</div>' +
      '</div>' +
      '<button class="daily-btn" id="daily-btn" type="button" disabled>🎁 استلام المكافأة</button>' +
-   '</div>';
+     '</div>';
 
-  // ============================================
-  // 🎨 قسم تخصيص الألوان (مقفول - Premium فقط)
-  // ============================================
-  h+='<div class="premium-locked-section'+r()+'" id="colors-locked">' +
-     '<div class="lock-banner">' +
-       '<span class="lock-icon">🔒</span>' +
-       '<div>' +
-         '<b>تخصيص ألوان البروفايل</b>' +
-         '<small>هذه الميزة متاحة لمشتركي <strong>Premium</strong> فقط</small>' +
-       '</div>' +
-       '<a class="lock-btn" href="premium.html">💎 ترقية الآن</a>' +
-     '</div>' +
-   '</div>';
+  // ===== زر فتح قسم التخصيص (مطوي افتراضياً) =====
+  h+='<button class="open-colors-btn" id="open-colors-btn" type="button">' +
+     '<span>🎨 تخصيص ألوان البروفايل</span>' +
+     '<span class="arrow">▼</span>' +
+     '</button>';
 
-  // قالب المعاينة (يظهر لما يفتح)
-  h+='<div class="colors-section hidden'+r()+'" id="colors-section" style="display:none">' +
+  // ===== قسم التخصيص (مخفي افتراضياً) =====
+  h+='<div class="colors-section" id="colors-section" style="display:none;width:100%;max-width:720px;margin-top:12px">' +
      '<div class="form-section-title">🎨 تخصيص ألوان البروفايل</div>' +
-
      '<div class="form-row form-row-col">' +
        '<label class="form-label">📋 قوالب جاهزة</label>' +
        '<div class="templates-grid" id="templates-grid"></div>' +
      '</div>' +
-
      '<div class="color-pickers">' +
        '<div class="color-picker-item"><label>لون النص</label><input type="color" id="c-text" value="#FFFFFF"></div>' +
        '<div class="color-picker-item"><label>خلفية المربعات</label><input type="color" id="c-box-bg" value="#000000"></div>' +
@@ -90,7 +244,6 @@ TROF.load(function(){
        '<div class="color-picker-item"><label>اللون المميز (XP)</label><input type="color" id="c-accent" value="#FFD700"></div>' +
        '<div class="color-picker-item"><label>لون الإطار</label><input type="color" id="c-border" value="#00d4d4"></div>' +
      '</div>' +
-
      '<div class="form-row form-row-col">' +
        '<label class="form-label">👁️ المعاينة الحية</label>' +
        '<div class="preview-container">' +
@@ -108,14 +261,14 @@ TROF.load(function(){
          '</div>' +
        '</div>' +
      '</div>' +
-
      '<div class="form-actions">' +
        '<button class="btn save-btn" id="save-colors" type="button">💾 حفظ الألوان</button>' +
        '<p class="save-msg" id="colors-msg"></p>' +
      '</div>' +
-   '</div>';
+     '</div>';
 
-  h+='<p class="note2'+r()+'" id="note"></p><button class="btn alt'+r()+'" id="out" type="button">'+TROF.t('logout')+'</button>';
+  h+='<p class="note2'+r()+'" id="note"></p>';
+  h+='<button class="btn alt'+r()+'" id="out" type="button">'+TROF.t('logout')+'</button>';
   page.innerHTML=h;
 
   document.getElementById('nm').textContent=u.global_name||u.username||'';
@@ -131,16 +284,13 @@ TROF.load(function(){
 
   var api=TROF.CONFIG.apiUrl;
 
-  // ============================================
-  // جلب البيانات
-  // ============================================
+  // ===== جلب البيانات =====
   fetch(api.replace(/\/$/,'')+'/users/'+u.id,{headers:{Authorization:'Bearer '+TROF.token()}})
     .then(function(x){if(!x.ok)throw 0;return x.json()})
     .then(function(d){
       document.getElementById('s-bal').textContent = TROF.formatNumber(d.balance);
       count(document.getElementById('s-lvl'), d.level);
       count(document.getElementById('s-rank'), d.rank);
-      // معاينة
       var pv = document.getElementById('pv-level');
       if(pv) pv.textContent = d.level || 0;
       var px = document.getElementById('pv-xp');
@@ -157,9 +307,7 @@ TROF.load(function(){
     })
     .catch(function(){note.textContent=TROF.t('apiErr')});
 
-  // ============================================
-  // 🎁 المكافأة اليومية
-  // ============================================
+  // ===== المكافأة اليومية =====
   var dailyBtn = document.getElementById('daily-btn');
   var dailyStatus = document.getElementById('daily-status');
 
@@ -179,17 +327,17 @@ TROF.load(function(){
           dailyStatus.style.color = '#f2c23c';
         }
       })
-      .catch(function(){ dailyStatus.textContent = 'خطأ في التحميل'; });
+      .catch(function(){ dailyStatus.textContent = 'خطأ'; });
   }
 
   dailyBtn.onclick = function(){
     dailyBtn.disabled = true;
-    dailyStatus.textContent = '⏳ جاري الاستلام...';
+    dailyStatus.textContent = '⏳...';
     fetch(api + '/user/' + u.id + '/daily/claim', {method: 'POST', headers: {Authorization: 'Bearer ' + TROF.token()}})
       .then(function(r){return r.json()})
       .then(function(d){
         if(d.success){
-          dailyStatus.textContent = '✅ حصلت على ' + d.reward + ' 💰!';
+          dailyStatus.textContent = '✅ +' + d.reward + ' 💰';
           dailyStatus.style.color = '#4ade80';
           var balEl = document.getElementById('s-bal');
           if(balEl) balEl.textContent = TROF.formatNumber(d.new_balance);
@@ -207,26 +355,29 @@ TROF.load(function(){
   setInterval(updateDailyStatus, 60000);
 
   // ============================================
-  // 🔒 فحص Premium لفتح قسم الألوان
+  // 🎨 زر فتح قسم التخصيص
   // ============================================
-  if (gid) {
-    fetch(api + '/premium/status?user_id=' + u.id + '&guild_id=' + gid, {
-      headers: {Authorization: 'Bearer ' + TROF.token()}
-    })
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      if (d.is_premium) {
-        // افتح القسم
-        document.getElementById('colors-locked').style.display = 'none';
-        document.getElementById('colors-section').style.display = 'grid';
+  var colorsBtn = document.getElementById('open-colors-btn');
+  var colorsSection = document.getElementById('colors-section');
+  var colorsOpened = false;
+
+  colorsBtn.onclick = function() {
+    colorsOpened = !colorsOpened;
+    colorsBtn.classList.toggle('open', colorsOpened);
+
+    if (colorsOpened) {
+      colorsSection.style.display = 'block';
+      if (!colorsSection.dataset.loaded) {
+        colorsSection.dataset.loaded = '1';
         initColorsSection();
       }
-    })
-    .catch(function(){});
-  }
+    } else {
+      colorsSection.style.display = 'none';
+    }
+  };
 
   // ============================================
-  // 🎨 قسم تخصيص الألوان
+  // 🎨 قسم التخصيص
   // ============================================
   function initColorsSection() {
     var TEMPLATES = [
@@ -261,7 +412,6 @@ TROF.load(function(){
       templatesGrid.appendChild(btn);
     });
 
-    // جلب الألوان المحفوظة
     fetch(api + '/user/' + u.id + '/profile/colors', {headers: {Authorization: 'Bearer ' + TROF.token()}})
       .then(function(r){return r.json()})
       .then(function(d){
@@ -276,12 +426,10 @@ TROF.load(function(){
       })
       .catch(function(){ updatePreview(); });
 
-    // ربط المستمعات
     ['c-text', 'c-box-bg', 'c-box-border', 'c-accent', 'c-border'].forEach(function(id){
       document.getElementById(id).addEventListener('input', updatePreview);
     });
 
-    // زر الحفظ
     document.getElementById('save-colors').onclick = function(){
       var btn = this;
       btn.disabled = true;
@@ -332,9 +480,6 @@ TROF.load(function(){
     return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
   }
 
-  // ============================================
-  // 🎨 المعاينة الحية (بدون API)
-  // ============================================
   var previewTimeout;
   function updatePreview(){
     clearTimeout(previewTimeout);
