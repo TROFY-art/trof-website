@@ -80,12 +80,7 @@ root.classList.add('js');
 
 console.log('🔄 TROF System loading...');
 console.log('   SECTIONS:', TROF.SECTIONS.length);
-console.log('   can():', typeof TROF.can);
-console.log('   getIconSVG():', typeof TROF.getIconSVG);
 
-// ============================================
-// 🎯 دالة بناء القائمة
-// ============================================
 function buildMenu() {
   var list = document.getElementById('list');
   var hint = document.getElementById('hint');
@@ -126,6 +121,9 @@ function buildMenu() {
   }).join('');
 
   console.log('✅ Menu built, HTML length:', list.innerHTML.length);
+
+  // ✅ إظهار الصفوف
+  menu.classList.add('in');
 
   TROF.mountAccount();
   TROF.renderServerSelector();
