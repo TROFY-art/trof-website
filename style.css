@@ -297,3 +297,36 @@ footer{padding-block:20px 28px;font-size:.85rem;color:var(--muted);text-align:ce
 @media(hover:none){
   .btn:hover,.row:hover .ic{transform:none}
   }
+/* ============================================
+   ⭐ زر VIP
+   ============================================ */
+.vip-button{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;max-width:720px;padding:20px 24px;background:linear-gradient(135deg,#0a1628 0%,#1a3a5a 50%,#0a1628 100%);border:2px solid #00D4D4;border-radius:20px;color:#7FF0F0;font:inherit;font-size:1.1rem;font-weight:800;cursor:pointer;text-decoration:none;position:relative;overflow:hidden;transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:0 0 0 1px #00D4D4,0 10px 40px -10px #00D4D4;margin-top:16px}
+.vip-button::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent 30%,rgba(127,240,240,.3) 50%,transparent 70%);animation:vipShine 3s linear infinite;pointer-events:none}
+@keyframes vipShine{0%{transform:translateX(-100%) translateY(-100%) rotate(45deg)}100%{transform:translateX(100%) translateY(100%) rotate(45deg)}}
+.vip-button:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 0 0 2px #7FF0F0,0 15px 50px -10px #00D4D4,inset 0 0 30px -10px #7FF0F0;border-color:#7FF0F0}
+.vip-button:active{transform:translateY(-1px) scale(1)}
+.vip-button-icon{display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#7FF0F0,#00D4D4);border:1px solid #7FF0F0;box-shadow:0 0 20px -5px #00D4D4;font-size:1.6rem;flex-shrink:0;animation:vipIconGlow 2s ease-in-out infinite}
+@keyframes vipIconGlow{0%,100%{box-shadow:0 0 20px -5px #00D4D4}50%{box-shadow:0 0 30px -3px #7FF0F0}}
+.vip-button-content{flex:1;text-align:start;display:flex;flex-direction:column;gap:4px}
+.vip-button-title{display:flex;align-items:center;gap:8px;font-size:1.15rem;font-weight:900;color:#7FF0F0;text-shadow:0 0 12px #00D4D4}
+.vip-button-subtitle{font-size:.85rem;color:#a89f88;font-weight:400}
+.vip-button-badge{display:inline-block;padding:4px 12px;background:linear-gradient(180deg,#7FF0F0,#00D4D4);color:#0a1628;font-size:.7rem;font-weight:900;border-radius:999px;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 15px -3px #00D4D4}
+.vip-button-arrow{display:flex;align-items:center;justify-content:center;width:32px;height:32px;transition:transform .3s;flex-shrink:0}
+.vip-button-arrow svg{width:20px;height:20px;stroke:#7FF0F0;transition:all .3s}
+.vip-button:hover .vip-button-arrow{transform:translateX(-6px)}
+[dir="ltr"] .vip-button:hover .vip-button-arrow{transform:translateX(6px)}
+.vip-button:hover .vip-button-arrow svg{stroke:#fff;filter:drop-shadow(0 0 8px #7FF0F0)}
+
+/* جوال */
+@media(max-width:639px){
+  .vip-button{padding:16px 18px;font-size:1rem}
+  .vip-button-icon{width:44px;height:44px;font-size:1.3rem}
+  .vip-button-title{font-size:1rem}
+  .vip-button-subtitle{font-size:.75rem}
+}
+
+/* prefers-reduced-motion */
+@media(prefers-reduced-motion:reduce){
+  .vip-button::before,
+  .vip-button-icon{animation:none!important}
+}
