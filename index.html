@@ -65,6 +65,23 @@
         <ul id="list"></ul>
         <p class="hint" id="hint"></p>
       </div>
+
+      <!-- 💎 زر Premium المنفصل -->
+      <a class="premium-button" href="premium.html">
+        <span class="premium-button-icon">💎</span>
+        <span class="premium-button-content">
+          <span class="premium-button-title">
+            Premium
+            <span class="premium-button-badge">NEW</span>
+          </span>
+          <span class="premium-button-subtitle">افتح كل الميزات المتقدمة</span>
+        </span>
+        <span class="premium-button-arrow">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3l5 5-5 5"/>
+          </svg>
+        </span>
+      </a>
     </div>
   </section>
 </main>
@@ -122,7 +139,6 @@ function buildMenu() {
 
   console.log('✅ Menu built, HTML length:', list.innerHTML.length);
 
-  // ✅ إظهار الصفوف
   menu.classList.add('in');
 
   TROF.mountAccount();
