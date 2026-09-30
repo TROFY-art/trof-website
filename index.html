@@ -45,7 +45,6 @@
     <div class="demo">
       <p data-i18n="tap">اضغط على أي قسم لفتح صفحته.</p>
 
-      <!-- زر الاختيار التفاعلي -->
       <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="menu">
         <span class="menu-toggle-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -62,7 +61,6 @@
         </span>
       </button>
 
-      <!-- القائمة المنسدلة -->
       <div class="menu" id="menu" aria-label="أقسام الأوامر">
         <ul id="list"></ul>
         <p class="hint" id="hint"></p>
@@ -76,71 +74,141 @@
 <script src="app.js"></script>
 <script>
 (function(){
-var root=document.documentElement,calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var root = document.documentElement;
+var calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
 root.classList.add('js');
 
-TROF.load(function(){
-  var list=document.getElementById('list'),
-      hint=document.getElementById('hint'),
-      menu=document.getElementById('menu'),
-      toggle=document.getElementById('menu-toggle');
+console.log('🔄 TROF System loading...');
+console.log('   SECTIONS:', TROF.SECTIONS.length);
+console.log('   can():', typeof TROF.can);
+console.log('   getIconSVG():', typeof TROF.getIconSVG);
 
-  // بناء القائمة
-  list.innerHTML=TROF.SECTIONS.filter(TROF.can).map(function(s,i){
-    var url=s.url?s.url:'section.html?p='+s.id;
-    return '<li><a class="row" style="--i:'+i+'" href="'+url+'">'+
-      '<span class="ic ic-'+s.icon+'">'+TROF.getIconSVG(s.icon)+'</span>'+
-      '<span><b>'+TROF.name(s)+'</b><small>'+TROF.desc(s)+'</small></span>'+
+// ============================================
+// 🎯 دالة بناء القائمة
+// ============================================
+function buildMenu() {
+  var list = document.getElementById('list');
+  var hint = document.getElementById('hint');
+  var menu = document.getElementById('menu');
+  var toggle = document.getElementById('menu-toggle');
+
+  if (!list) {
+    console.error('❌ list element not found!');
+    return;
+  }
+
+  var sections = TROF.SECTIONS || [];
+  console.log('📋 Building menu with', sections.length, 'sections');
+  console.log('   auth.rank:', TROF.auth ? TROF.auth.rank : 'N/A');
+
+  var visibleSections = sections.filter(function(s) {
+    if (!TROF.can) return true;
+    return TROF.can(s);
+  });
+
+  console.log('   Visible sections:', visibleSections.length);
+
+  if (visibleSections.length === 0) {
+    console.warn('⚠️ No visible sections, showing all');
+    visibleSections = sections;
+  }
+
+  list.innerHTML = visibleSections.map(function(s, i){
+    var url = s.url ? s.url : 'section.html?p=' + s.id;
+    var icon = TROF.getIconSVG ? TROF.getIconSVG(s.icon) : '📁';
+    var name = TROF.name ? TROF.name(s) : s.t;
+    var desc = TROF.desc ? TROF.desc(s) : s.d;
+
+    return '<li><a class="row" style="--i:' + i + '" href="' + url + '">' +
+      '<span class="ic ic-' + s.icon + '">' + icon + '</span>' +
+      '<span><b>' + name + '</b><small>' + desc + '</small></span>' +
     '</a></li>';
   }).join('');
 
+  console.log('✅ Menu built, HTML length:', list.innerHTML.length);
+
   TROF.mountAccount();
   TROF.renderServerSelector();
-  if(!TROF.auth.user)hint.textContent=TROF.t('hint');
 
-  // تفاعل الزر
-  toggle.onclick=function(e){
-    e.stopPropagation();
-    var isOpen=menu.classList.contains('open');
-    if(isOpen){
-      menu.classList.remove('open');
-      toggle.setAttribute('aria-expanded','false');
-    } else {
-      menu.classList.add('open');
-      toggle.setAttribute('aria-expanded','true');
-      setTimeout(function(){
-        menu.scrollIntoView({ behavior:'smooth', block:'nearest' });
-      }, 250);
-    }
-  };
+  if (!TROF.auth.user && hint) {
+    hint.textContent = TROF.t('hint');
+  }
 
-  // إغلاق عند الضغط خارج القائمة
-  document.addEventListener('click', function(e){
-    if(!menu.contains(e.target) && !toggle.contains(e.target)){
-      if(menu.classList.contains('open')){
+  if (toggle && menu) {
+    toggle.onclick = function(e){
+      e.stopPropagation();
+      var isOpen = menu.classList.contains('open');
+
+      if (isOpen) {
         menu.classList.remove('open');
-        toggle.setAttribute('aria-expanded','false');
+        toggle.setAttribute('aria-expanded', 'false');
+      } else {
+        menu.classList.add('open');
+        toggle.setAttribute('aria-expanded', 'true');
+        setTimeout(function(){
+          menu.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 250);
       }
-    }
-  });
+    };
 
-  // إغلاق بـ Esc
-  document.addEventListener('keydown', function(e){
-    if(e.key==='Escape' && menu.classList.contains('open')){
-      menu.classList.remove('open');
-      toggle.setAttribute('aria-expanded','false');
-      toggle.focus();
-    }
-  });
-});
+    document.addEventListener('click', function(e){
+      if (!menu.contains(e.target) && !toggle.contains(e.target)) {
+        if (menu.classList.contains('open')) {
+          menu.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      }
+    });
 
-var logo=document.getElementById('logo'),tilt=document.getElementById('tilt');
-if(!calm && logo && tilt){
-  logo.addEventListener('pointermove',function(e){
-    var b=logo.getBoundingClientRect(),x=(e.clientX-b.left)/b.width-.5,y=(e.clientY-b.top)/b.height-.5;
-    tilt.style.transform='perspective(600px) rotateY('+(x*18)+'deg) rotateX('+(-y*18)+'deg) scale(1.03)';
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && menu.classList.contains('open')) {
+        menu.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.focus();
+      }
+    });
+  }
+}
+
+setTimeout(function() {
+  var list = document.getElementById('list');
+  if (list && !list.innerHTML.trim()) {
+    console.warn('⚠️ List empty after 500ms, forcing build');
+    buildMenu();
+  }
+}, 500);
+
+try {
+  TROF.load(function(){
+    console.log('✅ TROF.load callback fired');
+    buildMenu();
   });
-  logo.addEventListener('pointerleave',function(){tilt.style.transform=''});
+} catch (e) {
+  console.error('❌ TROF.load failed:', e);
+  buildMenu();
+}
+
+setTimeout(function() {
+  var list = document.getElementById('list');
+  if (list && !list.innerHTML.trim()) {
+    console.warn('⚠️ List still empty after 3s, forcing build AGAIN');
+    buildMenu();
+  }
+}, 3000);
+
+var logo = document.getElementById('logo');
+var tilt = document.getElementById('tilt');
+
+if (!calm && logo && tilt) {
+  logo.addEventListener('pointermove', function(e){
+    var b = logo.getBoundingClientRect();
+    var x = (e.clientX - b.left) / b.width - 0.5;
+    var y = (e.clientY - b.top) / b.height - 0.5;
+    tilt.style.transform = 'perspective(600px) rotateY(' + (x * 18) + 'deg) rotateX(' + (-y * 18) + 'deg) scale(1.03)';
+  });
+  logo.addEventListener('pointerleave', function(){
+    tilt.style.transform = '';
+  });
 }
 })();
 </script>
