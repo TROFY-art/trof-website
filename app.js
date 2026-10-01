@@ -52,41 +52,13 @@ apiErr:'تعذر جلب بياناتك من البوت الآن.',
 home:'TROF System | بوت دسكورد',
 profile:'ملفي | TROF System',
 selectServer:'اختر السيرفر',
-noServers:'لا توجد سيرفرات تملك فيها رتبة إدارية',
+noServers:'لا توجد سيرفرات تملك فيها صلاحيات',
 loading:'جاري التحميل...',
 checking:'جاري التحقق...',
 vote:'صوّت للبوت',
-termsPageTitle:'شروط الخدمة | TROF System',
-termsTitle:'📜 شروط الخدمة',
-termsLastUpdate:'آخر تحديث',
+voteBack:'الرجوع للرئيسية',
 termsBack:'الرجوع للرئيسية',
-privacyPageTitle:'سياسة الخصوصية | TROF System',
-privacyTitle:'🔒 سياسة الخصوصية',
-privacyLastUpdate:'آخر تحديث',
-privacyBack:'الرجوع للرئيسية',
-votePageTitle:'صوّت للبوت | TROF System',
-voteTitle:'🗳️ صوّت للبوت',
-voteSubtitle:'كل تصويت =',
-voteSubtitleReward:'5,000 💰',
-voteSubtitleEnd:'+ دعم البوت!',
-voteLoginNeeded:'🔒 سجّل دخول للتصويت',
-voteCanVote:'✅ يمكنك التصويت الآن!',
-voteCooldown:'⏰ يمكنك التصويت بعد',
-voteCooldownHours:'ساعة',
-voteStatTotal:'إجمالي التصويتات',
-voteStatMonth:'هذا الشهر',
-voteStatRank:'ترتيبك',
-voteSitesTitle:'🎯 مواقع التصويت',
-voteSitesClick:'اضغط للتصويت للبوت',
-voteTopTitle:'🏆 أفضل 10 مصوتين',
-voteTopEmpty:'لا توجد تصويتات بعد',
-voteTopBeFirst:'كن الأول!',
-voteLoading:'جاري التحميل...',
-voteError:'⚠️ خطأ في التحميل',
-voteVotes:'تصويت',
-voteChecking:'⏳ جاري التحقق...',
-voteNoSites:'لا توجد مواقع حالياً',
-voteBack:'الرجوع للرئيسية'
+privacyBack:'الرجوع للرئيسية'
 },
 en:{
 lead:'One Discord bot to run your whole server: levels, music, giveaways, tickets and moderation tools.',
@@ -111,41 +83,13 @@ apiErr:"Couldn't load your data from the bot right now.",
 home:'TROF System | Discord bot',
 profile:'My profile | TROF System',
 selectServer:'Select Server',
-noServers:'No servers where you have an admin role',
+noServers:'No servers where you have permissions',
 loading:'Loading...',
 checking:'Checking...',
 vote:'Vote for Bot',
-termsPageTitle:'Terms of Service | TROF System',
-termsTitle:'📜 Terms of Service',
-termsLastUpdate:'Last updated',
+voteBack:'Back to Home',
 termsBack:'Back to Home',
-privacyPageTitle:'Privacy Policy | TROF System',
-privacyTitle:'🔒 Privacy Policy',
-privacyLastUpdate:'Last updated',
-privacyBack:'Back to Home',
-votePageTitle:'Vote for Bot | TROF System',
-voteTitle:'🗳️ Vote for the Bot',
-voteSubtitle:'Each vote =',
-voteSubtitleReward:'5,000 💰',
-voteSubtitleEnd:'+ support the bot!',
-voteLoginNeeded:'🔒 Log in to vote',
-voteCanVote:'✅ You can vote now!',
-voteCooldown:'⏰ You can vote in',
-voteCooldownHours:'hours',
-voteStatTotal:'Total Votes',
-voteStatMonth:'This Month',
-voteStatRank:'Your Rank',
-voteSitesTitle:'🎯 Voting Sites',
-voteSitesClick:'Click to vote for the bot',
-voteTopTitle:'🏆 Top 10 Voters',
-voteTopEmpty:'No votes yet',
-voteTopBeFirst:'Be the first!',
-voteLoading:'Loading...',
-voteError:'⚠️ Loading error',
-voteVotes:'votes',
-voteChecking:'⏳ Checking...',
-voteNoSites:'No sites available',
-voteBack:'Back to Home'
+privacyBack:'Back to Home'
 }
 };
 
@@ -201,16 +145,10 @@ function logout(silent){try{sessionStorage.removeItem('trof_token')}catch(e){}if
 
 function load(cb){
   var called = false;
-  function safeCb() {
-    if (called) return;
-    called = true;
-    cb();
-  }
+  function safeCb() { if (called) return; called = true; cb(); }
   setTimeout(safeCb, 5000);
-
   var t = token();
   if (!t) { safeCb(); return; }
-
   var H = { headers: { Authorization: 'Bearer ' + t } };
   fetch(API + '/users/@me', H)
     .then(function(r){
@@ -306,36 +244,77 @@ async function fetchBotGuilds(){
   return [];
 }
 
+// ============================================
+// ✅ دالة fetchUserGuilds - محدثة
+// ============================================
 async function fetchUserGuilds(){
-  var t=token();
-  if(!t)return [];
-  try{
-    var res=await fetch(API+'/users/@me/guilds',{
-      headers:{Authorization:'Bearer '+t}
+  var t = token();
+  if (!t) return [];
+
+  try {
+    var res = await fetch(API + '/users/@me/guilds', {
+      headers: {Authorization: 'Bearer ' + t}
     });
-    if(res.status===429){
-      await new Promise(function(r){setTimeout(r,3000)});
-      res=await fetch(API+'/users/@me/guilds',{
-        headers:{Authorization:'Bearer '+t}
+
+    if (res.status === 429) {
+      await new Promise(function(r){ setTimeout(r, 3000); });
+      res = await fetch(API + '/users/@me/guilds', {
+        headers: {Authorization: 'Bearer ' + t}
       });
     }
-    if(!res.ok)return [];
-    var guilds=await res.json();
-    var botGuilds=await fetchBotGuilds();
-    var candidateGuilds=guilds.filter(function(g){
-      return botGuilds.length===0||botGuilds.indexOf(String(g.id))>-1;
-    });
-    var adminGuilds=candidateGuilds.filter(function(g){
-      if(g.owner===true)return true;
-      var perms=parseInt(g.permissions)||0;
-      return (perms&0x8)===0x8 ||
-             (perms&0x20)===0x20 ||
-             (perms&0x10000000)===0x10000000 ||
-             (perms&0x2)===0x2 ||
-             (perms&0x4)===0x4;
-    });
-    return adminGuilds;
-  }catch(e){
+
+    if (!res.ok) return [];
+    var guilds = await res.json();
+
+    var botGuilds = await fetchBotGuilds();
+    var result = [];
+
+    for (var i = 0; i < guilds.length; i++) {
+      var g = guilds[i];
+      var gid = String(g.id);
+
+      // 1) تأكد البوت في السيرفر
+      if (botGuilds.length > 0 && botGuilds.indexOf(gid) === -1) continue;
+
+      // 2) فحص الصلاحيات
+      var hasAccess = false;
+
+      // أ) مالك
+      if (g.owner === true) hasAccess = true;
+
+      // ب) صلاحيات إدارية
+      if (!hasAccess) {
+        var perms = parseInt(g.permissions) || 0;
+        if (
+          (perms & 0x8) === 0x8 ||
+          (perms & 0x20) === 0x20 ||
+          (perms & 0x10000000) === 0x10000000 ||
+          (perms & 0x2) === 0x2 ||
+          (perms & 0x4) === 0x4 ||
+          (perms & 0x10) === 0x10
+        ) {
+          hasAccess = true;
+        }
+      }
+
+      // ج) رتب إدارية (من البوت API)
+      if (!hasAccess) {
+        try {
+          var roleRes = await fetch(CONFIG.apiUrl + '/guild/' + gid + '/check-admin/' + auth.user.id);
+          if (roleRes.ok) {
+            var roleData = await roleRes.json();
+            if (roleData.has_access === true) hasAccess = true;
+          }
+        } catch (e) {}
+      }
+
+      if (hasAccess) result.push(g);
+    }
+
+    return result;
+
+  } catch (e) {
+    console.error('fetchUserGuilds error:', e.message);
     return [];
   }
 }
