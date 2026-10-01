@@ -22,8 +22,8 @@
     <button class="lang" id="lang" type="button"></button>
   </div>
   <div class="hd-right">
-  <div id="acct"></div>
-  <div id="server-selector"></div>
+    <div id="acct"></div>
+    <div id="server-selector"></div>
   </div>
 </header>
 
@@ -99,6 +99,40 @@
           </svg>
         </span>
       </a>
+
+      <!-- 🗳️ زر التصويت (منقول من الأقسام) -->
+      <a class="vote-button" href="vote.html">
+        <span class="vote-button-icon">🗳️</span>
+        <span class="vote-button-content">
+          <span class="vote-button-title">
+            صوّت للبوت
+            <span class="vote-button-badge">مكافأة</span>
+          </span>
+          <span class="vote-button-subtitle">احصل على 5,000 💰 لكل تصويت</span>
+        </span>
+        <span class="vote-button-arrow">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3l5 5-5 5"/>
+          </svg>
+        </span>
+      </a>
+
+      <!-- ❤️ زر الدعم (جديد) -->
+      <a class="donate-button" href="donate.html">
+        <span class="donate-button-icon">❤️</span>
+        <span class="donate-button-content">
+          <span class="donate-button-title">
+            ادعمنا
+            <span class="donate-button-badge">جديد</span>
+          </span>
+          <span class="donate-button-subtitle">ساعدنا على استمرار البوت</span>
+        </span>
+        <span class="donate-button-arrow">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3l5 5-5 5"/>
+          </svg>
+        </span>
+      </a>
     </div>
   </section>
 </main>
@@ -113,7 +147,6 @@ var calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
 root.classList.add('js');
 
 console.log('🔄 TROF System loading...');
-console.log('   SECTIONS:', TROF.SECTIONS.length);
 
 function buildMenu() {
   var list = document.getElementById('list');
@@ -121,26 +154,15 @@ function buildMenu() {
   var menu = document.getElementById('menu');
   var toggle = document.getElementById('menu-toggle');
 
-  if (!list) {
-    console.error('❌ list element not found!');
-    return;
-  }
+  if (!list) return;
 
   var sections = TROF.SECTIONS || [];
-  console.log('📋 Building menu with', sections.length, 'sections');
-  console.log('   auth.rank:', TROF.auth ? TROF.auth.rank : 'N/A');
-
   var visibleSections = sections.filter(function(s) {
     if (!TROF.can) return true;
     return TROF.can(s);
   });
 
-  console.log('   Visible sections:', visibleSections.length);
-
-  if (visibleSections.length === 0) {
-    console.warn('⚠️ No visible sections, showing all');
-    visibleSections = sections;
-  }
+  if (visibleSections.length === 0) visibleSections = sections;
 
   list.innerHTML = visibleSections.map(function(s, i){
     var url = s.url ? s.url : 'section.html?p=' + s.id;
@@ -154,22 +176,18 @@ function buildMenu() {
     '</a></li>';
   }).join('');
 
-  console.log('✅ Menu built, HTML length:', list.innerHTML.length);
+  console.log('✅ Menu built with', visibleSections.length, 'sections');
 
   menu.classList.add('in');
-
   TROF.mountAccount();
   TROF.renderServerSelector();
 
-  if (!TROF.auth.user && hint) {
-    hint.textContent = TROF.t('hint');
-  }
+  if (!TROF.auth.user && hint) hint.textContent = TROF.t('hint');
 
   if (toggle && menu) {
     toggle.onclick = function(e){
       e.stopPropagation();
       var isOpen = menu.classList.contains('open');
-
       if (isOpen) {
         menu.classList.remove('open');
         toggle.setAttribute('aria-expanded', 'false');
@@ -203,33 +221,20 @@ function buildMenu() {
 
 setTimeout(function() {
   var list = document.getElementById('list');
-  if (list && !list.innerHTML.trim()) {
-    console.warn('⚠️ List empty after 500ms, forcing build');
-    buildMenu();
-  }
+  if (list && !list.innerHTML.trim()) buildMenu();
 }, 500);
 
 try {
-  TROF.load(function(){
-    console.log('✅ TROF.load callback fired');
-    buildMenu();
-  });
-} catch (e) {
-  console.error('❌ TROF.load failed:', e);
-  buildMenu();
-}
+  TROF.load(function(){ buildMenu(); });
+} catch (e) { buildMenu(); }
 
 setTimeout(function() {
   var list = document.getElementById('list');
-  if (list && !list.innerHTML.trim()) {
-    console.warn('⚠️ List still empty after 3s, forcing build AGAIN');
-    buildMenu();
-  }
+  if (list && !list.innerHTML.trim()) buildMenu();
 }, 3000);
 
 var logo = document.getElementById('logo');
 var tilt = document.getElementById('tilt');
-
 if (!calm && logo && tilt) {
   logo.addEventListener('pointermove', function(e){
     var b = logo.getBoundingClientRect();
@@ -237,9 +242,7 @@ if (!calm && logo && tilt) {
     var y = (e.clientY - b.top) / b.height - 0.5;
     tilt.style.transform = 'perspective(600px) rotateY(' + (x * 18) + 'deg) rotateX(' + (-y * 18) + 'deg) scale(1.03)';
   });
-  logo.addEventListener('pointerleave', function(){
-    tilt.style.transform = '';
-  });
+  logo.addEventListener('pointerleave', function(){ tilt.style.transform = ''; });
 }
 })();
 </script>
