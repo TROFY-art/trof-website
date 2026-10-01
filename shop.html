@@ -88,7 +88,6 @@ function buildShopPage(){
 async function loadAll(){
   var u = TROF.auth.user;
 
-  // جلب الرصيد
   try{
     var res = await fetch(TROF.CONFIG.apiUrl + '/users/' + u.id, {
       headers: {Authorization: 'Bearer ' + TROF.token()}
@@ -100,7 +99,6 @@ async function loadAll(){
     }
   }catch(e){}
 
-  // جلب مشتريات المستخدم
   try{
     var res = await fetch(TROF.CONFIG.apiUrl + '/shop/my-items?user_id=' + u.id, {
       headers: {Authorization: 'Bearer ' + TROF.token()}
@@ -140,32 +138,33 @@ async function loadShopItems(){
         // معالجة الصورة
         var imgStyle = '';
         var imgClass = 'shop-item-img';
-        var placeholderEmoji = '🖼️';
+        var emoji = '';
 
         if(currentTab === 'profile_size'){
-          // للأحجام: استخدم اللون
           var sizeColor = '#888888';
           if(item.image_url && item.image_url.indexOf(':') > -1){
             var parts = item.image_url.split(':');
             if(parts.length >= 3) sizeColor = parts[2];
           }
           imgStyle = 'background: linear-gradient(135deg, ' + sizeColor + ' 0%, #1a1a1a 100%);';
-          placeholderEmoji = '📐';
+          emoji = '📐';
         }else if(item.image_url && item.image_url.trim() && !item.image_url.includes('imgur')){
-          // صورة شغالة
+          // ✅ صورة شغالة — بدون إيموجي
           imgStyle = 'background-image: url(\'' + item.image_url + '\');';
+          emoji = '';
         }else{
-          // صورة مكسورة أو غير موجودة
+          // ⚠️ صورة مكسورة → fallback
           imgClass += ' fallback';
-          placeholderEmoji = '🎨';
+          emoji = '🎨';
         }
 
         html += '<div class="shop-item ' + rarityClass + '">';
-        html += '<div class="' + imgClass + '" style="' + imgStyle + '">' + placeholderEmoji;
+        html += '<div class="' + imgClass + '" style="' + imgStyle + '">';
+        if(emoji) html += emoji;
         if(owned && equipped) html += '<span class="item-badge">✓ مجهز</span>';
         html += '</div>';
 
-        // السعر + الزر فقط (بدون اسم + وصف)
+        // السعر + الزر
         html += '<div class="shop-item-footer">';
         html += '<span class="item-price">' + TROF.formatNumber(item.price) + ' 💰</span>';
 
@@ -209,7 +208,7 @@ async function buyItem(btn){
     return;
   }
 
-  if(!confirm('هل تريد شراء "' + item.name + '" بسعر ' + TROF.formatNumber(price) + ' 💰؟')) return;
+  if(!confirm('هل تريد شراء هذا المنتج بسعر ' + TROF.formatNumber(price) + ' 💰؟')) return;
 
   btn.disabled = true;
   btn.textContent = '⏳ جاري الشراء...';
