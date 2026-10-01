@@ -244,9 +244,6 @@ async function fetchBotGuilds(){
   return [];
 }
 
-// ============================================
-// ✅ دالة fetchUserGuilds - محدثة
-// ============================================
 async function fetchUserGuilds(){
   var t = token();
   if (!t) return [];
@@ -410,19 +407,37 @@ function formatNumber(num){
   return sign+Math.floor(abs).toString();
 }
 
+// ============================================
+// 📜 روابط الفوتر (مع Donate)
+// ============================================
 function injectFooterLinks(){
   var footer=document.querySelector('footer.wrap');
   if(!footer)return;
   if(footer.querySelector('.footer-links'))return;
+
   var texts = {
-    ar: { home:'🏠 الرئيسية', vote:'🗳️ صوّت للبوت', terms:'📜 شروط الخدمة', privacy:'🔒 سياسة الخصوصية' },
-    en: { home:'🏠 Home', vote:'🗳️ Vote for Bot', terms:'📜 Terms of Service', privacy:'🔒 Privacy Policy' }
+    ar: {
+      home: '🏠 الرئيسية',
+      vote: '🗳️ صوّت للبوت',
+      donate: '❤️ ادعمنا',
+      terms: '📜 شروط الخدمة',
+      privacy: '🔒 سياسة الخصوصية'
+    },
+    en: {
+      home: '🏠 Home',
+      vote: '🗳️ Vote for Bot',
+      donate: '❤️ Support Us',
+      terms: '📜 Terms of Service',
+      privacy: '🔒 Privacy Policy'
+    }
   };
   var tr = texts[lang] || texts.ar;
+
   var linksHTML=
     '<div class="footer-links">'+
       '<a href="./">'+tr.home+'</a>'+
       '<a href="vote.html">'+tr.vote+'</a>'+
+      '<a href="donate.html">'+tr.donate+'</a>'+
       '<a href="terms.html">'+tr.terms+'</a>'+
       '<a href="privacy.html">'+tr.privacy+'</a>'+
     '</div>';
