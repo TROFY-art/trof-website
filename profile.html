@@ -10,161 +10,235 @@
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-  /* ===== المعاينة الحية ===== */
+/* ============================================
+   Live Preview - يطابق profileImage.js
+   ============================================ */
+.live-preview {
+  --text-color: #FFFFFF;
+  --box-bg: rgba(0, 0, 0, 0.55);
+  --box-border: rgba(255, 255, 255, 0.15);
+  --accent: #FFD700;
+  --border-color: #00d4d4;
+
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1;
+  padding: 16px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #0a1628 0%, #1a3a4a 100%);
+  border: 3px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: 0 0 0 2px var(--accent), 0 8px 30px -8px var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  color: var(--text-color);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.preview-avatar-ring {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--border-color), var(--accent), var(--border-color));
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.preview-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: linear-gradient(135deg, var(--accent), var(--border-color));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #0d0c0a;
+}
+
+.preview-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  max-width: 100%;
+  padding: 0 6px;
+}
+
+.preview-name {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--text-color);
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.preview-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.vip-badge {
+  background: #0a1628;
+  color: #00D4D4;
+  border: 1.5px solid #00D4D4;
+  box-shadow: 0 0 8px rgba(0, 212, 212, 0.4);
+}
+
+.premium-badge {
+  background: #1a0a28;
+  color: #E0BBE4;
+  border: 1.5px solid #E0BBE4;
+  box-shadow: 0 0 8px rgba(224, 187, 228, 0.4);
+}
+
+.preview-handle {
+  font-size: .75rem;
+  color: rgba(255,255,255,0.6);
+  margin-top: -2px;
+}
+
+.preview-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.preview-box {
+  padding: 8px 10px;
+  background: var(--box-bg);
+  border: 1.5px solid var(--box-border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.preview-box-label {
+  font-size: .6rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 1px;
+}
+
+.preview-box-value {
+  font-size: .95rem;
+  font-weight: 900;
+  color: var(--text-color);
+}
+
+.preview-progress-container {
+  width: 100%;
+  margin-top: 6px;
+  position: relative;
+}
+
+.preview-progress {
+  width: 100%;
+  height: 16px;
+  background: rgba(0,0,0,0.75);
+  border: 1.5px solid var(--box-border);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.preview-progress-fill {
+  width: 52%;
+  height: 100%;
+  background: linear-gradient(90deg, #F2C23C, #FF9500);
+  border-radius: 6px;
+  transition: width .3s;
+}
+
+.preview-progress-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: .6rem;
+  font-weight: 900;
+  color: #000;
+  text-shadow: 0 0 3px rgba(255,255,255,0.5);
+  pointer-events: none;
+}
+
+.preview-progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: .65rem;
+  font-weight: 700;
+  margin-top: 3px;
+}
+
+.preview-progress-info .left {
+  color: var(--accent);
+}
+
+.preview-progress-info .right {
+  color: rgba(255,255,255,0.8);
+}
+
+.preview-badges-row {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.preview-badge-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  background: linear-gradient(135deg, #5865F2, #3449BA);
+  border: 1.5px solid rgba(255,255,255,0.9);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+@media (max-width: 480px) {
   .live-preview {
-    --text-color: #FFFFFF;
-    --box-bg: rgba(0, 0, 0, 0.55);
-    --box-border: rgba(255, 255, 255, 0.2);
-    --accent: #FFD700;
-    --border-color: #00d4d4;
-    position: relative;
-    width: 100%;
-    max-width: 380px;
-    padding: 14px;
-    margin: 0 auto;
-    background: linear-gradient(135deg, #0a1628 0%, #1a3a4a 100%);
-    border: 3px solid var(--border-color);
-    border-radius: 16px;
-    box-shadow: 0 0 0 2px var(--accent), 0 8px 30px -8px var(--border-color);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    color: var(--text-color);
-    transition: all .3s;
-    box-sizing: border-box;
+    padding: 12px;
   }
-  .preview-avatar { width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--border-color)); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; color: #0d0c0a; border: 3px solid var(--accent); box-shadow: 0 0 15px -5px var(--border-color); flex-shrink: 0; }
-  .preview-name { font-size: 1rem; font-weight: 900; color: var(--text-color); text-shadow: 1px 1px 3px rgba(0,0,0,0.9); margin-top: 2px; }
-  .preview-handle { font-size: .7rem; color: rgba(255,255,255,0.6); margin-top: -4px; }
-  .preview-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%; margin-top: 6px; }
-  .preview-box { padding: 7px 9px; background: var(--box-bg); border: 1.5px solid var(--box-border); border-radius: 8px; display: flex; flex-direction: column; gap: 2px; }
-  .preview-box-label { font-size: .55rem; font-weight: 700; color: rgba(255,255,255,0.65); letter-spacing: 1px; }
-  .preview-box-value { font-size: .9rem; font-weight: 900; color: var(--text-color); }
-  .preview-progress { width: 100%; height: 12px; background: rgba(0,0,0,0.75); border: 1.5px solid var(--box-border); border-radius: 6px; overflow: hidden; margin-top: 5px; }
-  .preview-progress-fill { width: 52%; height: 100%; background: linear-gradient(90deg, var(--accent), var(--border-color)); border-radius: 4px; transition: width .3s; }
-
-  /* ===== زر فتح/طي قسم التخصيص ===== */
-  .open-colors-btn {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    width: 100%;
-    max-width: 720px;
-    padding: 16px 20px;
-    background: linear-gradient(135deg, #1a1305, #2a1f08);
-    border: 2px solid var(--gold);
-    border-radius: 16px;
-    color: var(--gold-hi);
-    font-weight: 800;
-    font-size: 1.05rem;
-    font-family: inherit;
-    cursor: pointer;
-    margin-top: 16px;
-    transition: all .2s;
-    box-shadow: 0 6px 20px -10px var(--gold);
+  .preview-avatar-ring {
+    width: 65px;
+    height: 65px;
   }
-  .open-colors-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -10px var(--gold); }
-  .open-colors-btn .arrow { transition: transform .3s; font-size: .9rem; }
-  .open-colors-btn.open .arrow { transform: rotate(180deg); }
-
-  /* ===== قسم التخصيص ===== */
-  .colors-section {
-    width: 100%;
-    max-width: 720px;
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    padding: 20px;
-    display: grid;
-    gap: 18px;
-    margin-top: 12px;
-    animation: drop .4s both;
+  .preview-name {
+    font-size: 1rem;
   }
-
-  /* ===== قوالب جاهزة (مصغرة) ===== */
-  .templates-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-    width: 100%;
+  .preview-box-value {
+    font-size: 0.85rem;
   }
-
-  .template-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 8px 4px;
-    background: var(--bg);
-    border: 2px solid var(--line);
-    border-radius: 10px;
-    color: var(--text);
-    font: inherit;
-    font-size: .7rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all .2s;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-
-  .template-btn:hover { border-color: var(--gold); transform: translateY(-2px); }
-  .template-btn.active { border-color: var(--gold); background: #221b0d; box-shadow: 0 0 0 2px #f2c23c33; }
-
-  .template-preview {
-    width: 100%;
-    height: 20px;
-    border-radius: 6px;
-    display: block;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  }
-
-  /* ===== Color Pickers (منظم) ===== */
-  .color-pickers {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    width: 100%;
-  }
-
-  .color-picker-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 10px;
-    background: var(--bg);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-  }
-
-  .color-picker-item label {
-    font-size: .75rem;
-    color: var(--muted);
-    font-weight: 700;
-  }
-
-  .color-picker-item input[type="color"] {
-    width: 100%;
-    height: 32px;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--bg);
-    cursor: pointer;
-    padding: 2px;
-  }
-
-  @media (max-width: 480px) {
-    .templates-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-  @media (max-width: 639px) {
-    .live-preview { max-width: 100%; padding: 12px; }
-    .preview-avatar { width: 50px; height: 50px; font-size: 1.2rem; }
-    .preview-name { font-size: .9rem; }
-    .preview-box-value { font-size: .8rem; }
-    .color-pickers { grid-template-columns: 1fr; }
-  }
+}
 </style>
 </head>
 <body data-title="profile">
@@ -175,8 +249,8 @@
     <button class="lang" id="lang" type="button"></button>
   </div>
   <div class="hd-right">
-  <div id="acct"></div>
-  <div id="server-selector"></div>
+    <div id="acct"></div>
+    <div id="server-selector"></div>
   </div>
 </header>
 <main class="wrap page" id="page"></main>
@@ -197,7 +271,9 @@ TROF.load(function(){
     return;
   }
 
-  // ===== بيانات الملف =====
+  var gid = TROF.getSelectedGuild();
+
+  // بيانات الملف
   h+='<div class="pf'+r()+'"><div class="sec-ic pf-av"><span class="ring"></span><img class="face" alt="" src="'+TROF.avatar(128)+'"></div><div><h1 class="sec-title" id="nm"></h1><p id="un"></p></div></div>';
 
   h+='<div class="stats'+r()+'">' +
@@ -206,7 +282,7 @@ TROF.load(function(){
      '<div class="stat"><i>🏆</i><b id="s-rank">—</b><span>'+TROF.t('rank')+'</span></div>' +
      '</div>';
 
-  // ===== المكافأة اليومية =====
+  // بطاقة المكافأة اليومية
   h+='<div class="daily-card'+r()+'">' +
      '<div class="daily-header">' +
        '<span class="daily-icon">🎁</span>' +
@@ -218,13 +294,13 @@ TROF.load(function(){
      '<button class="daily-btn" id="daily-btn" type="button" disabled>🎁 استلام المكافأة</button>' +
      '</div>';
 
-  // ===== زر طي القسم =====
+  // زر فتح قسم التخصيص
   h+='<button class="open-colors-btn" id="open-colors-btn" type="button">' +
      '<span>🎨 تخصيص ألوان البروفايل</span>' +
      '<span class="arrow">▼</span>' +
      '</button>';
 
-  // ===== القسم (مخفي افتراضياً) =====
+  // قسم التخصيص (مخفي افتراضياً)
   h+='<div class="colors-section" id="colors-section" style="display:none">' +
      '<div class="form-section-title">🎨 تخصيص ألوان البروفايل</div>' +
 
@@ -244,20 +320,35 @@ TROF.load(function(){
        '</div>' +
      '</div>' +
 
+     // المعاينة الحية
      '<div class="form-row form-row-col">' +
        '<label class="form-label">👁️ المعاينة الحية</label>' +
        '<div class="preview-container" style="width:100%;display:flex;justify-content:center;padding:10px 0;background:var(--bg);border-radius:14px;border:1px solid var(--line)">' +
          '<div class="live-preview" id="live-preview">' +
-           '<div class="preview-avatar">' + (u.username ? u.username[0].toUpperCase() : 'U') + '</div>' +
-           '<div class="preview-name">' + (u.global_name || u.username) + '</div>' +
+           '<div class="preview-avatar-ring">' +
+             '<img class="preview-avatar" id="pv-avatar" src="' + TROF.avatar(128) + '" alt="">' +
+           '</div>' +
+           '<div class="preview-name-row" id="pv-name-row">' +
+             '<span class="preview-name" id="pv-name">' + (u.global_name || u.username) + '</span>' +
+           '</div>' +
            '<div class="preview-handle">@' + u.username + '</div>' +
            '<div class="preview-stats">' +
-             '<div class="preview-box"><div class="preview-box-label">LVL</div><div class="preview-box-value" id="pv-level">—</div></div>' +
-             '<div class="preview-box"><div class="preview-box-label">XP</div><div class="preview-box-value" id="pv-xp">—</div></div>' +
-             '<div class="preview-box"><div class="preview-box-label">CREDITS</div><div class="preview-box-value" id="pv-balance">—</div></div>' +
-             '<div class="preview-box"><div class="preview-box-label">RANK</div><div class="preview-box-value" id="pv-rank">—</div></div>' +
+             '<div class="preview-box"><div class="preview-box-label">LVL</div><div class="preview-box-value" id="pv-level">0</div></div>' +
+             '<div class="preview-box"><div class="preview-box-label">XP</div><div class="preview-box-value" id="pv-xp">0</div></div>' +
+             '<div class="preview-box"><div class="preview-box-label">RANK</div><div class="preview-box-value" id="pv-rank">#0</div></div>' +
+             '<div class="preview-box"><div class="preview-box-label">CREDITS</div><div class="preview-box-value" id="pv-balance">0</div></div>' +
            '</div>' +
-           '<div class="preview-progress"><div class="preview-progress-fill" id="pv-progress"></div></div>' +
+           '<div class="preview-progress-container">' +
+             '<div class="preview-progress">' +
+               '<div class="preview-progress-fill" id="pv-progress"></div>' +
+               '<div class="preview-progress-label" id="pv-progress-label">52%</div>' +
+             '</div>' +
+             '<div class="preview-progress-info">' +
+               '<span class="left" id="pv-xp-text">0 / 900</span>' +
+               '<span class="right" id="pv-total-xp">TOTAL XP: 0</span>' +
+             '</div>' +
+           '</div>' +
+           '<div class="preview-badges-row" id="pv-badges"></div>' +
          '</div>' +
        '</div>' +
      '</div>' +
@@ -284,31 +375,87 @@ TROF.load(function(){
   }
 
   var api=TROF.CONFIG.apiUrl;
+  var userData = {}; // لحفظ بيانات المستخدم
 
-  // ===== جلب البيانات =====
+  // ============================================
+  // جلب البيانات من API
+  // ============================================
   fetch(api.replace(/\/$/,'')+'/users/'+u.id,{headers:{Authorization:'Bearer '+TROF.token()}})
     .then(function(x){if(!x.ok)throw 0;return x.json()})
     .then(function(d){
+      userData = d;
       document.getElementById('s-bal').textContent = TROF.formatNumber(d.balance);
       count(document.getElementById('s-lvl'), d.level);
       count(document.getElementById('s-rank'), d.rank);
-      var pv = document.getElementById('pv-level');
-      if(pv) pv.textContent = d.level || 0;
-      var px = document.getElementById('pv-xp');
-      if(px) px.textContent = TROF.formatNumber(d.total_xp || 0);
-      var pb = document.getElementById('pv-balance');
-      if(pb) pb.textContent = TROF.formatNumber(d.balance);
-      var pr = document.getElementById('pv-rank');
-      if(pr) pr.textContent = '#' + (d.rank || '—');
-      var pp = document.getElementById('pv-progress');
-      if(pp){
+      // تحديث المعاينة
+      var pvLevel = document.getElementById('pv-level');
+      if(pvLevel) pvLevel.textContent = d.level || 0;
+      var pvXp = document.getElementById('pv-xp');
+      if(pvXp) pvXp.textContent = TROF.formatNumber(d.total_xp || 0);
+      var pvBalance = document.getElementById('pv-balance');
+      if(pvBalance) pvBalance.textContent = TROF.formatNumber(d.balance);
+      var pvRank = document.getElementById('pv-rank');
+      if(pvRank) pvRank.textContent = '#' + (d.rank || '0');
+      var pvProgress = document.getElementById('pv-progress');
+      if(pvProgress){
         var pct = Math.min(((d.xp || 0) / ((d.level + 1) * 100)) * 100, 100);
-        pp.style.width = pct + '%';
+        pvProgress.style.width = pct + '%';
+        document.getElementById('pv-progress-label').textContent = Math.round(pct) + '%';
       }
+      var pvXpText = document.getElementById('pv-xp-text');
+      if(pvXpText) pvXpText.textContent = TROF.formatNumber(d.xp || 0) + ' / ' + TROF.formatNumber((d.level + 1) * 100);
+      var pvTotalXp = document.getElementById('pv-total-xp');
+      if(pvTotalXp) pvTotalXp.textContent = 'TOTAL XP: ' + TROF.formatNumber(d.total_xp || 0);
     })
     .catch(function(){note.textContent=TROF.t('apiErr')});
 
-  // ===== المكافأة اليومية =====
+  // ============================================
+  // 🎖️ فحص VIP/Premium
+  // ============================================
+  if (gid) {
+    var userIsVIP = false;
+    var userIsPremium = false;
+
+    Promise.all([
+      fetch(api + '/premium/status?user_id=' + u.id + '&guild_id=' + gid, {
+        headers: {Authorization: 'Bearer ' + TROF.token()}
+      }).then(function(r){return r.json()}).catch(function(){return {}}),
+      fetch(api + '/vip/status?user_id=' + u.id + '&guild_id=' + gid, {
+        headers: {Authorization: 'Bearer ' + TROF.token()}
+      }).then(function(r){return r.json()}).catch(function(){return {}})
+    ]).then(function(results){
+      var premiumData = results[0] || {};
+      var vipData = results[1] || {};
+
+      userIsPremium = !!premiumData.is_premium;
+      userIsVIP = !!vipData.is_vip;
+
+      updateBadges();
+    });
+  }
+
+  // ============================================
+  // 🏷️ إضافة الشارة قبل الاسم
+  // ============================================
+  function updateBadges() {
+    var nameRow = document.getElementById('pv-name-row');
+    if (!nameRow) return;
+
+    var displayName = u.global_name || u.username;
+    var badgeHTML = '';
+
+    if (userIsPremium) {
+      badgeHTML = '<span class="preview-badge premium-badge">PREMIUM</span>';
+    } else if (userIsVIP) {
+      badgeHTML = '<span class="preview-badge vip-badge">VIP</span>';
+    }
+
+    nameRow.innerHTML = badgeHTML + '<span class="preview-name">' + displayName + '</span>';
+  }
+
+  // ============================================
+  // 🎁 المكافأة اليومية
+  // ============================================
   var dailyBtn = document.getElementById('daily-btn');
   var dailyStatus = document.getElementById('daily-status');
 
@@ -355,7 +502,9 @@ TROF.load(function(){
   updateDailyStatus();
   setInterval(updateDailyStatus, 60000);
 
-  // ===== زر فتح/طي القسم =====
+  // ============================================
+  // 🎨 قسم التخصيص
+  // ============================================
   var colorsBtn = document.getElementById('open-colors-btn');
   var colorsSection = document.getElementById('colors-section');
   var colorsOpened = false;
@@ -376,7 +525,6 @@ TROF.load(function(){
     }
   };
 
-  // ===== قسم التخصيص =====
   function initColorsSection() {
     var TEMPLATES = [
       {name: "افتراضي", text: "#FFFFFF", boxBg: "#000000", boxBorder: "#FFFFFF", accent: "#FFD700", border: "#00d4d4"},
@@ -501,4 +649,4 @@ TROF.load(function(){
 });
 </script>
 </body>
-</html>
+  </html>
