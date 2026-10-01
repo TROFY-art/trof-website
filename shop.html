@@ -136,12 +136,6 @@ async function loadShopItems(){
         var owned = userItems.some(function(ui){ return ui.id === item.id });
         var equipped = userItems.some(function(ui){ return ui.id === item.id && ui.equipped });
         var rarityClass = 'rarity-' + item.rarity;
-        var rarityLabel = {
-          'common': 'عادي',
-          'rare': 'نادر',
-          'epic': 'ملحمي',
-          'legendary': 'أسطوري'
-        }[item.rarity] || 'عادي';
 
         // معالجة الصورة
         var imgStyle = '';
@@ -170,13 +164,10 @@ async function loadShopItems(){
         html += '<div class="' + imgClass + '" style="' + imgStyle + '">' + placeholderEmoji;
         if(owned && equipped) html += '<span class="item-badge">✓ مجهز</span>';
         html += '</div>';
-        html += '<div class="shop-item-body">';
-        html += '<div class="shop-item-name">' + (item.name || '') + '</div>';
-        html += '<div class="shop-item-desc">' + (item.description || '') + '</div>';
+
+        // السعر + الزر فقط (بدون اسم + وصف)
         html += '<div class="shop-item-footer">';
-        html += '<span class="rarity-tag">' + rarityLabel + '</span>';
         html += '<span class="item-price">' + TROF.formatNumber(item.price) + ' 💰</span>';
-        html += '</div>';
 
         if(owned){
           if(equipped){
