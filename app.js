@@ -19,8 +19,7 @@ var SECTIONS=[
  {id:'levels',icon:'levels',t:'المستويات',d:'XP كتابي وصوتي',need:'everyone',url:'levels.html',cmds:[]},
  {id:'protection',icon:'shield',t:'الحماية',d:'حماية السيرفر',need:'staff',url:'protection.html',cmds:[]},
  {id:'moderation',icon:'settings',t:'إدارة السيرفر',d:'تحكم كامل بالفئات والقنوات والرتب',need:'staff',url:'server-manager.html',cmds:[]},
- {id:'shortcuts',icon:'shortcut',t:'اختصارات',d:'اختصارات الأوامر',need:'everyone',url:'shortcuts.html',cmds:[]},
- {id:'vote',icon:'vote',t:'صوّت للبوت',d:'احصل على مكافآت',need:'everyone',url:'vote.html',cmds:[]}
+ {id:'shortcuts',icon:'shortcut',t:'اختصارات',d:'اختصارات الأوامر',need:'everyone',url:'shortcuts.html',cmds:[]}
 ];
 
 var LANGS=['ar','en'],NAMES={ar:'العربية',en:'English'},lang='ar';
@@ -270,16 +269,11 @@ async function fetchUserGuilds(){
       var g = guilds[i];
       var gid = String(g.id);
 
-      // 1) تأكد البوت في السيرفر
       if (botGuilds.length > 0 && botGuilds.indexOf(gid) === -1) continue;
 
-      // 2) فحص الصلاحيات
       var hasAccess = false;
-
-      // أ) مالك
       if (g.owner === true) hasAccess = true;
 
-      // ب) صلاحيات إدارية
       if (!hasAccess) {
         var perms = parseInt(g.permissions) || 0;
         if (
@@ -294,7 +288,6 @@ async function fetchUserGuilds(){
         }
       }
 
-      // ج) رتب إدارية (من البوت API)
       if (!hasAccess) {
         try {
           var roleRes = await fetch(CONFIG.apiUrl + '/guild/' + gid + '/check-admin/' + auth.user.id);
@@ -408,7 +401,7 @@ function formatNumber(num){
 }
 
 // ============================================
-// 📜 روابط الفوتر (مع Donate)
+// 📜 روابط الفوتر (بدون Donate وبدون Vote)
 // ============================================
 function injectFooterLinks(){
   var footer=document.querySelector('footer.wrap');
@@ -418,15 +411,11 @@ function injectFooterLinks(){
   var texts = {
     ar: {
       home: '🏠 الرئيسية',
-      vote: '🗳️ صوّت للبوت',
-      donate: '❤️ ادعمنا',
       terms: '📜 شروط الخدمة',
       privacy: '🔒 سياسة الخصوصية'
     },
     en: {
       home: '🏠 Home',
-      vote: '🗳️ Vote for Bot',
-      donate: '❤️ Support Us',
       terms: '📜 Terms of Service',
       privacy: '🔒 Privacy Policy'
     }
@@ -436,8 +425,6 @@ function injectFooterLinks(){
   var linksHTML=
     '<div class="footer-links">'+
       '<a href="./">'+tr.home+'</a>'+
-      '<a href="vote.html">'+tr.vote+'</a>'+
-      '<a href="donate.html">'+tr.donate+'</a>'+
       '<a href="terms.html">'+tr.terms+'</a>'+
       '<a href="privacy.html">'+tr.privacy+'</a>'+
     '</div>';
