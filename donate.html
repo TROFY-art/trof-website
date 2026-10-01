@@ -35,7 +35,53 @@
     line-height: 1.8;
   }
   .donate-container { max-width: 900px; margin: 0 auto; }
-  
+
+  /* بطاقة SuperQi */
+  .superqi-box {
+    background: linear-gradient(135deg, #0a1628 0%, #1a3a5a 100%);
+    border: 2px solid #00D4D4;
+    border-radius: 20px;
+    padding: 24px;
+    margin: 24px 0;
+    text-align: center;
+  }
+  .superqi-box h3 {
+    color: #7FF0F0;
+    margin: 0 0 12px;
+    font-size: 1.15rem;
+  }
+  .superqi-number {
+    display: block;
+    font-family: monospace;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #7FF0F0;
+    background: #0d0c0a;
+    padding: 14px 20px;
+    border-radius: 12px;
+    direction: ltr;
+    user-select: all;
+    letter-spacing: 1px;
+    margin: 12px 0;
+    border: 1px solid #00D4D4;
+  }
+  .superqi-copy {
+    background: linear-gradient(180deg, #7FF0F0, #00D4D4);
+    color: #0a1628;
+    border: 0;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .superqi-hint {
+    color: #a89f88;
+    font-size: 0.85rem;
+    margin: 12px 0 0;
+  }
+
   /* الباقات */
   .support-tiers {
     display: grid;
@@ -122,7 +168,7 @@
     border-radius: 999px;
     letter-spacing: 1px;
   }
-  
+
   /* المبلغ المخصص */
   .custom-amount-section {
     margin: 30px 0;
@@ -157,7 +203,7 @@
     outline: none;
     border-color: #F2C23C;
   }
-  
+
   /* زر الدعم */
   .donate-submit {
     width: 100%;
@@ -182,7 +228,54 @@
     opacity: 0.6;
     cursor: not-allowed;
   }
-  
+
+  /* نموذج البيانات */
+  .payment-form {
+    margin-top: 24px;
+    padding: 24px;
+    background: #171410;
+    border: 2px solid #F2C23C;
+    border-radius: 18px;
+  }
+  .payment-form h3 {
+    color: #FFE9A3;
+    margin: 0 0 16px;
+    font-size: 1.15rem;
+  }
+  .form-group {
+    margin-bottom: 16px;
+  }
+  .form-group label {
+    display: block;
+    color: #FFE9A3;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 14px;
+    background: #0d0c0a;
+    border: 1px solid #2f2818;
+    border-radius: 10px;
+    color: #f6efdc;
+    font: inherit;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #F2C23C;
+  }
+  .form-group small {
+    display: block;
+    color: #a89f88;
+    font-size: 0.8rem;
+    margin-top: 6px;
+  }
+
   /* معلومات */
   .why-support {
     margin-top: 30px;
@@ -218,48 +311,19 @@
     font-size: 1.3rem;
     flex-shrink: 0;
   }
-  
+
   .msg {
     text-align: center;
     margin-top: 16px;
     font-weight: 700;
     font-size: 0.95rem;
+    line-height: 1.6;
   }
-  
-  /* اختيار طريقة الدفع */
-  .payment-methods {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
-    margin-top: 12px;
-  }
-  .payment-btn {
-    padding: 14px;
-    background: #0d0c0a;
-    border: 2px solid #2f2818;
-    border-radius: 12px;
-    color: #f6efdc;
-    font: inherit;
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all .2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .payment-btn:hover {
-    border-color: #F2C23C;
-  }
-  .payment-btn.selected {
-    border-color: #F2C23C;
-    background: #221b0d;
-  }
-  
+
   @media (max-width: 640px) {
     .support-tiers { grid-template-columns: 1fr; }
     .why-support ul { grid-template-columns: 1fr; }
+    .superqi-number { font-size: 1.1rem; }
   }
 </style>
 </head>
@@ -290,6 +354,16 @@
       <p style="font-size:0.9rem;color:#FFE9A3;">✨ اختر باقة دعم واحصل على ميزات حصرية!</p>
     </div>
 
+    <!-- رقم SuperQi -->
+    <div class="superqi-box">
+      <h3>📱 حوّل المبلغ على SuperQi</h3>
+      <code class="superqi-number" id="superqi-number">4177630253851854</code>
+      <button class="superqi-copy" id="copy-superqi" type="button">📋 نسخ الرقم</button>
+      <p class="superqi-hint">
+        🌍 يقبل التحويلات من داخل العراق وخارجه (Visa/MasterCard & Western Union)
+      </p>
+    </div>
+
     <!-- باقات الدعم -->
     <h3 style="color:#FFE9A3;margin:0 0 8px;font-size:1.2rem;">💎 باقات الدعم</h3>
     <p style="color:#a89f88;margin:0 0 16px;font-size:0.9rem;">اختر الباقة المناسبة لك</p>
@@ -297,54 +371,53 @@
     <div class="support-tiers" id="support-tiers">
       
       <!-- باقة البرونزية -->
-      <div class="tier-card" data-tier="bronze" data-amount="5">
+      <div class="tier-card" data-tier="bronze" data-amount="5000" data-name="دعم برونزي">
         <span class="tier-icon">🥉</span>
         <h3 class="tier-name">دعم برونزي</h3>
-        <div class="tier-amount">$5 <small>≈ 6,500 دينار</small></div>
+        <div class="tier-amount">5,000 <small>دينار</small></div>
         <ul class="tier-benefits">
           <li>شكر في قناة #supporters</li>
           <li>رصيد 50,000 💰 في البوت</li>
-          <li>شارة "داعم" 🥉</li>
+          <li>شارة "🥉 BRONZE" في البروفايل</li>
         </ul>
       </div>
 
       <!-- باقة الفضية (مميزة) -->
-      <div class="tier-card" data-tier="silver" data-amount="15">
+      <div class="tier-card" data-tier="silver" data-amount="15000" data-name="دعم فضي">
         <span class="tier-badge">الأكثر طلباً</span>
         <span class="tier-icon">🥈</span>
         <h3 class="tier-name">دعم فضي</h3>
-        <div class="tier-amount">$15 <small>≈ 20,000 دينار</small></div>
+        <div class="tier-amount">15,000 <small>دينار</small></div>
         <ul class="tier-benefits">
           <li>كل ميزات البرونزي</li>
           <li>رصيد 200,000 💰 في البوت</li>
-          <li>شارة "داعم" 🥈</li>
+          <li>شارة "🥈 SILVER" في البروفايل</li>
           <li>اسمك في قائمة الشكر على الموقع</li>
         </ul>
       </div>
 
       <!-- باقة الذهبية -->
-      <div class="tier-card" data-tier="gold" data-amount="30">
+      <div class="tier-card" data-tier="gold" data-amount="30000" data-name="دعم ذهبي">
         <span class="tier-icon">🥇</span>
         <h3 class="tier-name">دعم ذهبي</h3>
-        <div class="tier-amount">$30 <small>≈ 40,000 دينار</small></div>
+        <div class="tier-amount">30,000 <small>دينار</small></div>
         <ul class="tier-benefits">
           <li>كل ميزات الفضي</li>
           <li>رصيد 500,000 💰 في البوت</li>
-          <li>شارة "داعم" 🥇</li>
+          <li>شارة "🥇 GOLD" في البروفايل</li>
           <li>VIP لمدة شهر</li>
-          <li>اسمك في قائمة الشكر على الموقع بلون ذهبي</li>
         </ul>
       </div>
 
       <!-- باقة الماسية -->
-      <div class="tier-card" data-tier="diamond" data-amount="50">
+      <div class="tier-card" data-tier="diamond" data-amount="50000" data-name="دعم ماسي">
         <span class="tier-icon">💎</span>
         <h3 class="tier-name">دعم ماسي</h3>
-        <div class="tier-amount">$50 <small>≈ 65,000 دينار</small></div>
+        <div class="tier-amount">50,000 <small>دينار</small></div>
         <ul class="tier-benefits">
           <li>كل ميزات الذهبي</li>
           <li>رصيد 1,000,000 💰 في البوت</li>
-          <li>شارة "داعم" 💎</li>
+          <li>شارة "💎 DIAMOND" في البروفايل</li>
           <li>VIP لمدة 3 أشهر</li>
           <li>اسمك بحجم أكبر على الموقع</li>
         </ul>
@@ -356,30 +429,40 @@
     <div class="custom-amount-section">
       <h3>💰 أو اختر مبلغ مخصص</h3>
       <div class="custom-amount">
-        <input type="number" id="custom-amount" placeholder="اكتب المبلغ بالدولار ($1 - $10000)" min="1" max="10000">
+        <input type="number" id="custom-amount" placeholder="اكتب المبلغ بالدينار (1,000 - 10,000,000)" min="1000" max="10000000">
       </div>
     </div>
 
-    <!-- طريقة الدفع -->
-    <div class="custom-amount-section">
-      <h3>💳 اختر طريقة الدفع</h3>
-      <div class="payment-methods">
-        <button class="payment-btn" data-method="paypal">
-          <span>💳</span> PayPal
-        </button>
-        <button class="payment-btn" data-method="stripe">
-          <span>💳</span> Card / Stripe
-        </button>
-        <button class="payment-btn" data-method="ko-fi">
-          <span>☕</span> Ko-fi
-        </button>
-        <button class="payment-btn" data-method="usdt">
-          <span>💰</span> USDT
-        </button>
-      </div>
-    </div>
+    <!-- زر الدعم -->
+    <button class="donate-submit" id="donate-submit" type="button">💳 متابعة الدعم</button>
 
-    <button class="donate-submit" id="donate-submit" type="button">💳 دعم الآن</button>
+    <!-- نموذج المعلومات (مخفي مبدئياً) -->
+    <div class="payment-form" id="payment-form" style="display:none;">
+      <h3>📝 معلومات التحويل</h3>
+
+      <div class="form-group">
+        <label>🔢 رقم العملية (Transaction ID) *</label>
+        <input type="text" id="tx-id" placeholder="مثال: 123456789" autocomplete="off">
+        <small>تلقاه في تطبيق SuperQi بعد التحويل</small>
+      </div>
+
+      <div class="form-group">
+        <label>💵 المبلغ المحوّل (دينار) *</label>
+        <input type="number" id="tx-amount" placeholder="مثال: 5000" min="1000">
+      </div>
+
+      <div class="form-group">
+        <label>👤 الاسم الكامل *</label>
+        <input type="text" id="full-name" placeholder="الاسم اللي حوّلت منه" autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label>📧 الإيميل (اختياري)</label>
+        <input type="email" id="email" placeholder="example@email.com" autocomplete="off">
+      </div>
+
+      <button class="donate-submit" id="confirm-donation" type="button">✅ تأكيد الطلب</button>
+    </div>
 
     <p class="msg" id="donate-msg"></p>
 
@@ -387,7 +470,7 @@
     <div class="why-support">
       <h3>💡 أين يذهب دعمك؟</h3>
       <ul>
-        <li><span>🖥️</span><span>صيانة السيرفرات الشهرية (~$15/شهر)</span></li>
+        <li><span>🖥️</span><span>صيانة السيرفرات الشهرية</span></li>
         <li><span>⚙️</span><span>تطوير ميزات جديدة للبوت</span></li>
         <li><span>🎨</span><span>تحسين التصميم والصور</span></li>
         <li><span>🐛</span><span>إصلاح الأخطاء بسرعة</span></li>
@@ -405,19 +488,32 @@
 (function(){
 TROF.dust();
 
-// ============================================
-// ⚙️ الإعدادات (عدّل روابطك هنا)
-// ============================================
-var PAYMENT_LINKS = {
-  paypal: 'https://www.paypal.com/donate/?business=YOUR_PAYPAL_EMAIL&currency_code=USD',
-  stripe: 'https://donate.stripe.com/YOUR_STRIPE_LINK',
-  kofi: 'https://ko-fi.com/trofsystem',
-  usdt: 'https://i.imgur.com/YOUR_USDT_QR.png', // QR Code
-};
+var SUPERQI_NUMBER = '4177630253851854';
 
 var selectedTier = null;
 var selectedAmount = null;
-var selectedMethod = 'paypal'; // افتراضي
+var selectedTierName = null;
+
+// ============================================
+// 📋 نسخ رقم SuperQi
+// ============================================
+document.getElementById('copy-superqi').onclick = function(){
+  var btn = this;
+  navigator.clipboard.writeText(SUPERQI_NUMBER).then(function(){
+    btn.textContent = '✅ تم النسخ!';
+    setTimeout(function(){ btn.textContent = '📋 نسخ الرقم'; }, 2000);
+  }).catch(function(){
+    // Fallback
+    var ta = document.createElement('textarea');
+    ta.value = SUPERQI_NUMBER;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✅ تم النسخ!';
+    setTimeout(function(){ btn.textContent = '📋 نسخ الرقم'; }, 2000);
+  });
+};
 
 // ============================================
 // 🎯 اختيار الباقة
@@ -428,6 +524,7 @@ document.querySelectorAll('.tier-card').forEach(function(card){
     card.classList.add('selected');
     selectedTier = card.getAttribute('data-tier');
     selectedAmount = parseInt(card.getAttribute('data-amount'));
+    selectedTierName = card.getAttribute('data-name');
     document.getElementById('custom-amount').value = '';
   };
 });
@@ -438,66 +535,108 @@ document.querySelectorAll('.tier-card').forEach(function(card){
 document.getElementById('custom-amount').oninput = function(){
   document.querySelectorAll('.tier-card').forEach(function(c){c.classList.remove('selected')});
   selectedTier = null;
+  selectedTierName = null;
   selectedAmount = parseInt(this.value);
 };
 
 // ============================================
-// 💳 طريقة الدفع
-// ============================================
-document.querySelectorAll('.payment-btn').forEach(function(btn){
-  btn.onclick = function(){
-    document.querySelectorAll('.payment-btn').forEach(function(b){b.classList.remove('selected')});
-    btn.classList.add('selected');
-    selectedMethod = btn.getAttribute('data-method');
-  };
-});
-
-// افتراضي
-document.querySelector('.payment-btn[data-method="paypal"]').classList.add('selected');
-
-// ============================================
-// 💳 زر الدعم
+// 💳 زر "متابعة الدعم"
 // ============================================
 document.getElementById('donate-submit').onclick = function(){
   var msg = document.getElementById('donate-msg');
   var amount = selectedAmount || parseInt(document.getElementById('custom-amount').value);
 
-  if (!amount || amount < 1) {
-    msg.textContent = '❌ اختر باقة أو أدخل مبلغ صحيح';
+  if (!amount || amount < 1000) {
+    msg.textContent = '❌ اختر باقة أو أدخل مبلغ صحيح (الحد الأدنى 1,000 دينار)';
     msg.style.color = '#f87171';
     return;
   }
 
-  if (amount > 10000) {
-    msg.textContent = '❌ المبلغ كبير جداً (الحد $10,000)';
+  if (amount > 10000000) {
+    msg.textContent = '❌ المبلغ كبير جداً (الحد 10,000,000 دينار)';
     msg.style.color = '#f87171';
     return;
   }
 
-  // إذا USDT
-  if (selectedMethod === 'usdt') {
-    msg.innerHTML = '💰 USDT (TRC20):<br><code style="color:#FFE9A3;font-size:0.9rem;">YOUR_USDT_ADDRESS_HERE</code><br>أرسل المبلغ ثم تواصل معنا.';
-    msg.style.color = '#FFE9A3';
+  // إظهار النموذج
+  document.getElementById('payment-form').style.display = 'block';
+  document.getElementById('tx-amount').value = amount;
+  msg.textContent = '👉 حوّل ' + amount.toLocaleString() + ' دينار على SuperQi، ثم عبّي البيانات تحت';
+  msg.style.color = '#FFE9A3';
+  document.getElementById('payment-form').scrollIntoView({behavior: 'smooth', block: 'center'});
+};
+
+// ============================================
+// ✅ تأكيد الطلب
+// ============================================
+document.getElementById('confirm-donation').onclick = async function(){
+  var msg = document.getElementById('donate-msg');
+  var btn = this;
+
+  var txId = document.getElementById('tx-id').value.trim();
+  var txAmount = parseInt(document.getElementById('tx-amount').value);
+  var fullName = document.getElementById('full-name').value.trim();
+  var email = document.getElementById('email').value.trim();
+
+  if (!txId) { msg.textContent = '❌ أدخل رقم العملية'; msg.style.color = '#f87171'; return; }
+  if (!txAmount || txAmount < 1000) { msg.textContent = '❌ أدخل مبلغ صحيح'; msg.style.color = '#f87171'; return; }
+  if (!fullName) { msg.textContent = '❌ أدخل الاسم الكامل'; msg.style.color = '#f87171'; return; }
+
+  if (!TROF.auth.user) {
+    msg.textContent = '❌ سجّل دخول أولاً';
+    msg.style.color = '#f87171';
     return;
   }
 
-  // فتح رابط الدفع
-  var url = PAYMENT_LINKS[selectedMethod] || PAYMENT_LINKS.paypal;
-  if (url.includes('?')) {
-    url += '&amount=' + amount;
-  } else {
-    url += '?amount=' + amount;
-  }
-
-  msg.textContent = '⏳ جاري التحويل إلى صفحة الدفع...';
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري الإرسال...';
+  msg.textContent = '';
   msg.style.color = '#FFE9A3';
 
-  window.open(url, '_blank');
+  try {
+    var res = await fetch(TROF.CONFIG.apiUrl + '/donations/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + TROF.token()
+      },
+      body: JSON.stringify({
+        user_id: TROF.auth.user.id,
+        username: TROF.auth.user.username,
+        guild_id: TROF.getSelectedGuild() || '',
+        tier: selectedTier,
+        tier_name: selectedTierName,
+        amount: txAmount,
+        transaction_id: txId,
+        full_name: fullName,
+        email: email || 'لا يوجد'
+      })
+    });
 
-  setTimeout(function(){
-    msg.innerHTML = '✅ شكراً لدعمك! ❤️<br>راح نتواصل معك لتسليم الميزات.';
-    msg.style.color = '#4ade80';
-  }, 1500);
+    var data = await res.json();
+
+    if (res.ok && data.success) {
+      msg.innerHTML = '✅ <b>تم إرسال طلب الدعم!</b><br>رقم الطلب: <code>#' + data.donation_id + '</code><br>سيتم التحقق خلال دقائق.';
+      msg.style.color = '#4ade80';
+      document.getElementById('payment-form').style.display = 'none';
+      document.getElementById('donate-submit').textContent = '✅ تم الإرسال';
+
+      setTimeout(function(){
+        alert('✅ شكراً لدعمك! ❤️\nرقم الطلب: #' + data.donation_id);
+      }, 500);
+    } else {
+      msg.textContent = '❌ ' + (data.detail || 'فشل الإرسال');
+      msg.style.color = '#f87171';
+      btn.disabled = false;
+      btn.textContent = '✅ تأكيد الطلب';
+    }
+  } catch (e) {
+    console.error(e);
+    msg.textContent = '❌ خطأ في الاتصال';
+    msg.style.color = '#f87171';
+    btn.disabled = false;
+    btn.textContent = '✅ تأكيد الطلب';
+  }
 };
 
 // ============================================
@@ -510,4 +649,4 @@ TROF.load(function(){
 })();
 </script>
 </body>
-        </html>
+</html>
