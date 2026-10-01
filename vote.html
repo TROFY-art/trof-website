@@ -7,43 +7,213 @@
 <title>صوّت للبوت | TROF System</title>
 <meta name="theme-color" content="#0d0c0a">
 <link rel="icon" type="image/webp" href="logo.webp">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-  .vote-container { max-width: 800px; margin: 0 auto; padding: 20px 0 60px; }
-  .vote-hero { text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #1a1305 0%, #2a1f08 100%); border: 2px solid #F2C23C; border-radius: 24px; margin-bottom: 30px; box-shadow: 0 20px 60px -20px #F2C23C44; }
-  .vote-hero h1 { font-size: clamp(1.8rem, 6vw, 2.5rem); margin: 0 0 10px; background: linear-gradient(180deg, #ffe9a3, #f2c23c 50%, #b8871b); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 800; }
+  .vote-hero {
+    text-align: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #0a2818 0%, #1a4a2a 100%);
+    border: 2px solid #2ECC71;
+    border-radius: 24px;
+    margin-bottom: 30px;
+    box-shadow: 0 20px 60px -20px #2ECC7144;
+  }
+  .vote-hero h1 {
+    font-size: clamp(1.8rem, 6vw, 2.5rem);
+    margin: 0 0 10px;
+    background: linear-gradient(180deg, #A8F0C0, #2ECC71 50%, #1E8449);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 900;
+  }
   .vote-hero p { color: #a89f88; margin: 0 0 20px; font-size: 1.05rem; }
-  .vote-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 30px; }
-  .vote-stat { background: #171410; border: 1px solid #2f2818; border-radius: 16px; padding: 20px 12px; text-align: center; transition: border-color .2s; }
-  .vote-stat:hover { border-color: #F2C23C; }
-  .vote-stat b { display: block; font-size: 1.8rem; color: #ffe9a3; margin-bottom: 4px; font-weight: 800; }
-  .vote-stat span { color: #a89f88; font-size: .85rem; }
-  .vote-sites { display: grid; gap: 14px; margin-bottom: 30px; }
-  .vote-site { display: flex; align-items: center; gap: 16px; padding: 18px 20px; background: #171410; border: 1px solid #2f2818; border-radius: 16px; transition: all .2s; text-decoration: none; color: inherit; }
-  .vote-site:hover { border-color: #F2C23C; transform: translateY(-3px); box-shadow: 0 10px 30px -10px #F2C23C55; }
-  .vote-site-icon { width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; background: #0d0c0a; border-radius: 14px; flex-shrink: 0; border: 1px solid #2f2818; }
+  .vote-reward {
+    display: inline-block;
+    padding: 10px 24px;
+    background: linear-gradient(180deg, #A8F0C0, #2ECC71);
+    color: #0a2818;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 20px -4px #2ECC71;
+  }
+  .vote-container { max-width: 900px; margin: 0 auto; }
+
+  /* شريط الحالة */
+  .vote-status-bar {
+    padding: 20px;
+    border-radius: 16px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 800;
+    font-size: 1.05rem;
+  }
+  .vote-status-bar.ready {
+    background: linear-gradient(135deg, #0a2818, #1a4a2a);
+    border: 2px solid #2ECC71;
+    color: #A8F0C0;
+  }
+  .vote-status-bar.cooldown {
+    background: linear-gradient(135deg, #1a1305, #2a1f08);
+    border: 2px solid #F2C23C;
+    color: #FFE9A3;
+  }
+  .vote-status-bar.login {
+    background: linear-gradient(135deg, #1a0a28, #2a1240);
+    border: 2px solid #9B59B6;
+    color: #E0BBE4;
+  }
+  .vote-status-bar.loading {
+    background: #171410;
+    border: 2px solid #2f2818;
+    color: #a89f88;
+  }
+
+  /* الإحصائيات */
+  .vote-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .vote-stat {
+    padding: 20px 12px;
+    background: #171410;
+    border: 1px solid #2f2818;
+    border-radius: 16px;
+    text-align: center;
+    transition: border-color .2s;
+  }
+  .vote-stat:hover { border-color: #2ECC71; }
+  .vote-stat b {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #A8F0C0;
+    margin-bottom: 4px;
+  }
+  .vote-stat span {
+    color: #a89f88;
+    font-size: .85rem;
+  }
+
+  /* مواقع التصويت */
+  .vote-sites-title {
+    color: #A8F0C0;
+    margin: 0 0 16px;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .vote-sites {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+  .vote-site {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    background: #171410;
+    border: 2px solid #2f2818;
+    border-radius: 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: all .2s;
+  }
+  .vote-site:hover {
+    border-color: #2ECC71;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px -10px #2ECC7155;
+  }
+  .vote-site-icon {
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.7rem;
+    background: #0d0c0a;
+    border-radius: 14px;
+    flex-shrink: 0;
+    border: 1px solid #2f2818;
+  }
   .vote-site-info { flex: 1; min-width: 0; }
-  .vote-site-info b { display: block; color: #ffe9a3; font-size: 1.05rem; margin-bottom: 4px; font-weight: 800; }
-  .vote-site-info small { color: #a89f88; font-size: .82rem; }
-  .vote-site-reward { display: flex; flex-direction: column; align-items: center; padding: 8px 14px; background: linear-gradient(180deg, #ffe9a3, #f2c23c 55%, #b8871b); color: #1a1305; border-radius: 12px; font-weight: 800; flex-shrink: 0; }
-  .vote-site-reward b { font-size: .95rem; line-height: 1; }
+  .vote-site-info b {
+    display: block;
+    color: #A8F0C0;
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+    font-weight: 800;
+  }
+  .vote-site-info small {
+    color: #a89f88;
+    font-size: .85rem;
+  }
+  .vote-site-reward {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 14px;
+    background: linear-gradient(180deg, #A8F0C0, #2ECC71);
+    color: #0a2818;
+    border-radius: 12px;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+  .vote-site-reward b { font-size: 1rem; line-height: 1; }
   .vote-site-reward small { font-size: .7rem; opacity: .85; margin-top: 3px; }
-  .cooldown-badge { display: inline-block; padding: 6px 14px; background: #f8717120; color: #f87171; border: 1px solid #f8717140; border-radius: 999px; font-size: .85rem; font-weight: 700; }
-  .ready-badge { display: inline-block; padding: 6px 14px; background: #4ade8020; color: #4ade80; border: 1px solid #4ade8040; border-radius: 999px; font-size: .85rem; font-weight: 700; }
-  .loading-badge { display: inline-block; padding: 6px 14px; background: #f2c23c20; color: #f2c23c; border: 1px solid #f2c23c40; border-radius: 999px; font-size: .85rem; font-weight: 700; }
-  .leaderboard { background: #171410; border: 1px solid #2f2818; border-radius: 16px; padding: 20px; }
-  .lb-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; background: #0d0c0a; margin-bottom: 8px; border: 1px solid #2f2818; transition: border-color .2s; }
-  .lb-row:hover { border-color: #F2C23C; }
-  .lb-rank { font-size: 1.2rem; font-weight: 900; min-width: 40px; text-align: center; }
-  .lb-name { flex: 1; color: #f6efdc; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .lb-count { color: #F2C23C; font-weight: 800; white-space: nowrap; }
-  .section-title { color: #ffe9a3; margin: 30px 0 16px; font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-  .empty-state { text-align: center; padding: 30px 20px; color: #a89f88; }
+
+  /* ليدربورد */
+  .leaderboard {
+    background: #171410;
+    border: 1px solid #2f2818;
+    border-radius: 16px;
+    padding: 20px;
+  }
+  .lb-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #0d0c0a;
+    margin-bottom: 8px;
+    border: 1px solid #2f2818;
+    transition: border-color .2s;
+  }
+  .lb-row:hover { border-color: #2ECC71; }
+  .lb-rank {
+    font-size: 1.2rem;
+    font-weight: 900;
+    min-width: 40px;
+    text-align: center;
+  }
+  .lb-name {
+    flex: 1;
+    color: #f6efdc;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .lb-count {
+    color: #2ECC71;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 30px 20px;
+    color: #a89f88;
+  }
   .empty-state span { display: block; font-size: 2rem; margin-bottom: 8px; }
-  @media (max-width: 639px) {
+
+  @media (max-width: 640px) {
     .vote-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .vote-stat { padding: 14px 8px; }
     .vote-stat b { font-size: 1.4rem; }
@@ -62,38 +232,61 @@
     <button class="lang" id="lang" type="button"></button>
   </div>
   <div class="hd-right">
-  <div id="acct"></div>
-  <div id="server-selector"></div>
+    <div id="acct"></div>
+    <div id="server-selector"></div>
   </div>
 </header>
 
 <main class="wrap">
   <a class="back" href="./" style="margin-bottom:20px">
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
-    <span id="v-back">الرجوع للرئيسية</span>
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>
+    <span>الرجوع للرئيسية</span>
   </a>
 
   <div class="vote-container">
     <div class="vote-hero">
-      <h1 id="v-title">🗳️ صوّت للبوت</h1>
-      <p><span id="v-sub"></span> <strong style="color:#F2C23C" id="v-reward">5,000 💰</strong> <span id="v-subend"></span></p>
-      <div id="vote-status"><span class="loading-badge" id="v-checking">⏳ جاري التحقق...</span></div>
+      <h1>🗳️ صوّت للبوت</h1>
+      <p>كل تصويت يساعدنا على الوصول لعدد أكبر من المستخدمين</p>
+      <div class="vote-reward">💰 كل تصويت = 5,000 💰</div>
     </div>
 
+    <!-- شريط الحالة -->
+    <div class="vote-status-bar loading" id="vote-status">
+      ⏳ جاري التحقق...
+    </div>
+
+    <!-- الإحصائيات -->
     <div class="vote-stats">
-      <div class="vote-stat"><b id="stat-total">0</b><span id="v-st1">إجمالي التصويتات</span></div>
-      <div class="vote-stat"><b id="stat-month">0</b><span id="v-st2">هذا الشهر</span></div>
-      <div class="vote-stat"><b id="stat-rank">—</b><span id="v-st3">ترتيبك</span></div>
+      <div class="vote-stat">
+        <b id="stat-total">0</b>
+        <span>إجمالي التصويتات</span>
+      </div>
+      <div class="vote-stat">
+        <b id="stat-month">0</b>
+        <span>هذا الشهر</span>
+      </div>
+      <div class="vote-stat">
+        <b id="stat-rank">—</b>
+        <span>ترتيبك</span>
+      </div>
     </div>
 
-    <h3 class="section-title" id="v-sitestitle">🎯 مواقع التصويت</h3>
+    <!-- مواقع التصويت -->
+    <h3 class="vote-sites-title">🎯 مواقع التصويت</h3>
     <div class="vote-sites" id="vote-sites">
-      <p class="empty-state"><span>⏳</span><span id="v-loading">جاري التحميل...</span></p>
+      <div class="empty-state">
+        <span>⏳</span>
+        جاري التحميل...
+      </div>
     </div>
 
-    <h3 class="section-title" id="v-toptitle">🏆 أفضل 10 مصوتين</h3>
+    <!-- أفضل المصوتين -->
+    <h3 class="vote-sites-title">🏆 أفضل 10 مصوتين</h3>
     <div class="leaderboard" id="leaderboard">
-      <p class="empty-state"><span>⏳</span><span id="v-loading2">جاري التحميل...</span></p>
+      <div class="empty-state">
+        <span>⏳</span>
+        جاري التحميل...
+      </div>
     </div>
   </div>
 </main>
@@ -105,116 +298,129 @@
 (function(){
 TROF.dust();
 
+// ============================================
+// ⚙️ الإعدادات
+// ============================================
+var VOTE_REWARD = 5000;
+var COOLDOWN_HOURS = 12;
+
+// مواقع التصويت
+var VOTE_SITES = [
+  {
+    name: 'top.gg',
+    url: 'https://top.gg/bot/1536360221906178088/vote',
+    icon: '🏆',
+    reward: VOTE_REWARD,
+  },
+  {
+    name: 'discordbotlist.com',
+    url: 'https://discordbotlist.com/bots/1536360221906178088/upvote',
+    icon: '🤖',
+    reward: 3000,
+  },
+  {
+    name: 'discordboats.com',
+    url: 'https://discord.boats/bot/1536360221906178088/vote',
+    icon: '⛵',
+    reward: 3000,
+  },
+];
+
+// ============================================
+// 🎯 تحميل الصفحة
+// ============================================
 TROF.load(function(){
   TROF.mountAccount();
   TROF.renderServerSelector();
 
-  var T = TROF.t;
-  var u = TROF.auth.user;
   var api = TROF.CONFIG.apiUrl;
 
-  // ترجمة العناصر
-  document.title = T('votePageTitle');
-  document.getElementById('v-back').textContent = T('termsBack');
-  document.getElementById('v-title').textContent = T('voteTitle');
-  document.getElementById('v-sub').textContent = T('voteSubtitle');
-  document.getElementById('v-reward').textContent = T('voteSubtitleReward');
-  document.getElementById('v-subend').textContent = T('voteSubtitleEnd');
-  document.getElementById('v-st1').textContent = T('voteStatTotal');
-  document.getElementById('v-st2').textContent = T('voteStatMonth');
-  document.getElementById('v-st3').textContent = T('voteStatRank');
-  document.getElementById('v-sitestitle').textContent = T('voteSitesTitle');
-  document.getElementById('v-toptitle').textContent = T('voteTopTitle');
-  document.getElementById('v-loading').textContent = T('voteLoading');
-  document.getElementById('v-loading2').textContent = T('voteLoading');
-  document.getElementById('v-checking').textContent = T('voteChecking');
+  // ============================================
+  // 🎯 مواقع التصويت
+  // ============================================
+  var sitesHTML = '';
+  VOTE_SITES.forEach(function(site){
+    sitesHTML += '<a class="vote-site" href="' + site.url + '" target="_blank" rel="noopener">';
+    sitesHTML += '<div class="vote-site-icon">' + site.icon + '</div>';
+    sitesHTML += '<div class="vote-site-info">';
+    sitesHTML += '<b>' + site.name + '</b>';
+    sitesHTML += '<small>اضغط للتصويت للبوت</small>';
+    sitesHTML += '</div>';
+    sitesHTML += '<div class="vote-site-reward">';
+    sitesHTML += '<b>+' + TROF.formatNumber(site.reward) + '</b>';
+    sitesHTML += '<small>💰</small>';
+    sitesHTML += '</div>';
+    sitesHTML += '</a>';
+  });
+  document.getElementById('vote-sites').innerHTML = sitesHTML;
 
-  // 1. مواقع التصويت
-  fetch(api + '/vote/sites')
+  // ============================================
+  // 👤 حالة المستخدم
+  // ============================================
+  if (!TROF.auth.user) {
+    var statusEl = document.getElementById('vote-status');
+    statusEl.className = 'vote-status-bar login';
+    statusEl.innerHTML = '🔒 سجّل دخول للتصويت';
+    return;
+  }
+
+  fetch(api + '/vote/check/' + TROF.auth.user.id)
     .then(function(r){ return r.json(); })
     .then(function(data){
-      var html = '';
-      if(!data.sites || data.sites.length === 0){
-        document.getElementById('vote-sites').innerHTML =
-          '<p class="empty-state"><span>❌</span>'+T('voteNoSites')+'</p>';
-        return;
+      var statusEl = document.getElementById('vote-status');
+      if (data.can_vote) {
+        statusEl.className = 'vote-status-bar ready';
+        statusEl.innerHTML = '✅ يمكنك التصويت الآن!';
+      } else {
+        statusEl.className = 'vote-status-bar cooldown';
+        statusEl.innerHTML = '⏰ يمكنك التصويت بعد **' + (data.hours_left || 0) + '** ساعة';
       }
-      data.sites.forEach(function(site){
-        html += '<a class="vote-site" href="' + site.url + '" target="_blank" rel="noopener">';
-        html += '<div class="vote-site-icon">' + site.icon + '</div>';
-        html += '<div class="vote-site-info">';
-        html += '<b>' + site.name + '</b>';
-        html += '<small>'+T('voteSitesClick')+'</small>';
-        html += '</div>';
-        html += '<div class="vote-site-reward">';
-        html += '<b>+' + TROF.formatNumber(site.reward) + '</b>';
-        html += '<small>💰</small>';
-        html += '</div></a>';
-      });
-      document.getElementById('vote-sites').innerHTML = html;
     })
     .catch(function(){
-      document.getElementById('vote-sites').innerHTML =
-        '<p class="empty-state"><span>⚠️</span>'+T('voteError')+'</p>';
+      var statusEl = document.getElementById('vote-status');
+      statusEl.className = 'vote-status-bar ready';
+      statusEl.innerHTML = '✅ يمكنك التصويت الآن!';
     });
 
-  // 2. Top Voters
+  // ============================================
+  // 📊 إحصائيات المستخدم
+  // ============================================
+  fetch(api + '/vote/stats/' + TROF.auth.user.id)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      document.getElementById('stat-total').textContent = TROF.formatNumber(data.total || 0);
+      document.getElementById('stat-month').textContent = TROF.formatNumber(data.this_month || 0);
+      document.getElementById('stat-rank').textContent = data.rank ? '#' + data.rank : '—';
+    })
+    .catch(function(){});
+
+  // ============================================
+  // 🏆 أفضل 10 مصوتين
+  // ============================================
   fetch(api + '/vote/leaderboard')
     .then(function(r){ return r.json(); })
     .then(function(data){
       var lb = document.getElementById('leaderboard');
-      if(!data.leaderboard || data.leaderboard.length === 0){
-        lb.innerHTML = '<p class="empty-state"><span>🗳️</span>'+
-          T('voteTopEmpty')+'<br>'+T('voteTopBeFirst')+'</p>';
+      if (!data.leaderboard || data.leaderboard.length === 0) {
+        lb.innerHTML = '<div class="empty-state"><span>🗳️</span>لا توجد تصويتات بعد<br>كن الأول!</div>';
         return;
       }
+
       var medals = ['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟'];
       var html = '';
       data.leaderboard.forEach(function(v){
         var medal = medals[v.rank - 1] || ('#' + v.rank);
         html += '<div class="lb-row">';
         html += '<span class="lb-rank">' + medal + '</span>';
-        html += '<span class="lb-name">&lt;@' + v.user_id + '&gt;</span>';
-        html += '<span class="lb-count">' + v.count + ' ' + T('voteVotes') + '</span>';
+        html += '<span class="lb-name">' + (v.username || ('<@' + v.user_id + '>')) + '</span>';
+        html += '<span class="lb-count">' + v.count + ' تصويت</span>';
         html += '</div>';
       });
       lb.innerHTML = html;
     })
     .catch(function(){
-      document.getElementById('leaderboard').innerHTML =
-        '<p class="empty-state"><span>⚠️</span>'+T('voteError')+'</p>';
+      document.getElementById('leaderboard').innerHTML = '<div class="empty-state"><span>⚠️</span>خطأ في التحميل</div>';
     });
-
-  // 3. حالة المستخدم
-  if(!u){
-    document.getElementById('vote-status').innerHTML =
-      '<span class="cooldown-badge">'+T('voteLoginNeeded')+'</span>';
-    return;
-  }
-
-  fetch(api + '/vote/check/' + u.id)
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      var status = document.getElementById('vote-status');
-      if(data.can_vote){
-        status.innerHTML = '<span class="ready-badge">'+T('voteCanVote')+'</span>';
-      } else {
-        status.innerHTML = '<span class="cooldown-badge">'+T('voteCooldown')+' '+data.hours_left+' '+T('voteCooldownHours')+'</span>';
-      }
-    })
-    .catch(function(){
-      document.getElementById('vote-status').innerHTML =
-        '<span class="cooldown-badge">'+T('voteError')+'</span>';
-    });
-
-  // 4. إحصائيات
-  fetch(api + '/vote/stats/' + u.id)
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      document.getElementById('stat-total').textContent = TROF.formatNumber(data.total || 0);
-      document.getElementById('stat-month').textContent = TROF.formatNumber(data.this_month || 0);
-    })
-    .catch(function(){});
 });
 })();
 </script>
