@@ -12,7 +12,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-  /* ===== Modal ===== */
   .trof-modal {
     position: fixed; inset: 0; z-index: 99999;
     display: none; align-items: center; justify-content: center;
@@ -88,21 +87,13 @@
 var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
 TROF.dust();
 
-console.log('🚀 shop.js بدأ التحميل');
-
 // ============================================
-// 🪟 Modal Helpers
+// 🪟 Modal
 // ============================================
 function showAlert(icon, title, text) {
   return new Promise(function(resolve){
-    console.log('🪟 showAlert:', title);
     var modal = document.getElementById('trof-modal');
-    if (!modal) {
-      console.error('❌ trof-modal غير موجود!');
-      alert(icon + ' ' + title + '\n' + text.replace(/<[^>]+>/g, ''));
-      resolve();
-      return;
-    }
+    if (!modal) { alert(title + '\n' + text.replace(/<[^>]+>/g, '')); resolve(); return; }
     document.getElementById('trof-modal-icon').textContent = icon;
     document.getElementById('trof-modal-title').textContent = title;
     document.getElementById('trof-modal-text').innerHTML = text;
@@ -113,20 +104,13 @@ function showAlert(icon, title, text) {
       resolve();
     };
     modal.classList.add('show');
-    console.log('✅ showAlert تم');
   });
 }
 
 function showConfirm(icon, title, text) {
   return new Promise(function(resolve){
-    console.log('🪟 showConfirm:', title);
     var modal = document.getElementById('trof-modal');
-    if (!modal) {
-      console.error('❌ trof-modal غير موجود!');
-      var result = confirm(title + '\n' + text.replace(/<[^>]+>/g, ''));
-      resolve(result);
-      return;
-    }
+    if (!modal) { resolve(confirm(title + '\n' + text.replace(/<[^>]+>/g, ''))); return; }
     document.getElementById('trof-modal-icon').textContent = icon;
     document.getElementById('trof-modal-title').textContent = title;
     document.getElementById('trof-modal-text').innerHTML = text;
@@ -143,7 +127,6 @@ function showConfirm(icon, title, text) {
       resolve(false);
     };
     modal.classList.add('show');
-    console.log('✅ showConfirm تم');
   });
 }
 
@@ -153,13 +136,10 @@ var shopItems = [];
 var userBalance = 0;
 
 TROF.load(function(){
-  console.log('📥 TROF.load انتهى');
   TROF.mountAccount();
   TROF.renderServerSelector();
   var page=document.getElementById('page');
   var u=TROF.auth.user;
-
-  console.log('👤 User:', u ? u.username : 'غير مسجل');
 
   if(!u){
     page.innerHTML='<a class="back" href="./">'+CHEV+'الرجوع</a><p class="soon">سجّل الدخول للوصول للمتجر.</p>';
@@ -198,39 +178,33 @@ function buildShopPage(){
 }
 
 async function loadAll(){
-  console.log('📦 loadAll بدأ');
   var u = TROF.auth.user;
 
   try{
     var res = await fetch(TROF.CONFIG.apiUrl + '/users/' + u.id, {
       headers: {Authorization: 'Bearer ' + TROF.token()}
     });
-    console.log('📦 /users status:', res.status);
     if(res.ok){
       var data = await res.json();
       userBalance = data.balance || 0;
       document.getElementById('my-balance').textContent = TROF.formatNumber(userBalance) + ' 💰';
-      console.log('💰 balance:', userBalance);
     }
-  }catch(e){ console.error('❌ users fetch:', e.message); }
+  }catch(e){}
 
   try{
     var res = await fetch(TROF.CONFIG.apiUrl + '/shop/my-items?user_id=' + u.id, {
       headers: {Authorization: 'Bearer ' + TROF.token()}
     });
-    console.log('📦 /my-items status:', res.status);
     if(res.ok){
       var data = await res.json();
       userItems = data.items || [];
-      console.log('🎒 my-items:', userItems.length);
     }
-  }catch(e){ console.error('❌ my-items fetch:', e.message); }
+  }catch(e){}
 
   await loadShopItems();
 }
 
 async function loadShopItems(){
-  console.log('🛒 loadShopItems:', currentTab);
   var content = document.getElementById('shop-content');
   content.innerHTML = '<p class="form-hint">جاري التحميل...</p>';
 
@@ -238,12 +212,10 @@ async function loadShopItems(){
     var res = await fetch(TROF.CONFIG.apiUrl + '/shop/items?category=' + currentTab, {
       headers: {Authorization: 'Bearer ' + TROF.token()}
     });
-    console.log('🛒 /shop/items status:', res.status);
 
     if(res.ok){
       var data = await res.json();
       shopItems = data.items || [];
-      console.log('🛒 items:', shopItems.length);
 
       if(shopItems.length === 0){
         content.innerHTML = '<p class="form-hint">لا توجد منتجات في هذا القسم بعد</p>';
@@ -252,9 +224,9 @@ async function loadShopItems(){
 
       var html = '<div class="shop-grid">';
       shopItems.forEach(function(item){
-        var owned = userItems.some(function(ui){ return ui.id === item.id });
-        var equipped = userItems.some(function(ui){ return ui.id === item.id && ui.equipped });
-        var rarityClass = 'rarity-' + item.rarity;
+        var owned = userItems.some(function(ui){ return String(ui.id) === String(item.id) });
+        var equipped = userItems.some(function(ui){ return String(ui.id) === String(item.id) && ui.equipped });
+        var rarityClass = 'rarity-' + (item.rarity || 'common');
 
         var imgStyle = '';
         var imgClass = 'shop-item-img';
@@ -268,7 +240,7 @@ async function loadShopItems(){
           }
           imgStyle = 'background: linear-gradient(135deg, ' + sizeColor + ' 0%, #1a1a1a 100%);';
           emoji = '📐';
-        }else if(item.image_url && item.image_url.trim() && !item.image_url.includes('imgur')){
+        }else if(item.image_url && item.image_url.trim()){
           imgStyle = 'background-image: url(\'' + item.image_url + '\');';
         }else{
           imgClass += ' fallback';
@@ -314,52 +286,44 @@ async function loadShopItems(){
           equipItem(btn);
         };
       });
-
-      console.log('✅ تم ربط', content.querySelectorAll('.buy-btn').length, 'زر شراء');
     }else{
-      content.innerHTML = '<p class="form-hint">خطأ ' + res.status + '</p>';
+      content.innerHTML = '<p class="form-hint">خطأ ' + res.status + ' في التحميل</p>';
     }
   }catch(e){
-    console.error('❌ shop/items fetch:', e.message);
-    content.innerHTML = '<p class="form-hint">خطأ في الاتصال: ' + e.message + '</p>';
+    content.innerHTML = '<p class="form-hint">خطأ في الاتصال</p>';
   }
 }
 
+// ============================================
+// 🛒 شراء (مع إصلاح item not found)
+// ============================================
 async function buyItem(btn){
-  console.log('🛒 ===== buyItem بدأ =====');
-
-  var itemId = parseInt(btn.getAttribute('data-id'));
+  var itemIdStr = btn.getAttribute('data-id');
+  var itemId = Number(itemIdStr);
   var price = parseInt(btn.getAttribute('data-price'));
 
-  console.log('  itemId:', itemId);
-  console.log('  price:', price);
+  console.log('🛒 buyItem:', itemIdStr, '→', itemId);
 
-  var item = shopItems.find(function(i){ return i.id === itemId });
-  console.log('  item:', item);
-  console.log('  shopItems.length:', shopItems.length);
-  console.log('  userBalance:', userBalance);
-  console.log('  typeof showConfirm:', typeof showConfirm);
-  console.log('  typeof showAlert:', typeof showAlert);
+  // ✅ ابحث بمقارنة String (يعمل مع أي نوع)
+  var item = shopItems.find(function(i){ return String(i.id) === String(itemIdStr) });
 
   if(!item) {
-    console.error('❌ item غير موجود في shopItems');
-    await showAlert('❌', 'خطأ', 'المنتج غير موجود في القائمة. حدّث الصفحة.');
+    console.error('❌ item not found. shopItems IDs:', shopItems.slice(0, 5).map(i => i.id));
+    await showAlert('❌', 'خطأ', 'المنتج غير موجود. حدّث الصفحة.');
     return;
   }
 
+  console.log('✅ item:', item.name, '| price:', price);
+
   if(userBalance < price){
-    console.log('⚠️ رصيد غير كافٍ');
     await showAlert('❌', 'رصيد غير كافٍ',
       'تحتاج <b>' + TROF.formatNumber(price - userBalance) + ' 💰</b> إضافية.<br>' +
       'رصيدك: <b>' + TROF.formatNumber(userBalance) + ' 💰</b>');
     return;
   }
 
-  console.log('  ✅ الفحوصات نجحت، عرض Modal');
   var ok = await showConfirm('🛒', 'تأكيد الشراء',
     'هل تريد شراء <b>' + item.name + '</b> بسعر <b>' + TROF.formatNumber(price) + ' 💰</b>؟');
-
-  console.log('  نتيجة Confirm:', ok);
 
   if(!ok) return;
 
@@ -367,17 +331,13 @@ async function buyItem(btn){
   btn.textContent = '⏳...';
 
   try{
-    console.log('  📤 POST /shop/buy/' + itemId);
     var res = await fetch(TROF.CONFIG.apiUrl + '/shop/buy/' + itemId, {
       method: 'POST',
       headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
       body: JSON.stringify({user_id: TROF.auth.user.id})
     });
 
-    console.log('  📥 Status:', res.status);
     var text = await res.text();
-    console.log('  📥 Response:', text.slice(0, 200));
-
     var data = {};
     try { data = JSON.parse(text); } catch(e) { data = { detail: text }; }
 
@@ -392,16 +352,18 @@ async function buyItem(btn){
       btn.textContent = '🛒 شراء';
     }
   }catch(e){
-    console.error('  ❌ خطأ:', e.message);
     await showAlert('⚠️', 'خطأ في الاتصال', e.message);
     btn.disabled = false;
     btn.textContent = '🛒 شراء';
   }
 }
 
+// ============================================
+// ✨ تجهيز
+// ============================================
 async function equipItem(btn){
-  console.log('✨ equipItem:', btn.getAttribute('data-id'));
-  var itemId = parseInt(btn.getAttribute('data-id'));
+  var itemIdStr = btn.getAttribute('data-id');
+  var itemId = Number(itemIdStr);
 
   btn.disabled = true;
   btn.textContent = '⏳...';
@@ -442,8 +404,6 @@ function bindEvents(){
     };
   });
 }
-
-console.log('✅ shop.js جاهز');
 })();
 </script>
 </body>
