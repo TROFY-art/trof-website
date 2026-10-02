@@ -11,9 +11,72 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+  /* Modal التأكيد */
+  .trof-modal {
+    position: fixed; inset: 0; z-index: 99999;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.85); backdrop-filter: blur(8px);
+    padding: 20px;
+  }
+  .trof-modal.show { display: flex; }
+  .trof-modal-box {
+    background: #171410; border: 2px solid #2f2818;
+    border-radius: 20px; padding: 28px 24px;
+    max-width: 380px; width: 100%; text-align: center;
+    box-shadow: 0 30px 80px -20px #000;
+    animation: modalIn .25s ease;
+  }
+  @keyframes modalIn {
+    from { transform: scale(.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .trof-modal-icon { font-size: 3rem; margin-bottom: 12px; }
+  .trof-modal-title {
+    font-size: 1.3rem; font-weight: 800;
+    color: #f6efdc; margin: 0 0 10px;
+  }
+  .trof-modal-text {
+    color: #a89f88; font-size: .95rem;
+    margin: 0 0 20px; line-height: 1.6;
+  }
+  .trof-modal-text b { color: #F2C23C; }
+  .trof-modal-btns {
+    display: flex; gap: 10px; justify-content: center;
+  }
+  .trof-modal-btn {
+    flex: 1; padding: 12px 20px; border-radius: 12px;
+    font-weight: 800; font-size: .95rem;
+    cursor: pointer; border: none;
+    font-family: inherit; transition: transform .15s;
+  }
+  .trof-modal-btn:active { transform: scale(.96); }
+  .trof-modal-btn.confirm {
+    background: linear-gradient(180deg, #A8F0C0, #2ECC71);
+    color: #0a2818;
+  }
+  .trof-modal-btn.cancel {
+    background: #2a2419; color: #f6efdc;
+    border: 1px solid #2f2818;
+  }
+  .trof-modal-btn.ok {
+    background: linear-gradient(180deg, #A8F0C0, #2ECC71);
+    color: #0a2818;
+  }
+</style>
 </head>
 <body>
 <div id="dust" aria-hidden="true"></div>
+
+<!-- Modal عام -->
+<div class="trof-modal" id="trof-modal">
+  <div class="trof-modal-box">
+    <div class="trof-modal-icon" id="trof-modal-icon">❓</div>
+    <h3 class="trof-modal-title" id="trof-modal-title">تأكيد</h3>
+    <p class="trof-modal-text" id="trof-modal-text"></p>
+    <div class="trof-modal-btns" id="trof-modal-btns"></div>
+  </div>
+</div>
 
 <header class="wrap bar">
   <div class="hd">
@@ -34,6 +97,47 @@
 (function(){
 var CHEV='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>';
 TROF.dust();
+
+// ============================================
+// 🪟 Modal helpers
+// ============================================
+function showAlert(icon, title, text) {
+  return new Promise(function(resolve){
+    var modal = document.getElementById('trof-modal');
+    document.getElementById('trof-modal-icon').textContent = icon;
+    document.getElementById('trof-modal-title').textContent = title;
+    document.getElementById('trof-modal-text').innerHTML = text;
+    var btns = document.getElementById('trof-modal-btns');
+    btns.innerHTML = '<button class="trof-modal-btn ok">موافق</button>';
+    btns.querySelector('.ok').onclick = function(){
+      modal.classList.remove('show');
+      resolve();
+    };
+    modal.classList.add('show');
+  });
+}
+
+function showConfirm(icon, title, text) {
+  return new Promise(function(resolve){
+    var modal = document.getElementById('trof-modal');
+    document.getElementById('trof-modal-icon').textContent = icon;
+    document.getElementById('trof-modal-title').textContent = title;
+    document.getElementById('trof-modal-text').innerHTML = text;
+    var btns = document.getElementById('trof-modal-btns');
+    btns.innerHTML =
+      '<button class="trof-modal-btn cancel">إلغاء</button>' +
+      '<button class="trof-modal-btn confirm">تأكيد</button>';
+    btns.querySelector('.confirm').onclick = function(){
+      modal.classList.remove('show');
+      resolve(true);
+    };
+    btns.querySelector('.cancel').onclick = function(){
+      modal.classList.remove('show');
+      resolve(false);
+    };
+    modal.classList.add('show');
+  });
+}
 
 var currentTab = 'games';
 var userItems = [];
@@ -135,7 +239,6 @@ async function loadShopItems(){
         var equipped = userItems.some(function(ui){ return ui.id === item.id && ui.equipped });
         var rarityClass = 'rarity-' + item.rarity;
 
-        // معالجة الصورة
         var imgStyle = '';
         var imgClass = 'shop-item-img';
         var emoji = '';
@@ -149,11 +252,8 @@ async function loadShopItems(){
           imgStyle = 'background: linear-gradient(135deg, ' + sizeColor + ' 0%, #1a1a1a 100%);';
           emoji = '📐';
         }else if(item.image_url && item.image_url.trim() && !item.image_url.includes('imgur')){
-          // ✅ صورة شغالة — بدون إيموجي
           imgStyle = 'background-image: url(\'' + item.image_url + '\');';
-          emoji = '';
         }else{
-          // ⚠️ صورة مكسورة → fallback
           imgClass += ' fallback';
           emoji = '🎨';
         }
@@ -164,7 +264,6 @@ async function loadShopItems(){
         if(owned && equipped) html += '<span class="item-badge">✓ مجهز</span>';
         html += '</div>';
 
-        // السعر + الزر
         html += '<div class="shop-item-footer">';
         html += '<span class="item-price">' + TROF.formatNumber(item.price) + ' 💰</span>';
 
@@ -190,9 +289,11 @@ async function loadShopItems(){
       content.querySelectorAll('.equip-btn').forEach(function(btn){
         btn.onclick = function(){ equipItem(btn); };
       });
+    }else{
+      content.innerHTML = '<p class="form-hint">خطأ ' + res.status + ' في التحميل</p>';
     }
   }catch(e){
-    content.innerHTML = '<p class="form-hint">خطأ في التحميل</p>';
+    content.innerHTML = '<p class="form-hint">خطأ في الاتصال: ' + e.message + '</p>';
   }
 }
 
@@ -204,14 +305,19 @@ async function buyItem(btn){
   if(!item) return;
 
   if(userBalance < price){
-    alert('❌ رصيدك غير كافٍ! تحتاج ' + TROF.formatNumber(price - userBalance) + ' 💰');
+    await showAlert('❌', 'رصيد غير كافٍ',
+      'تحتاج <b>' + TROF.formatNumber(price - userBalance) + ' 💰</b> إضافية.<br>' +
+      'رصيدك: <b>' + TROF.formatNumber(userBalance) + ' 💰</b>');
     return;
   }
 
-  if(!confirm('هل تريد شراء هذا المنتج بسعر ' + TROF.formatNumber(price) + ' 💰؟')) return;
+  var ok = await showConfirm('🛒', 'تأكيد الشراء',
+    'هل تريد شراء <b>' + item.name + '</b> بسعر <b>' + TROF.formatNumber(price) + ' 💰</b>؟');
+
+  if(!ok) return;
 
   btn.disabled = true;
-  btn.textContent = '⏳ جاري الشراء...';
+  btn.textContent = '⏳...';
 
   try{
     var res = await fetch(TROF.CONFIG.apiUrl + '/shop/buy/' + itemId, {
@@ -219,20 +325,23 @@ async function buyItem(btn){
       headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
       body: JSON.stringify({user_id: TROF.auth.user.id})
     });
-    var data = await res.json();
+
+    var text = await res.text();
+    var data = {};
+    try { data = JSON.parse(text); } catch(e) { data = { detail: text }; }
 
     if(res.ok){
-      alert('✅ ' + data.message);
-      userBalance = data.new_balance;
+      await showAlert('✅', 'تم الشراء!', data.message || 'تم شراء المنتج بنجاح');
+      userBalance = data.new_balance || (userBalance - price);
       document.getElementById('my-balance').textContent = TROF.formatNumber(userBalance) + ' 💰';
       await loadAll();
     }else{
-      alert('❌ ' + (data.detail || 'فشل الشراء'));
+      await showAlert('❌', 'فشل الشراء', data.detail || ('خطأ ' + res.status));
       btn.disabled = false;
       btn.textContent = '🛒 شراء';
     }
   }catch(e){
-    alert('❌ خطأ في الاتصال');
+    await showAlert('⚠️', 'خطأ في الاتصال', e.message);
     btn.disabled = false;
     btn.textContent = '🛒 شراء';
   }
@@ -242,7 +351,7 @@ async function equipItem(btn){
   var itemId = parseInt(btn.getAttribute('data-id'));
 
   btn.disabled = true;
-  btn.textContent = '⏳ جاري التجهيز...';
+  btn.textContent = '⏳...';
 
   try{
     var res = await fetch(TROF.CONFIG.apiUrl + '/shop/equip/' + itemId, {
@@ -250,18 +359,21 @@ async function equipItem(btn){
       headers: {'Authorization': 'Bearer ' + TROF.token(), 'Content-Type': 'application/json'},
       body: JSON.stringify({user_id: TROF.auth.user.id})
     });
-    var data = await res.json();
+
+    var text = await res.text();
+    var data = {};
+    try { data = JSON.parse(text); } catch(e) { data = { detail: text }; }
 
     if(res.ok){
-      alert('✅ ' + data.message);
+      await showAlert('✅', 'تم التجهيز!', data.message || 'تم تجهيز المنتج');
       await loadAll();
     }else{
-      alert('❌ ' + (data.detail || 'فشل التجهيز'));
+      await showAlert('❌', 'فشل التجهيز', data.detail || ('خطأ ' + res.status));
       btn.disabled = false;
       btn.textContent = '✨ تجهيز';
     }
   }catch(e){
-    alert('❌ خطأ في الاتصال');
+    await showAlert('⚠️', 'خطأ في الاتصال', e.message);
     btn.disabled = false;
     btn.textContent = '✨ تجهيز';
   }
