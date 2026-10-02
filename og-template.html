@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎨 TROF OG Images Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    background: #0d0d0d;
+    font-family: 'Tajawal', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ========== Header ========== */
+  .generator-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+    border-bottom: 1px solid #2a2a2a;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+
+  .generator-header h1 {
+    color: #f2c23c;
+    font-size: 32px;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+
+  .generator-header p {
+    color: #888;
+    font-size: 16px;
+  }
+
+  .generator-progress {
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .generator-status {
+    padding: 8px 16px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 999px;
+    color: #888;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .generator-status.ready {
+    background: rgba(16,185,129,0.1);
+    border-color: #10b981;
+    color: #6ee7b7;
+  }
+
+  .generator-status.loading {
+    background: rgba(242,194,60,0.1);
+    border-color: #f2c23c;
+    color: #f2c23c;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .generator-status.done {
+    background: rgba(16,185,129,0.15);
+    border-color: #10b981;
+    color: #6ee7b7;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .generator-btn {
+    padding: 12px 28px;
+    background: linear-gradient(180deg, #ffe9a3, #f2c23c 55%, #b8871b);
+    color: #1a1305;
+    border: 0;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 8px 24px -8px rgba(242,194,60,0.6);
+  }
+
+  .generator-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px -8px rgba(242,194,60,0.8);
+  }
+
+  .generator-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* ========== Container ========== */
+  .container {
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+  }
+
+  /* ========== Label ========== */
+  .label {
+    color: #f2c23c;
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 16px;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  .label small {
+    color: #666;
+    font-size: 14px;
+    font-weight: 400;
+    margin-right: 8px;
+  }
+
+  .preview-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ========== OG Card (Base) ========== */
+  .og {
+    width: 1200px;
+    height: 630px;
+    position: relative;
+    border-radius: 32px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: 60px;
+    gap: 50px;
+    flex-shrink: 0;
+  }
+
+  /* ========== Themes ========== */
+  
+  /* 1. Gold (الرئيسية) */
+  .theme-gold {
+    background: linear-gradient(135deg, #2a200a 0%, #0a0908 100%);
+  }
+  .theme-gold::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -15%;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(242,194,60,0.22), transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* 2. Shop */
+  .theme-shop {
+    background: linear-gradient(135deg, #1a1305 0%, #0a0908 100%);
+  }
+  .theme-shop::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -15%;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(242,194,60,0.18), transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* 3. Premium */
+  .theme-premium {
+    background: linear-gradient(135deg, #2a1240 0%, #1a0a28 100%);
+  }
+  .theme-premium::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -15%;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(168,85,247,0.25), transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* 4. VIP */
+  .theme-vip {
+    background: linear-gradient(135deg, #1a3a5a 0%, #0a1628 100%);
+  }
+  .theme-vip::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -15%;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(6,182,212,0.25), transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* 5. Vote */
+  .theme-vote {
+    background: linear-gradient(135deg, #1a4a2a 0%, #0a2818 100%);
+  }
+  .theme-vote::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -15%;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(16,185,129,0.25), transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* 6. Donate */
+  .theme-donate {
+    background: linear-gradient(135deg, #4a0a20 0%, #2a0510 100%);
+  }
+  .theme-donate::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -15%;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(236,72,153,0.25), transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* ========== Logo ========== */
+  .logo {
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 20px 50px rgba(0,0,0,0.6));
+  }
+
+  /* ========== Content ========== */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .title {
+    font-size: 80px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+
+  .title-gold {
+    background: linear-gradient(180deg, #ffe9a3, #f2c23c 50%, #b8871b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .title-purple {
+    background: linear-gradient(180deg, #e0bbe4, #a855f7 50%, #7e22ce);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .title-cyan {
+    background: linear-gradient(180deg, #7ff0f0, #06b6d4 50%, #0891b2);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .title-green {
+    background: linear-gradient(180deg, #a8f0c0, #10b981 50%, #047857);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .title-pink {
+    background: linear-gradient(180deg, #fbcfe8, #ec4899 50%, #be185d);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .divider {
+    width: 300px;
+    height: 3px;
+    border-radius: 3px;
+  }
+
+  .divider-gold { background: linear-gradient(90deg, #f2c23c, transparent); }
+  .divider-purple { background: linear-gradient(90deg, #a855f7, transparent); }
+  .divider-cyan { background: linear-gradient(90deg, #06b6d4, transparent); }
+  .divider-green { background: linear-gradient(90deg, #10b981, transparent); }
+  .divider-pink { background: linear-gradient(90deg, #ec4899, transparent); }
+
+  .subtitle {
+    font-size: 34px;
+    color: #a89f88;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+
+  .features {
+    display: flex;
+    gap: 30px;
+    margin-top: 10px;
+    font-size: 26px;
+    font-weight: 700;
+  }
+
+  .features-gold { color: #f2c23c; }
+  .features-purple { color: #e0bbe4; }
+  .features-cyan { color: #7ff0f0; }
+  .features-green { color: #a8f0c0; }
+  .features-pink { color: #fbcfe8; }
+
+  .brand {
+    position: absolute;
+    bottom: 40px;
+    left: 60px;
+    right: 60px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+    color: #a89f88;
+    letter-spacing: 3px;
+    font-weight: 700;
+    z-index: 1;
+  }
+
+  .url {
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    color: #6b6455;
+    direction: ltr;
+  }
+
+  /* ========== Footer ========== */
+  .generator-footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+    font-size: 14px;
+    border-top: 1px solid #2a2a2a;
+  }
+
+  /* ========== Mobile ========== */
+  @media (max-width: 1300px) {
+    .container {
+      padding: 20px 10px;
+    }
+    .og {
+      transform: scale(0.6);
+      transform-origin: top center;
+      margin-bottom: -250px;
+    }
+  }
+
+  @media (max-width: 800px) {
+    .og {
+      transform: scale(0.35);
+      margin-bottom: -400px;
+    }
+    .generator-header h1 {
+      font-size: 22px;
+    }
+    .generator-progress {
+      flex-direction: column;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== Header ========== -->
+<header class="generator-header">
+  <h1>🎨 TROF OG Images Generator</h1>
+  <p>توليد 6 صور معاينة احترافية للمشاركة على السوشيال ميديا</p>
+  
+  <div class="generator-progress">
+    <span class="generator-status loading" id="status-text">⏳ جاري التحضير...</span>
+    <button class="generator-btn" id="download-btn" disabled>
+      🚀 تحميل كل الصور
+    </button>
+  </div>
+</header>
+
+<!-- ========== Container ========== -->
+<main class="container">
+
+  <!-- 1. Main -->
+  <div class="preview-wrapper">
+    <div class="label">1️⃣ og-image.png <small>(1200×630)</small></div>
+    <div class="og theme-gold" id="og1">
+      <img class="logo" src="public/assets/img/logo.webp" alt="" crossorigin="anonymous">
+      <div class="content">
+        <div class="title title-gold">TROF System</div>
+        <div class="divider divider-gold"></div>
+        <div class="subtitle">بوت ديسكورد واحد يدير سيرفرك بالكامل</div>
+        <div class="features features-gold">
+          <span>📊 مستويات</span>
+          <span>🎫 تكتات</span>
+          <span>🛡️ حماية</span>
+          <span>🛒 متجر</span>
+        </div>
+      </div>
+      <div class="brand">
+        <span>TROF SYSTEM © 2026</span>
+        <span class="url">trof-website.vercel.app</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Shop -->
+  <div class="preview-wrapper">
+    <div class="label">2️⃣ og-shop.png <small>(1200×630)</small></div>
+    <div class="og theme-shop" id="og2">
+      <img class="logo" src="public/assets/img/logo.webp" alt="" crossorigin="anonymous">
+      <div class="content">
+        <div class="title title-gold">متجر TROF</div>
+        <div class="divider divider-gold"></div>
+        <div class="subtitle">اشترِ خلفيات وشارات وأحجام مميزة</div>
+        <div class="features features-gold">
+          <span>🌸 أنمي</span>
+          <span>🌄 طبيعة</span>
+          <span>⚽ رياضة</span>
+          <span>💎 مميزة</span>
+        </div>
+      </div>
+      <div class="brand">
+        <span>TROF SYSTEM © 2026</span>
+        <span class="url">trof-website.vercel.app/shop</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Premium -->
+  <div class="preview-wrapper">
+    <div class="label">3️⃣ og-premium.png <small>(1200×630)</small></div>
+    <div class="og theme-premium" id="og3">
+      <img class="logo" src="public/assets/img/logo.webp" alt="" crossorigin="anonymous">
+      <div class="content">
+        <div class="title title-purple">TROF Premium</div>
+        <div class="divider divider-purple"></div>
+        <div class="subtitle">افتح كل الميزات المتقدمة</div>
+        <div class="features features-purple">
+          <span>💎 Premium</span>
+          <span>🎨 تخصيص</span>
+          <span>⚡ سرعة</span>
+          <span>👑 حصري</span>
+        </div>
+      </div>
+      <div class="brand">
+        <span>TROF SYSTEM © 2026</span>
+        <span class="url">trof-website.vercel.app/premium</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. VIP -->
+  <div class="preview-wrapper">
+    <div class="label">4️⃣ og-vip.png <small>(1200×630)</small></div>
+    <div class="og theme-vip" id="og4">
+      <img class="logo" src="public/assets/img/logo.webp" alt="" crossorigin="anonymous">
+      <div class="content">
+        <div class="title title-cyan">TROF VIP</div>
+        <div class="divider divider-cyan"></div>
+        <div class="subtitle">ميزات حصرية بأسعار مناسبة</div>
+        <div class="features features-cyan">
+          <span>⭐ VIP</span>
+          <span>🎵 صوت</span>
+          <span>🖼️ خلفيات</span>
+          <span>🏆 ميزات</span>
+        </div>
+      </div>
+      <div class="brand">
+        <span>TROF SYSTEM © 2026</span>
+        <span class="url">trof-website.vercel.app/vip</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Vote -->
+  <div class="preview-wrapper">
+    <div class="label">5️⃣ og-vote.png <small>(1200×630)</small></div>
+    <div class="og theme-vote" id="og5">
+      <img class="logo" src="public/assets/img/logo.webp" alt="" crossorigin="anonymous">
+      <div class="content">
+        <div class="title title-green">صوّت لـ TROF</div>
+        <div class="divider divider-green"></div>
+        <div class="subtitle">كل تصويت = 5,000 💰</div>
+        <div class="features features-green">
+          <span>🗳️ top.gg</span>
+          <span>💰 مكافآت</span>
+          <span>⚡ فوري</span>
+          <span>🎁 حصري</span>
+        </div>
+      </div>
+      <div class="brand">
+        <span>TROF SYSTEM © 2026</span>
+        <span class="url">trof-website.vercel.app/vote</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Donate -->
+  <div class="preview-wrapper">
+    <div class="label">6️⃣ og-donate.png <small>(1200×630)</small></div>
+    <div class="og theme-donate" id="og6">
+      <img class="logo" src="public/assets/img/logo.webp" alt="" crossorigin="anonymous">
+      <div class="content">
+        <div class="title title-pink">ادعم TROF</div>
+        <div class="divider divider-pink"></div>
+        <div class="subtitle">ساعدنا على استمرار البوت</div>
+        <div class="features features-pink">
+          <span>❤️ دعم</span>
+          <span>🥉 برونزي</span>
+          <span>🥈 فضي</span>
+          <span>💎 ماسي</span>
+        </div>
+      </div>
+      <div class="brand">
+        <span>TROF SYSTEM © 2026</span>
+        <span class="url">trof-website.vercel.app/donate</span>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ========== Footer ========== -->
+<footer class="generator-footer">
+  <p>TROF System © 2026 — مولّد صور المعاينة</p>
+</footer>
+
+<!-- ========== html2canvas ========== -->
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<!-- ========== Script ========== -->
+<script>
+(function() {
+  'use strict';
+
+  const IMAGES = [
+    { id: 'og1', name: 'og-image' },
+    { id: 'og2', name: 'og-shop' },
+    { id: 'og3', name: 'og-premium' },
+    { id: 'og4', name: 'og-vip' },
+    { id: 'og5', name: 'og-vote' },
+    { id: 'og6', name: 'og-donate' }
+  ];
+
+  const statusEl = document.getElementById('status-text');
+  const btn = document.getElementById('download-btn');
+
+  /* ==========================================
+     🚀 تحميل كل الصور
+     ========================================== */
+  async function downloadAll() {
+    btn.disabled = true;
+    btn.textContent = '⏳ جاري التحميل...';
+    statusEl.className = 'generator-status loading';
+
+    let downloaded = 0;
+
+    for (const item of IMAGES) {
+      const el = document.getElementById(item.id);
+      if (!el) continue;
+
+      try {
+        statusEl.textContent = `⏳ تحميل ${item.name}... (${downloaded + 1}/${IMAGES.length})`;
+
+        // احفظ الحجم الأصلي
+        const originalTransform = el.style.transform;
+        el.style.transform = 'none';
+
+        // انتظر
+        await new Promise(r => setTimeout(r, 100));
+
+        // حوّل لصورة
+        const canvas = await html2canvas(el, {
+          width: 1200,
+          height: 630,
+          scale: 1,
+          useCORS: true,
+          allowTaint: false,
+          backgroundColor: null,
+          logging: false,
+          windowWidth: 1200,
+          windowHeight: 630
+        });
+
+        // استعد التحويل
+        el.style.transform = originalTransform;
+
+        // حمّل
+        const link = document.createElement('a');
+        link.download = item.name + '.png';
+        link.href = canvas.toDataURL('image/png', 1.0);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        downloaded++;
+
+        // انتظر بين الملفات
+        await new Promise(r => setTimeout(r, 600));
+
+      } catch (err) {
+        console.error(`❌ فشل ${item.name}:`, err);
+      }
+    }
+
+    // اكتمل
+    statusEl.textContent = `✅ تم تحميل ${downloaded}/${IMAGES.length} صورة!`;
+    statusEl.className = 'generator-status done';
+
+    btn.disabled = false;
+    btn.textContent = '🔄 تحميل مرة أخرى';
+
+    // Alert
+    setTimeout(() => {
+      alert(
+        '✅ تم التحميل بنجاح!\n\n' +
+        '📁 اذهب لمجلد التنزيلات وانسخ الصور إلى:\n' +
+        'public/assets/img/\n\n' +
+        '📸 الصور المحمّلة:\n' +
+        IMAGES.map(i => '• ' + i.name + '.png').join('\n')
+      );
+    }, 500);
+  }
+
+  /* ==========================================
+     🎯 التهيئة
+     ========================================== */
+  function init() {
+    // انتظر تحميل الصور
+    const images = document.querySelectorAll('.logo');
+    let loadedCount = 0;
+
+    function checkReady() {
+      loadedCount++;
+      if (loadedCount === images.length) {
+        statusEl.textContent = '✅ جاهز للتحميل';
+        statusEl.className = 'generator-status ready';
+        btn.disabled = false;
+      }
+    }
+
+    images.forEach(img => {
+      if (img.complete && img.naturalHeight !== 0) {
+        checkReady();
+      } else {
+        img.addEventListener('load', checkReady);
+        img.addEventListener('error', function() {
+          console.error('❌ فشل تحميل الشعار');
+          statusEl.textContent = '⚠️ تحذير: الشعار ما حمّل';
+          statusEl.className = 'generator-status loading';
+          checkReady();
+        });
+      }
+    });
+
+    // زر التحميل
+    btn.addEventListener('click', downloadAll);
+
+    // اختصار: Ctrl+Enter
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (!btn.disabled) downloadAll();
+      }
+    });
+  }
+
+  // ابدأ
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
+</script>
+
+</body>
+</html>
